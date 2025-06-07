@@ -11,11 +11,13 @@ return new class extends Migration
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('expertise')->nullable();
             $table->text('biography')->nullable();
-            $table->longText('experiences')->nullable();
-            $table->longText('licenses')->nullable();
+            $table->text('experiences')->nullable();
+            $table->text('licenses')->nullable();
+            $table->text('gallerys')->nullable();
+            $table->string('background')->nullable();
             $table->text('expertise_id')->nullable();
-            $table->text('background')->nullable();
             $table->timestamps();
         });
     }

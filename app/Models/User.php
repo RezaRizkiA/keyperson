@@ -25,4 +25,8 @@ class User extends Authenticatable
         return $this->hasOne(Client::class, 'user_id');
     }
 
+    public function expert()
+    {
+        return $this->hasOne(Expert::class, 'user_id');
+    }
 }

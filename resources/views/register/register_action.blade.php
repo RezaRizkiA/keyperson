@@ -28,17 +28,17 @@
                 <ul class="nav nav-pills user-profile-tab" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button
-                            class="nav-link position-relative rounded-0 active d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
+                            class="nav-link position-relative rounded-0 @if (Route::currentRouteName() == 'update_profile') active @endif d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
                             id="pills-account-tab" data-bs-toggle="pill" data-bs-target="#pills-account" type="button"
                             role="tab" aria-controls="pills-account" aria-selected="true">
                             <i class="ti ti-user-circle me-2 fs-6"></i>
                             <span class="d-none d-md-block">Account</span>
                         </button>
                     </li>
-                    @if (Route::currentRouteName() == 'register_expert')
+                    @if (Route::currentRouteName() == 'register_expert' || $expert != NULL)
                         <li class="nav-item" role="presentation">
                             <button
-                                class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
+                                class="nav-link position-relative rounded-0 @if (Route::currentRouteName() == 'register_expert') active @endif d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
                                 id="pills-expert-tab" data-bs-toggle="pill" data-bs-target="#pills-expert" type="button"
                                 role="tab" aria-controls="pills-expert" aria-selected="false">
                                 <i class="ti ti-article me-2 fs-6"></i>
@@ -47,10 +47,10 @@
                         </li>
                     @endif
 
-                    @if (Route::currentRouteName() == 'register_client')
+                    @if (Route::currentRouteName() == 'register_client' || $client != NULL)
                         <li class="nav-item" role="presentation">
                             <button
-                                class="nav-link position-relative rounded-0 d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
+                                class="nav-link position-relative rounded-0 @if (Route::currentRouteName() == 'register_client') active @endif d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
                                 id="pills-client-tab" data-bs-toggle="pill" data-bs-target="#pills-client" type="button"
                                 role="tab" aria-controls="pills-client" aria-selected="false">
                                 <i class="ti ti-article me-2 fs-6"></i>
@@ -61,7 +61,7 @@
                 </ul>
                 <div class="card-body p-3 p-md-4">
                     <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="pills-account" role="tabpanel"
+                        <div class="tab-pane fade @if (Route::currentRouteName() == 'update_profile') show active @endif" id="pills-account" role="tabpanel"
                             aria-labelledby="pills-account-tab" tabindex="0">
                             <div class="row">
                                 <div class="col-lg-6 d-flex align-items-stretch">
@@ -204,82 +204,102 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab"
-                            tabindex="0">
-                            <div class="row">
+                        @if (Route::currentRouteName() == 'register_expert' || $expert != NULL)
+
+                        <div class="tab-pane fade @if (Route::currentRouteName() == 'register_expert') show active @endif" id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab" tabindex="0">
+                            <form action="{{ route('register_expert_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
                                 <div class="col-lg-8">
                                     <div class="mb-4">
+                                        <label class="form-label" for="expertise">Expertise</label>
+                                        <input name="expertise" type="text" class="form-control" id="expertise" value="{{ old('expertise', $expert->expertise ?? '') }}">
+                                        <p class="fs-2 mb-1">Simple expertise</p>
+                                    </div>
+    
+                                    <div class="mb-4">
                                         <label class="form-label">Biography</label>
-                                        <div class="editor_quill">
-                                        </div>
+                                        <div class="editor_quill" input_name="biography" data-value="{{ old('biography', $expert->biography ?? '') }}"></div>
                                         <p class="fs-2 mb-0">Set a biography to special expert.</p>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Experience</label>
-                                        <div class="mb-4">
-                                            <div data-repeater-list="repeater-group">
-                                                <div data-repeater-item class="row mb-2">
-                                                    <div class="col-12 col-md-4 mb-1">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="Your job position" />
-                                                        <p class="fs-2 mb-2">Your job title or role</p>
-                                                    </div>
-                                                    <div class="col-6 col-md-4 mb-1">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="Enter company name" />
-                                                        <p class="fs-2 mb-2">Company or organization name</p>
-                                                    </div>
-                                                    <div class="col-6 col-md-4 mb-1">
-                                                        <input type="text" class="form-control"
-                                                            placeholder="Your working years" />
-                                                        <p class="fs-2 mb-2">Enter the start to end year</p>
-                                                    </div>
-                                                    <div class="col-md-12 mb-1">
-                                                        <textarea class="form-control" placeholder="Main Activities" rows="3"></textarea>
-                                                        <p class="fs-2 mb-2">Main tasks and responsibilities</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button type="button" data-repeater-create=""
-                                                class="btn bg-primary-subtle text-primary py-0">
-                                                <span class="fs-4 me-1">+</span>
-                                                Add another experience
+                                    <div class="mb-4 repeater-group">
+                                        <div class="d-flex justify-content-start align-items-center">
+                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                <span class="fs-4">+</span>
                                             </button>
+                                            <label class="form-label m-0 ms-2">Experience</label>
+                                        </div>
+
+                                        @php $experiences = old('experiences', $expert->experiences ?? []); @endphp
+                                        <div data-repeater-list="experiences">
+                                            @if (count($experiences) > 0)
+                                                @foreach ($experiences as $exp)
+                                                    @include('register.partial_experience_item', [
+                                                    'position' => $exp['position'] ?? '',
+                                                    'company' => $exp['company'] ?? '',
+                                                    'years' => $exp['years'] ?? '',
+                                                    'description' => $exp['description'] ?? '',
+                                                    ])
+                                                @endforeach
+                                            @else
+                                                @include('register.partial_experience_item', [
+                                                    'position' => '',
+                                                    'company' => '',
+                                                    'years' => '',
+                                                    'description' => '',
+                                                ])
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4 repeater-group">
+                                        <div class="d-flex justify-content-start align-items-center">
+                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                <span class="fs-4">+</span>
+                                            </button>
+                                            <label class="form-label m-0 ms-2">Certification Licensed</label>
+                                        </div>
+
+                                        @php $licenses = old('licenses', $expert->licenses ?? []); @endphp
+                                        <div data-repeater-list="licenses">
+                                            @if (count($licenses) > 0)
+                                                @foreach ($licenses as $license)
+                                                    @include('register.partial_license_item', [
+                                                    'certification' => $license['certification'] ?? '',
+                                                    'attachment' => $license['attachment'] ?? ''
+                                                    ])
+                                                @endforeach
+                                            @else
+                                            @include('register.partial_license_item', [
+                                                'certification' => '',
+                                                'attachment' => ''
+                                            ])
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label" for="">License</label>
-                                        <div data-repeater-list="repeater-group">
-                                            <div data-repeater-item class="row mb-2">
-                                                <div class="col-md-12 mb-1">
-                                                    <textarea class="form-control" placeholder="Sertifikasi" rows="2"></textarea>
-                                                    <p class="fs-2 mb-2">Your lecensed</p>
-
-                                                    <div class="d-flex align-items-center gap-6 py-1 ps-1 flex-nowrap">
-                                                        <i class="ti ti-file-description fs-6 d-block m-0"
-                                                            class="rounded-circle" width="33" height="33"></i>
-                                                        <input class="form-control form-control-sm" type="file"
-                                                            id="formFile">
-                                                    </div>
-                                                    <p class="fs-2 mb-2">Optional attachment</p>
-                                                </div>
-                                            </div>
+    
+                                    
+                                    <div class="mb-4 repeater-group">
+                                        <div class="d-flex justify-content-start align-items-center">
+                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                <span class="fs-4">+</span>
+                                            </button>
+                                            <label class="form-label m-0 ms-2">Gallery Photos</label>
                                         </div>
-                                        <button type="button" data-repeater-create=""
-                                            class="btn bg-primary-subtle text-primary py-0">
-                                            <span class="fs-4 me-1">+</span>
-                                            Add another license
-                                        </button>
-                                    </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Galery Photos</label>
-                                        <input class="form-control" type="file">
+                                        @php $gallerys = old('gallerys', $expert->gallerys ?? []); @endphp
+                                        <div data-repeater-list="gallerys" class="row mb-3">
+                                            @if (count($gallerys) > 0)
+                                                @foreach (old('gallerys', $expert->gallerys ?? []) as $gallery)
+                                                    @include('register/partial_galery_item', ['photo' => $gallery['photos'] ?? ''])
+                                                @endforeach
+                                            @else
+                                                @include('register/partial_galery_item', ['photo' => ''])
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-
+    
                                 <div class="col-lg-4">
                                     <div class="mb-4">
                                         <label class="form-label">Choose Your Specialist Expert</label>
@@ -293,13 +313,8 @@
                                                             @foreach ($category->expertises as $expertise)
                                                                 <fieldset>
                                                                     <div class="form-check py-0">
-                                                                        <input type="checkbox" value="x"
-                                                                            name="styled_checkbox"
-                                                                            class="form-check-input"
-                                                                            id="expertise{{ $expertise->id }}"
-                                                                            aria-invalid="false">
-                                                                        <label class="form-check-label"
-                                                                            for="expertise{{ $expertise->id }}">{{ $expertise->name }}</label>
+                                                                        <input type="checkbox" value="{{ $expertise->id }}" name="expertise_id[]" class="form-check-input" id="expert{{ $expertise->id }}" aria-invalid="false" @if (in_array($expertise->id, $expert->expertise_id)) checked @endif>
+                                                                        <label class="form-check-label" for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
                                                                     </div>
                                                                 </fieldset>
                                                             @endforeach
@@ -311,20 +326,20 @@
                                         </div>
                                     </div>
                                 </div>
-
+    
                                 <div class="col-12">
                                     <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
                                         <button class="btn btn-primary">Save</button>
                                         <button class="btn bg-danger-subtle text-danger">Cancel</button>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
+                        @endif
 
-                        <div class="tab-pane fade" id="pills-client" role="tabpanel" aria-labelledby="pills-client-tab"
-                            tabindex="0">
-                            <form action="{{ route('register_client_post') }}" method="POST" class="row"
-                                enctype="multipart/form-data">@csrf
+                        @if (Route::currentRouteName() == 'register_client' || $client != NULL)
+                        <div class="tab-pane fade @if (Route::currentRouteName() == 'register_client') show active @endif" id="pills-client" role="tabpanel" aria-labelledby="pills-client-tab"tabindex="0">
+                            <form action="{{ route('register_client_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
                                 <div class="col-lg-8">
                                     <div class="mb-4">
                                         <label class="form-label">Section Hero</label>
@@ -427,14 +442,8 @@
                                                             @foreach ($category->expertises as $expertise)
                                                                 <fieldset>
                                                                     <div class="form-check py-0">
-                                                                        <input type="checkbox"
-                                                                            value="{{ $expertise->id }}"
-                                                                            name="expertise_id[]" class="form-check-input"
-                                                                            id="expert{{ $expertise->id }}"
-                                                                            aria-invalid="false"
-                                                                            @if (in_array($expertise->id, $client->expertise_id)) checked @endif>
-                                                                        <label class="form-check-label"
-                                                                            for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
+                                                                        <input type="checkbox" value="{{ $expertise->id }}" name="expertise_id[]" class="form-check-input" id="expert{{ $expertise->id }}" aria-invalid="false" @if (in_array($expertise->id, $client->expertise_id)) checked @endif>
+                                                                        <label class="form-check-label" for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
                                                                     </div>
                                                                 </fieldset>
                                                             @endforeach
@@ -456,6 +465,7 @@
                                 </div>
                             </form>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>

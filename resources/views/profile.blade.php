@@ -24,10 +24,23 @@
 @section('content')
     <section class="pt-5 pt-md-14 pb-4 pb-md-5">
         <div class="container-fluid">
-            <div class="card overflow-hidden">
-                <div class="card-body p-0 border">
+            <div class="card overflow-hidden border-1">
+                <div class="card-header py-0 px-2">
+                    <div class="task-container-header d-flex justify-content-end py-0">
+                        <div class="dropdown">
+                            <a class="text-dark fs-6 nav-icon-hover" href="javascript:void(0)" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                                <i class="ti ti-dots"></i>
+                            </a>
+                            <ul class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 30px);" data-popper-placement="bottom-start">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{route('update_profile')}}"><span><i class="ti ti-settings fs-4"></i></span>Setting</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center gap-2 border-top" href="javascript:void(0)"><span><i class="ti ti-login fs-4"></i></span>Sign Out</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0 m-0">
                     <img src="{{ asset('image/banner-detail-expert.jpg') }}" alt="matdash-img" class="img-fluid">
-                    <div class="row align-items-center">
+                    <div class="row align-items-center m-0 p-0">
                         <div class="col-lg-4 order-lg-1 order-2">
                             <div class="d-flex align-items-center justify-content-around m-4">
                                 <div class="">

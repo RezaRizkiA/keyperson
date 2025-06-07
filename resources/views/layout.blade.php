@@ -45,7 +45,6 @@
   <script src="{{asset('assets/js/apps/chat.js')}}"></script>
 
   <script src="{{asset('assets/libs/quill/dist/quill.min.js')}}"></script>
-  <script src="{{asset('assets/js/forms/quill-init.js')}}"></script>
 
   <script src="{{asset('assets/libs/jquery-asColor/dist/jquery-asColor.min.js')}}"></script>
   <script src="{{asset('assets/libs/jquery-asGradient/dist/jquery-asGradient.min.js')}}"></script>
@@ -59,7 +58,10 @@
 
   <script src="{{asset('assets/js/extra-libs/moment/moment.min.js')}}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-datetimepicker/2.7.1/js/bootstrap-material-datetimepicker.min.js"></script>
+  <script src="{{asset('assets/libs/jquery.repeater/jquery.repeater.min.js')}}"></script>
   <script src="{{asset('assets/js/forms/material-datepicker-init.js')}}"></script>
+
+
 </body>
 
 </html>

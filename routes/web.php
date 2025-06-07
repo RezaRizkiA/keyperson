@@ -7,19 +7,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google_callback');
 
-Route::get('profile', function () {
-    return view('profile');
-})->name('profile')->middleware('auth');
-
 Route::middleware('auth')->group(function () {
+    
     Route::get('register-expert', [AuthController::class, 'register'])->name('register_expert');
-
+    Route::post('register-expert', [AuthController::class, 'register_expert_post'])->name('register_expert_post');
+    
     Route::get('register-client', [AuthController::class, 'register'])->name('register_client');
     Route::post('register-client', [AuthController::class, 'register_client_post'])->name('register_client_post');
-
+    
     Route::post('renew-password', [AuthController::class, 'renew_password'])->name('renew_password');
     Route::post('renew-picture', [AuthController::class, 'renew_picture'])->name('renew_picture');
+    Route::get('update-profile', [AuthController::class, 'register'])->name('update_profile');
     Route::post('renew-profile', [AuthController::class, 'renew_profile'])->name('renew_profile');
+
+    Route::get('profile', [AuthController::class, 'profile'])->name('profile');
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');

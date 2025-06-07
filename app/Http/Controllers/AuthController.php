@@ -78,10 +78,10 @@ class AuthController extends Controller
         $expertise_categories = ExpertiseCategory::with('expertises')->get();
 
         $client = $user->client;
-        return view('expert.expert_action', compact('expertise_categories', 'client'));
+        $expert = $user->expert;
+        return view('register.register_action', compact('expertise_categories', 'client', 'expert'));
     }
 
-    // Menangani request perubahan password
     public function renew_password(Request $request)
     {
         $user = Auth::user();
@@ -196,9 +196,11 @@ class AuthController extends Controller
         return redirect()->route('profile')->with('success', 'Profile updated successfully.');
     }
 
-    public function register_client_post(Request $request)
-    {
-        // dd($request->file('file_author_photo'));
+    public function profile(){
+        return view('profile');
+    }
+
+    public function register_client_post(Request $request){
         // Ambil user yang sedang login
         $user = Auth::user();
 
@@ -262,5 +264,44 @@ class AuthController extends Controller
         return redirect()->back()->withError([
             'email' => 'Email atau Password Tidak Valid!!',
         ])->withInput();
+    }
+
+    public function register_expert_post(Request $request){
+        $needProcesses = $request->only(['licenses', 'gallerys']);
+        $directProcess = $request->except(['licenses', 'gallerys', '_token']);
+
+        $user = Auth::user();
+        if ($user->expert == null) {
+            $expert = $user->expert()->create($directProcess); //data baru
+        } else {
+            $expert = $user->expert;          // data lama
+            $expert->update($directProcess); // data di perbarui
+        }
+
+        foreach ($needProcesses as $key_process => $need_process) { // key ini untuk path 'licenses', 'gallery'
+            $the_process = is_array($expert->$key_process ?? null) ? $expert->$key_process : [];
+            foreach ($need_process as $key_data_db => $process_data) { // key ini untuk database data keberapa '[0]', '[1]'...
+                foreach ($process_data as $key_item => $value) { // key ini untuk index data keberapa 'certification', 'attachment' or...
+                    // cek apakah data yang baru ini string atau file
+                    if($request->hasFile("{$key_process}.{$key_data_db}.{$key_item}")){ // jika file proses ke s3 baru name file simpan database
+                        // cek apakah file yang sebelumnya ada
+                        if (isset($the_process[$key_data_db][$key_item])) { // hapus dulu di s3 nya
+                            Storage::disk('s3')->delete($the_process[$key_data_db][$key_item]);
+                        }
+
+                        $file = $value;
+                        $filename = "expert/{$key_process}/" . uniqid() . '.' . $file->getClientOriginalExtension(); // data baru
+                        Storage::disk('s3')->put($filename, file_get_contents($file), 'public');
+                        $the_process[$key_data_db][$key_item] = $filename;
+                    }else{ // langsung update
+                        $the_process[$key_data_db][$key_item] = $value;
+                    }
+                }
+            }
+            $expert->$key_process = $the_process;
+            $expert->save();
+        }
+
+        return redirect()->route('profile');
     }
 }

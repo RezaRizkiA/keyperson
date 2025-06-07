@@ -14,7 +14,6 @@ class UserSeeder extends Seeder
 
         // Cek apakah user sudah ada berdasarkan email
         $existingUser = User::where('email', $email)->first();
-
         if (!$existingUser) {
             // Cek apakah sudah ada user lain yang punya role 'administrator'
             $adminExists = User::whereJsonContains('roles', 'administrator')->exists();
