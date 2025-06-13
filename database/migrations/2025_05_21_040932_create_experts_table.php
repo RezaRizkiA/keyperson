@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('experiences')->nullable();
             $table->text('licenses')->nullable();
             $table->text('gallerys')->nullable();
+            $table->text('socials')->nullable();
             $table->string('background')->nullable();
             $table->text('expertise_id')->nullable();
             $table->timestamps();

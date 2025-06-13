@@ -1,14 +1,12 @@
 <?php
-
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Expert;
+use App\Models\User;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Expert;
-use Faker\Factory as Faker;
 
 class ExpertSeeder extends Seeder
 {
@@ -16,9 +14,9 @@ class ExpertSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        $positions = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'System Analyst', 'DevOps Engineer'];
-        $companies = ['Tokopedia', 'Gojek', 'Bukalapak', 'Traveloka', 'Shopee', 'OVO', 'Ruangguru', 'Zenius'];
-        $certifications = ['AWS Certified Developer', 'Google Cloud Engineer', 'Laravel Professional', 'Scrum Master', 'Microsoft Azure Associate'];
+        $positions          = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'System Analyst', 'DevOps Engineer'];
+        $companies          = ['Tokopedia', 'Gojek', 'Bukalapak', 'Traveloka', 'Shopee', 'OVO', 'Ruangguru', 'Zenius'];
+        $certifications     = ['AWS Certified Developer', 'Google Cloud Engineer', 'Laravel Professional', 'Scrum Master', 'Microsoft Azure Associate'];
         $expertiseSummaries = [
             'Keahlian dalam pengembangan backend dan sistem API.',
             'Ahli dalam manajemen proyek dan DevOps.',
@@ -30,49 +28,52 @@ class ExpertSeeder extends Seeder
         ];
 
         for ($i = 1; $i <= 20; $i++) {
-            $name = $faker->name();
+            $name  = $faker->name();
             $email = "user{$i}@example.com";
 
             // Skip jika email sama dengan admin
-            if ($email === 'kastaraparama.idn@gmail.com') continue;
+            if ($email === 'kastaraparama.idn@gmail.com') {
+                continue;
+            }
 
             $user = User::create([
-                'name' => $name,
-                'email' => $email,
-                'phone' => '628' . rand(1000000000, 9999999999),
-                'slug' => Str::slug($name),
+                'name'     => $name,
+                'email'    => $email,
+                'phone'    => '628' . rand(1000000000, 9999999999),
+                'slug'     => Str::slug($name),
                 'password' => Hash::make('password'),
-                'gender' => 'L',
-                'address' => $faker->address,
-                'roles' => ['user', 'expert'],
+                'gender'   => 'L',
+                'address'  => $faker->address,
+                'roles'    => ['user', 'expert'],
             ]);
 
             Expert::create([
-                'user_id' => $user->id,
-                'biography' => '<p>' . $faker->paragraph(5) . '</p>',
-                'experiences' => [
+                'user_id'      => $user->id,
+                'biography'    => '<p>' . $faker->paragraph(5) . '</p>',
+                'experiences'  => [
                     [
-                        'position' => $positions[array_rand($positions)],
-                        'company' => $companies[array_rand($companies)],
-                        'years' => strval(rand(2016, 2023)),
+                        'position'    => $positions[array_rand($positions)],
+                        'company'     => $companies[array_rand($companies)],
+                        'years'       => strval(rand(2016, 2023)),
                         'description' => $faker->paragraph(3),
                     ],
                     [
-                        'position' => 'IT Consultant',
-                        'company' => 'Freelance',
-                        'years' => strval(rand(2018, 2024)),
+                        'position'    => 'IT Consultant',
+                        'company'     => 'Freelance',
+                        'years'       => strval(rand(2018, 2024)),
                         'description' => $faker->paragraph(2),
-                    ]
+                    ],
                 ],
-                'licenses' => [
+                'licenses'     => [
                     [
                         'certification' => $certifications[array_rand($certifications)],
-                        'attachment' => 'kosong saja',
-                    ]
+                        'attachment'    => 'kosong saja',
+                    ],
                 ],
-                'gallerys' => [],
-                'background' => null,
-                'expertise' => $expertiseSummaries[array_rand($expertiseSummaries)],
+                'gallerys'     => [],
+                'socials'      => [],
+                'background'   => null,
+                'expertise'    => $expertiseSummaries[array_rand($expertiseSummaries)],
                 'expertise_id' => array_map('strval', array_rand(array_flip(range(1, 59)), 4)),
             ]);
         }

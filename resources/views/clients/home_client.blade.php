@@ -68,51 +68,48 @@
 
                 @foreach ($categories as $category)
                     <div class="col-lg-4 col-md-6">
-                        <div class="card rounded-3 overflow-hidden">
-                            <a href="{{ route('expert') }}" class="position-relative">
+                        <a href="{{ route('list_conselor', [$client->slug_page, $category->slug]) }}"
+                            class="card rounded-3 overflow-hidden">
+                            <div class="position-relative">
                                 <img src="{{ asset('assets/images/frontend-pages/blog-1.jpg') }}" alt="blog image"
                                     class="w-100 img-fluid">
                                 <div class="position-absolute bottom-0 ms-7 mb-n9">
                                     <img src="{{ asset('assets/images/profile/user-3.jpg') }}" alt="user"
                                         class="rounded-circle" width="44px" height="44px">
                                 </div>
-                            </a>
+                            </div>
                             <div class="mt-7 px-7 pb-7 h-100">
                                 <div class="d-flex gap-3 flex-column h-100 justify-content-between">
                                     <div class="d-flex">
-                                        <p class="fs-2 px-2 rounded-pill bg-muted bg-opacity-25 text-dark mb-0">
+                                        <p class="fs-3 px-2 rounded-pill bg-muted bg-opacity-25 text-dark mb-0">
                                             {{ $category->name }}
                                         </p>
                                     </div>
-                                    <a href="{{ route('expert') }}" class="fs-5 fw-bolder text-truncate">
+                                    <p class="fs-5 fw-bolder text-truncate">
                                         {{ $category->desc }}
-                                    </a>
+                                    </p>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="d-flex gap-9">
                                             <div class="d-flex gap-1">
                                                 <i class="ti ti-message fs-5 text-dark"></i>
-                                                <p class="mb-0 fs-2 fw-bold">{{ $category->expertises_count }}</p>
+                                                <p class="mb-0 fs-2 fw-bold">{{ $category->selected_expertise_count }} Expertises</p>
                                             </div>
                                             <div class="d-flex gap-1">
                                                 <i class="ti ti-users fs-5 text-dark"></i>
-                                                <p class="mb-0 fs-2 fw-bold">14 profesional expert</p>
+                                                <p class="mb-0 fs-2 fw-bold">{{ $category->total_expert_in_category }} Experts</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 @endforeach
-
             </div>
         </div>
     </section>
 
-    <section class="bg-primary py-lg-11 py-5 position-relative">
-        <div class="position-absolute top-50 start-0 translate-middle-y">
-            {{-- <img src="{{asset('assets/images/frontend-pages/screenshot-1.png')}}" alt="image" class="d-xxl-block d-none"> --}}
-        </div>
+    <section class="py-lg-11 py-5 position-relative" style="background: {{ $client->color }}">
         <div class="container-fluid">
             <div class="row justify-content-center">
                 <div class="col-lg-910 text-center">
@@ -132,9 +129,6 @@
                     @endif
                 </div>
             </div>
-        </div>
-        <div class="position-absolute top-50 end-0 translate-middle-y">
-            {{-- <img src="{{asset('assets/images/frontend-pages/screenshot-2.png')}}" alt="image" class="d-xxl-block d-none"> --}}
         </div>
     </section>
 @endsection

@@ -35,7 +35,7 @@
                             <span class="d-none d-md-block">Account</span>
                         </button>
                     </li>
-                    @if (Route::currentRouteName() == 'register_expert' || $expert != NULL)
+                    @if (Route::currentRouteName() == 'register_expert' || $expert != null)
                         <li class="nav-item" role="presentation">
                             <button
                                 class="nav-link position-relative rounded-0 @if (Route::currentRouteName() == 'register_expert') active @endif d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
@@ -47,7 +47,7 @@
                         </li>
                     @endif
 
-                    @if (Route::currentRouteName() == 'register_client' || $client != NULL)
+                    @if (Route::currentRouteName() == 'register_client' || $client != null)
                         <li class="nav-item" role="presentation">
                             <button
                                 class="nav-link position-relative rounded-0 @if (Route::currentRouteName() == 'register_client') active @endif d-flex align-items-center justify-content-center bg-transparent fs-3 py-3"
@@ -61,8 +61,8 @@
                 </ul>
                 <div class="card-body p-3 p-md-4">
                     <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade @if (Route::currentRouteName() == 'update_profile') show active @endif" id="pills-account" role="tabpanel"
-                            aria-labelledby="pills-account-tab" tabindex="0">
+                        <div class="tab-pane fade @if (Route::currentRouteName() == 'update_profile') show active @endif" id="pills-account"
+                            role="tabpanel" aria-labelledby="pills-account-tab" tabindex="0">
                             <div class="row">
                                 <div class="col-lg-6 d-flex align-items-stretch">
                                     <div class="card w-100 border position-relative overflow-hidden">
@@ -124,8 +124,8 @@
                                                 <div class="mb-3">
                                                     <label for="new_password_confirmation" class="form-label">Confirm
                                                         Password</label>
-                                                    <input type="password" class="form-control" name="new_password_confirmation"
-                                                        id="new_password_confirmation">
+                                                    <input type="password" class="form-control"
+                                                        name="new_password_confirmation" id="new_password_confirmation">
                                                 </div>
 
                                                 <div class="text-center">
@@ -204,267 +204,330 @@
                             </div>
                         </div>
 
-                        @if (Route::currentRouteName() == 'register_expert' || $expert != NULL)
+                        @if (Route::currentRouteName() == 'register_expert' || $expert != null)
 
-                        <div class="tab-pane fade @if (Route::currentRouteName() == 'register_expert') show active @endif" id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab" tabindex="0">
-                            <form action="{{ route('register_expert_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
-                                <div class="col-lg-8">
-                                    <div class="mb-4">
-                                        <label class="form-label" for="expertise">Expertise</label>
-                                        <input name="expertise" type="text" class="form-control" id="expertise" value="{{ old('expertise', $expert->expertise ?? '') }}">
-                                        <p class="fs-2 mb-1">Simple expertise</p>
-                                    </div>
-    
-                                    <div class="mb-4">
-                                        <label class="form-label">Biography</label>
-                                        <div class="editor_quill" input_name="biography" data-value="{{ old('biography', $expert->biography ?? '') }}"></div>
-                                        <p class="fs-2 mb-0">Set a biography to special expert.</p>
-                                    </div>
-
-                                    <div class="mb-4 repeater-group">
-                                        <div class="d-flex justify-content-start align-items-center">
-                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
-                                                <span class="fs-4">+</span>
-                                            </button>
-                                            <label class="form-label m-0 ms-2">Experience</label>
+                            <div class="tab-pane fade @if (Route::currentRouteName() == 'register_expert') show active @endif"
+                                id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab" tabindex="0">
+                                <form action="{{ route('register_expert_post') }}" method="POST" class="row"
+                                    enctype="multipart/form-data">@csrf
+                                    <div class="col-lg-8">
+                                        <div class="mb-4">
+                                            <label class="form-label" for="expertise">Expertise</label>
+                                            <input name="expertise" type="text" class="form-control" id="expertise"
+                                                value="{{ old('expertise', $expert->expertise ?? '') }}">
+                                            <p class="fs-2 mb-1">Simple expertise</p>
                                         </div>
 
-                                        @php $experiences = old('experiences', $expert->experiences ?? []); @endphp
-                                        <div data-repeater-list="experiences">
-                                            @if (count($experiences) > 0)
-                                                @foreach ($experiences as $exp)
+                                        <div class="mb-4">
+                                            <label class="form-label">Biography</label>
+                                            <div class="editor_quill" input_name="biography"
+                                                data-value="{{ old('biography', $expert->biography ?? '') }}"></div>
+                                            <p class="fs-2 mb-0">Set a biography to special expert.</p>
+                                        </div>
+
+                                        <div class="mb-4 repeater-group">
+                                            <div class="d-flex justify-content-start align-items-center">
+                                                <button type="button" data-repeater-create
+                                                    class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                    <span class="fs-4">+</span>
+                                                </button>
+                                                <label class="form-label m-0 ms-2">Experience</label>
+                                            </div>
+
+                                            @php $experiences = old('experiences', $expert->experiences ?? []); @endphp
+                                            <div data-repeater-list="experiences">
+                                                @if (count($experiences) > 0)
+                                                    @foreach ($experiences as $exp)
+                                                        @include('register.partial_experience_item', [
+                                                            'position' => $exp['position'] ?? '',
+                                                            'company' => $exp['company'] ?? '',
+                                                            'years' => $exp['years'] ?? '',
+                                                            'description' => $exp['description'] ?? '',
+                                                        ])
+                                                    @endforeach
+                                                @else
                                                     @include('register.partial_experience_item', [
-                                                    'position' => $exp['position'] ?? '',
-                                                    'company' => $exp['company'] ?? '',
-                                                    'years' => $exp['years'] ?? '',
-                                                    'description' => $exp['description'] ?? '',
+                                                        'position' => '',
+                                                        'company' => '',
+                                                        'years' => '',
+                                                        'description' => '',
                                                     ])
-                                                @endforeach
-                                            @else
-                                                @include('register.partial_experience_item', [
-                                                    'position' => '',
-                                                    'company' => '',
-                                                    'years' => '',
-                                                    'description' => '',
-                                                ])
-                                            @endif
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-4 repeater-group">
-                                        <div class="d-flex justify-content-start align-items-center">
-                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
-                                                <span class="fs-4">+</span>
-                                            </button>
-                                            <label class="form-label m-0 ms-2">Certification Licensed</label>
+                                                @endif
+                                            </div>
                                         </div>
 
-                                        @php $licenses = old('licenses', $expert->licenses ?? []); @endphp
-                                        <div data-repeater-list="licenses">
-                                            @if (count($licenses) > 0)
-                                                @foreach ($licenses as $license)
+                                        <div class="mb-4 repeater-group">
+                                            <div class="d-flex justify-content-start align-items-center">
+                                                <button type="button" data-repeater-create
+                                                    class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                    <span class="fs-4">+</span>
+                                                </button>
+                                                <label class="form-label m-0 ms-2">Certification Licensed</label>
+                                            </div>
+
+                                            @php $licenses = old('licenses', $expert->licenses ?? []); @endphp
+                                            <div data-repeater-list="licenses">
+                                                @if (count($licenses) > 0)
+                                                    @foreach ($licenses as $license)
+                                                        @include('register.partial_license_item', [
+                                                            'certification' => $license['certification'] ?? '',
+                                                            'attachment' => $license['attachment'] ?? '',
+                                                        ])
+                                                    @endforeach
+                                                @else
                                                     @include('register.partial_license_item', [
-                                                    'certification' => $license['certification'] ?? '',
-                                                    'attachment' => $license['attachment'] ?? ''
+                                                        'certification' => '',
+                                                        'attachment' => '',
                                                     ])
-                                                @endforeach
-                                            @else
-                                            @include('register.partial_license_item', [
-                                                'certification' => '',
-                                                'attachment' => ''
-                                            ])
-                                            @endif
-                                        </div>
-                                    </div>
-
-    
-                                    
-                                    <div class="mb-4 repeater-group">
-                                        <div class="d-flex justify-content-start align-items-center">
-                                            <button type="button" data-repeater-create class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
-                                                <span class="fs-4">+</span>
-                                            </button>
-                                            <label class="form-label m-0 ms-2">Gallery Photos</label>
+                                                @endif
+                                            </div>
                                         </div>
 
-                                        @php $gallerys = old('gallerys', $expert->gallerys ?? []); @endphp
-                                        <div data-repeater-list="gallerys" class="row mb-3">
-                                            @if (count($gallerys) > 0)
-                                                @foreach (old('gallerys', $expert->gallerys ?? []) as $gallery)
-                                                    @include('register/partial_galery_item', ['photo' => $gallery['photos'] ?? ''])
-                                                @endforeach
-                                            @else
-                                                @include('register/partial_galery_item', ['photo' => ''])
-                                            @endif
+
+
+                                        <div class="mb-4 repeater-group">
+                                            <div class="d-flex justify-content-start align-items-center">
+                                                <button type="button" data-repeater-create
+                                                    class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                    <span class="fs-4">+</span>
+                                                </button>
+                                                <label class="form-label m-0 ms-2">Gallery Photos</label>
+                                            </div>
+
+                                            @php $gallerys = old('gallerys', $expert->gallerys ?? []); @endphp
+                                            <div data-repeater-list="gallerys" class="row mb-3">
+                                                @if (count($gallerys) > 0)
+                                                    @foreach (old('gallerys', $expert->gallerys ?? []) as $gallery)
+                                                        @include('register.partial_galery_item', [
+                                                            'photo' => $gallery['photos'] ?? '',
+                                                        ])
+                                                    @endforeach
+                                                @else
+                                                    @include('register.partial_galery_item', [
+                                                        'photo' => '',
+                                                    ])
+                                                @endif
+                                            </div>
                                         </div>
+
+                                        <div class="mb-4 repeater-group">
+                                            <div class="d-flex justify-content-start align-items-center mb-3">
+                                                <button type="button" data-repeater-create
+                                                    class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
+                                                    <span class="fs-4">+</span>
+                                                </button>
+                                                <label class="form-label m-0 ms-2">Social Media</label>
+                                            </div>
+
+                                            <div data-repeater-list="socials">
+                                                @php $socials = old('socials', $expert->socials ?? []); @endphp
+                                                @if (count($socials) > 0)
+                                                    @foreach ($socials as $item)
+                                                        @include('register.partial_social_item', [
+                                                            'key' => is_array($item)
+                                                                ? $item['key'] ?? ($item['0'] ?? '')
+                                                                : '',
+                                                            'value' => is_array($item)
+                                                                ? $item['value'] ?? ($item['1'] ?? '')
+                                                                : '',
+                                                        ])
+                                                    @endforeach
+                                                @else
+                                                    @include('register.partial_social_item')
+                                                @endif
+                                            </div>
+                                            <p class="fs-2 mb-0">Set a social media to special expert.</p>
+                                        </div>
+
+
                                     </div>
-                                </div>
-    
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Choose Your Specialist Expert</label>
-                                        <div class="card border position-relative overflow-hidden mb-0">
-                                            <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
-                                                @foreach ($expertise_categories as $category)
-                                                    <div class="mb-3 form-group validate">
-                                                        <label class="form-label">{{ $category->name }} <span
-                                                                class="text-danger">*</span></label>
-                                                        <div class="controls">
-                                                            @foreach ($category->expertises as $expertise)
-                                                                <fieldset>
-                                                                    <div class="form-check py-0">
-                                                                        <input type="checkbox" value="{{ $expertise->id }}" name="expertise_id[]" class="form-check-input" id="expert{{ $expertise->id }}" aria-invalid="false" @if (in_array($expertise->id, $expert->expertise_id)) checked @endif>
-                                                                        <label class="form-check-label" for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
-                                                                    </div>
-                                                                </fieldset>
-                                                            @endforeach
-                                                            <div class="help-block"></div>
+
+                                    <div class="col-lg-4">
+                                        <div class="mb-4">
+                                            <label class="form-label">Choose Your Specialist Expert</label>
+                                            <div class="card border position-relative overflow-hidden mb-0">
+                                                <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
+                                                    @foreach ($expertise_categories as $category)
+                                                        <div class="mb-3 form-group validate">
+                                                            <label class="form-label">{{ $category->name }} <span
+                                                                    class="text-danger">*</span></label>
+                                                            <div class="controls">
+                                                                @foreach ($category->expertises as $expertise)
+                                                                    <fieldset>
+                                                                        <div class="form-check py-0">
+                                                                            <input type="checkbox"
+                                                                                value="{{ $expertise->id }}"
+                                                                                name="expertise_id[]"
+                                                                                class="form-check-input"
+                                                                                id="expert{{ $expertise->id }}"
+                                                                                aria-invalid="false"
+                                                                                @if ($expert != null && in_array($expertise->id, $expert->expertise_id)) checked @endif>
+                                                                            <label class="form-check-label"
+                                                                                for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
+                                                                        </div>
+                                                                    </fieldset>
+                                                                @endforeach
+                                                                <div class="help-block"></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-    
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
-                                        <button class="btn btn-primary">Save</button>
-                                        <button class="btn bg-danger-subtle text-danger">Cancel</button>
+
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
+                                            <button class="btn btn-primary">Save</button>
+                                            <button class="btn bg-danger-subtle text-danger">Cancel</button>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
                         @endif
 
-                        @if (Route::currentRouteName() == 'register_client' || $client != NULL)
-                        <div class="tab-pane fade @if (Route::currentRouteName() == 'register_client') show active @endif" id="pills-client" role="tabpanel" aria-labelledby="pills-client-tab"tabindex="0">
-                            <form action="{{ route('register_client_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
-                                <div class="col-lg-8">
-                                    <div class="mb-4">
-                                        <label class="form-label">Section Hero</label>
-                                        <textarea class="form-control" placeholder="Section Hero" rows="2" name="section_hero">{{ $client->section_hero }}</textarea>
-                                        <p class="fs-2 mb-0">Set a section hero / tagline</p>
-                                    </div>
+                        @if (Route::currentRouteName() == 'register_client' || $client != null)
+                            <div class="tab-pane fade @if (Route::currentRouteName() == 'register_client') show active @endif"
+                                id="pills-client" role="tabpanel" aria-labelledby="pills-client-tab"tabindex="0">
+                                <form action="{{ route('register_client_post') }}" method="POST" class="row"
+                                    enctype="multipart/form-data">@csrf
+                                    <div class="col-lg-8">
+                                        <div class="mb-4">
+                                            <label class="form-label">Section Hero</label>
+                                            <textarea class="form-control" placeholder="Section Hero" rows="2" name="section_hero">{{ old('section_hero', $client->section_hero ?? '') }}</textarea>
+                                            <p class="fs-2 mb-0">Set a section hero / tagline</p>
+                                        </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Section Banner</label>
-                                        <input type="text" class="form-control" placeholder="Banner Title"
-                                            name="banner_title" value="{{ $client->banner_title }}" />
-                                        <p class="fs-2 mb-2">Set a banner title / message</p>
+                                        <div class="mb-4">
+                                            <label class="form-label">Section Banner</label>
+                                            <input type="text" class="form-control" placeholder="Banner Title"
+                                                name="banner_title"
+                                                value="{{ old('banner_title', $client->banner_title ?? '') }}" />
+                                            <p class="fs-2 mb-2">Set a banner title / message</p>
 
-                                        <textarea class="form-control" placeholder="Banner Description" rows="5" name="banner_desc">{{ $client->banner_desc }}</textarea>
-                                        <p class="fs-2 mb-2">Set a banner detail message</p>
+                                            <textarea class="form-control" placeholder="Banner Description" rows="5" name="banner_desc">{{ old('banner_desc', $client->banner_desc ?? '') }}</textarea>
+                                            <p class="fs-2 mb-2">Set a banner detail message</p>
 
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control"
-                                                    placeholder="Banner Author Name" name="author_name"
-                                                    value="{{ $client->author_name }}" />
-                                                <p class="fs-2 mb-2">Set a banner author name</p>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="text" class="form-control"
+                                                        placeholder="Banner Author Name" name="author_name"
+                                                        value="{{ old('author_name', $client->author_name ?? '') }}" />
+                                                    <p class="fs-2 mb-2">Set a banner author name</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input class="form-control" type="file" name="file_author_photo">
+                                                    <p class="fs-2 mb-2">
+                                                        @if ($client == null || $client->author_photo == null)
+                                                            Set author profile
+                                                        @else
+                                                            <a target="_blank" class="text-muted"
+                                                                href="{{ urlpathSTORAGE($client->author_photo) }}">Old
+                                                                Profile: {{ basename($client->author_photo) }}</a>
+                                                        @endif
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <input class="form-control" type="file" name="file_author_photo">
-                                                <p class="fs-2 mb-2">
-                                                    @if ($client->author_photo == null)
-                                                        Set author profile
-                                                    @else
-                                                        <a target="_blank" class="text-muted"
-                                                            href="{{ urlpathSTORAGE($client->author_photo) }}">Old
-                                                            Profile: {{ basename($client->author_photo) }}</a>
-                                                    @endif
-                                                </p>
+                                            <input class="form-control" type="file" name="file_banner_background">
+                                            <p class="fs-2 mb-2">
+                                                @if ($client == null || $client->author_photo == null)
+                                                    Set a background banner
+                                                @else
+                                                    <a target="_blank" class="text-muted"
+                                                        href="{{ urlpathSTORAGE($client->banner_background) }}">Old
+                                                        Background: {{ basename($client->banner_background) }}</a>
+                                                @endif
+                                            </p>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="form-label">Section Footer</label>
+                                            <input type="text" class="form-control" placeholder="Footer Title"
+                                                name="banner_footer"
+                                                value="{{ old('banner_footer', $client->banner_footer ?? '') }}" />
+                                            <p class="fs-2 mb-2">Set a footer title</p>
+
+                                            <textarea class="form-control" placeholder="Footer Description" rows="4" name="banner_footer_desc">{{ old('banner_footer_desc', $client->banner_footer_desc ?? '') }}</textarea>
+                                            <p class="fs-2 mb-2">Set a footer message</p>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="text" id="hue-demo" class="form-control demo"
+                                                        data-control="hue"
+                                                        value="{{ old('color', $client->color ?? '') }}"
+                                                        name="color" />
+                                                    <p class="fs-2 mb-2">Set a footer color</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input class="form-control" type="file" name="file_logo">
+                                                    <p class="fs-2 mb-2">Set logo
+                                                        @if ($client == null || $client->author_photo == null)
+                                                            Set logo
+                                                        @else
+                                                            <a target="_blank" class="text-muted"
+                                                                href="{{ urlpathSTORAGE($client->logo) }}">Old
+                                                                Logo: {{ basename($client->logo) }}</a>
+                                                        @endif
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <input class="form-control" type="file" name="file_banner_background">
-                                        <p class="fs-2 mb-2">
-                                            @if ($client->author_photo == null)
-                                                Set a background banner
-                                            @else
-                                                <a target="_blank" class="text-muted"
-                                                    href="{{ urlpathSTORAGE($client->banner_background) }}">Old
-                                                    Background: {{ basename($client->banner_background) }}</a>
-                                            @endif
-                                        </p>
-                                    </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Section Footer</label>
-                                        <input type="text" class="form-control" placeholder="Footer Title"
-                                            name="banner_footer" value="{{ $client->banner_footer }}" />
-                                        <p class="fs-2 mb-2">Set a footer title</p>
-
-                                        <textarea class="form-control" placeholder="Footer Description" rows="4" name="banner_footer_desc">{{ $client->banner_footer_desc }}</textarea>
-                                        <p class="fs-2 mb-2">Set a footer message</p>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <input type="text" id="hue-demo" class="form-control demo"
-                                                    data-control="hue" value="#ff6161" name="color" />
-                                                <p class="fs-2 mb-2">Set a footer color</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input class="form-control" type="file" name="file_logo">
-                                                <p class="fs-2 mb-2">Set logo
-                                                    @if ($client->author_photo == null)
-                                                        Set logo
-                                                    @else
-                                                        <a target="_blank" class="text-muted"
-                                                            href="{{ urlpathSTORAGE($client->logo) }}">Old
-                                                            Logo: {{ basename($client->logo) }}</a>
-                                                    @endif
-                                                </p>
+                                        <div class="mb-4">
+                                            <label class="form-label">Section Page</label>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text">meetpro.com /</span>
+                                                <input type="text" class="form-control" id="slug"
+                                                    name="slug_page"
+                                                    value="{{ old('slug_page', $client->slug_page ?? '') }}">
                                             </div>
                                         </div>
+
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">Section Page</label>
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text">meetpro.com /</span>
-                                            <input type="text" class="form-control" id="slug" name="slug_page"
-                                                value="{{ $client->slug_page }}">
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="col-lg-4">
-                                    <div class="mb-4">
-                                        <label class="form-label">Choose specialist you are showing</label>
-                                        <div class="card border position-relative overflow-hidden mb-0">
-                                            <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
-                                                @foreach ($expertise_categories as $category)
-                                                    <div class="mb-3 form-group validate">
-                                                        <label class="form-label">{{ $category->name }} <span
-                                                                class="text-danger">*</span></label>
-                                                        <div class="controls">
-                                                            @foreach ($category->expertises as $expertise)
-                                                                <fieldset>
-                                                                    <div class="form-check py-0">
-                                                                        <input type="checkbox" value="{{ $expertise->id }}" name="expertise_id[]" class="form-check-input" id="expert{{ $expertise->id }}" aria-invalid="false" @if (in_array($expertise->id, $client->expertise_id)) checked @endif>
-                                                                        <label class="form-check-label" for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
-                                                                    </div>
-                                                                </fieldset>
-                                                            @endforeach
-                                                            <div class="help-block"></div>
+                                    <div class="col-lg-4">
+                                        <div class="mb-4">
+                                            <label class="form-label">Choose specialist you are showing</label>
+                                            <div class="card border position-relative overflow-hidden mb-0">
+                                                <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
+                                                    @foreach ($expertise_categories as $category)
+                                                        <div class="mb-3 form-group validate">
+                                                            <label class="form-label">{{ $category->name }} <span
+                                                                    class="text-danger">*</span></label>
+                                                            <div class="controls">
+                                                                @foreach ($category->expertises as $expertise)
+                                                                    <fieldset>
+                                                                        <div class="form-check py-0">
+                                                                            <input type="checkbox"
+                                                                                value="{{ $expertise->id }}"
+                                                                                name="expertise_id[]"
+                                                                                class="form-check-input"
+                                                                                id="expert{{ $expertise->id }}"
+                                                                                aria-invalid="false"
+                                                                                @if ($client != null && in_array($expertise->id, $client->expertise_id)) checked @endif>
+                                                                            <label class="form-check-label"
+                                                                                for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
+                                                                        </div>
+                                                                    </fieldset>
+                                                                @endforeach
+                                                                <div class="help-block"></div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endforeach
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
-                                        <button type="submit" class="btn btn-primary">Save</button>
-                                        <a href="{{ route('profile') }}"
-                                            class="btn bg-danger-subtle text-danger">Cancel</a>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center justify-content-end mt-4 gap-6">
+                                            <button type="submit" class="btn btn-primary">Save</button>
+                                            <a href="{{ route('profile') }}"
+                                                class="btn bg-danger-subtle text-danger">Cancel</a>
+                                        </div>
                                     </div>
-                                </div>
-                            </form>
-                        </div>
+                                </form>
+                            </div>
                         @endif
                     </div>
                 </div>

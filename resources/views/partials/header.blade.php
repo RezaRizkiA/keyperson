@@ -56,9 +56,11 @@
                     Contact
                 </a>
             </li>
-            <li class="mt-3">
-                <a href="" class="btn btn-primary w-100">Log In</a>
-            </li>
         </ul>
+        @if (!Auth::check())
+            <a href="{{ route('login') }}" class="btn btn-dark btn-sm py-2 px-9">Log In</a>
+        @else
+            <a href="{{ route('profile') }}" class="btn btn-dark btn-sm py-2 px-9">Profile</a>
+        @endif
     </div>
 </div>

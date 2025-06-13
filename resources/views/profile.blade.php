@@ -28,12 +28,26 @@
                 <div class="card-header py-0 px-2">
                     <div class="task-container-header d-flex justify-content-end py-0">
                         <div class="dropdown">
-                            <a class="text-dark fs-6 nav-icon-hover" href="javascript:void(0)" role="button" data-bs-toggle="dropdown" aria-expanded="true">
+                            <a class="text-dark fs-6 nav-icon-hover" href="javascript:void(0)" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="true">
                                 <i class="ti ti-dots"></i>
                             </a>
-                            <ul class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 30px);" data-popper-placement="bottom-start">
-                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{route('update_profile')}}"><span><i class="ti ti-settings fs-4"></i></span>Setting</a></li>
-                                <li><a class="dropdown-item d-flex align-items-center gap-2 border-top" href="javascript:void(0)"><span><i class="ti ti-login fs-4"></i></span>Sign Out</a></li>
+                            <ul class="dropdown-menu"
+                                style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 30px);"
+                                data-popper-placement="bottom-start">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2"
+                                        href="{{ route('update_profile') }}"><span><i
+                                                class="ti ti-settings fs-4"></i></span>Setting</a></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="dropdown-item d-flex align-items-center gap-2 border-top text-danger">
+                                            <span><i class="ti ti-logout fs-4"></i></span>Sign Out
+                                        </button>
+                                    </form>
+                                </li>
+
                             </ul>
                         </div>
                     </div>
@@ -67,10 +81,10 @@
                             <div class="mt-n5">
                                 <div class="d-flex align-items-center justify-content-center mb-2">
                                     <div class="d-flex align-items-center justify-content-center round-110">
-                                        <div
-                                            class="border-4 border-white d-flex align-items-center justify-content-center rounded-circle overflow-hidden round-100">
-                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) }}" alt="matdash-img"
-                                                class="w-100 h-100">
+                                        <div class="border border-4 border-white rounded-circle overflow-hidden"
+                                            style="width: 110px; height: 110px;">
+                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) }}" alt="profile-img"
+                                                class="w-100 h-100 object-fit-cover rounded-circle">
                                         </div>
                                     </div>
                                 </div>
@@ -83,24 +97,33 @@
                         <div class="col-lg-4 order-last">
                             <ul
                                 class="list-unstyled d-flex align-items-center justify-content-center justify-content-lg-end my-3 mx-4 gap-3">
-                                <li>
-                                    <a class="d-flex align-items-center justify-content-center btn btn-primary p-2 fs-4 rounded-circle"
-                                        href="" width="30" height="30">
-                                        <i class="ti ti-brand-facebook"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="btn btn-secondary d-flex align-items-center justify-content-center p-2 fs-4 rounded-circle"
-                                        href="">
-                                        <i class="ti ti-brand-whatsapp"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="btn btn-danger d-flex align-items-center justify-content-center p-2 fs-4 rounded-circle"
-                                        href="">
-                                        <i class="ti ti-brand-instagram"></i>
-                                    </a>
-                                </li>
+                                @if (Auth::user()->expert != null)
+                                    @php
+                                        $socialConfig = [
+                                            'facebook' => ['class' => 'btn-primary', 'icon' => 'ti ti-brand-facebook'],
+                                            'instagram' => ['class' => 'btn-secondary','icon' => 'ti ti-brand-instagram',],
+                                            'youtube' => ['class' => 'btn-danger', 'icon' => 'ti ti-brand-youtube'],
+                                            'linkedin' => ['class' => 'btn-info', 'icon' => 'ti ti-brand-linkedin'],
+                                        ];
+                                        $expert = Auth::user()->expert ?? null;
+                                        $socials = $expert->socials;
+                                    @endphp
+
+                                    @foreach ($socials as $sosmed)
+                                        @php
+                                            $key = $sosmed['key'] ?? '';
+                                            $val = $sosmed['value'] ?? '#';
+                                            $btnClass = $socialConfig[$key]['class'] ?? 'btn-dark';
+                                            $iconClass = $socialConfig[$key]['icon'] ?? 'ti ti-link';
+                                        @endphp
+                                        <li>
+                                            <a class="d-flex align-items-center justify-content-center btn {{ $btnClass }} p-2 fs-4 rounded-circle"
+                                                href="{{ $val }}" target="_blank" width="30" height="30">
+                                                <i class="{{ $iconClass }}"></i>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                @endif
                                 @if (Auth::user()->client != null)
                                     <li class="">
                                         <a href="{{ route('home_client', Auth::user()->client->slug_page) }}"
