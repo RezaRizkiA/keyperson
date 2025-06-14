@@ -32,12 +32,8 @@
                                 data-bs-toggle="dropdown" aria-expanded="true">
                                 <i class="ti ti-dots"></i>
                             </a>
-                            <ul class="dropdown-menu"
-                                style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 30px);"
-                                data-popper-placement="bottom-start">
-                                <li><a class="dropdown-item d-flex align-items-center gap-2"
-                                        href="{{ route('update_profile') }}"><span><i
-                                                class="ti ti-settings fs-4"></i></span>Setting</a></li>
+                            <ul class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 30px);" data-popper-placement="bottom-start">
+                                <li><a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('update_profile') }}"><span><i class="ti ti-settings fs-4"></i></span>Setting</a></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -47,7 +43,6 @@
                                         </button>
                                     </form>
                                 </li>
-
                             </ul>
                         </div>
                     </div>
@@ -81,16 +76,14 @@
                             <div class="mt-n5">
                                 <div class="d-flex align-items-center justify-content-center mb-2">
                                     <div class="d-flex align-items-center justify-content-center round-110">
-                                        <div class="border border-4 border-white rounded-circle overflow-hidden"
-                                            style="width: 110px; height: 110px;">
-                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) }}" alt="profile-img"
-                                                class="w-100 h-100 object-fit-cover rounded-circle">
+                                        <div class="border border-4 border-white rounded-circle overflow-hidden" style="width: 110px; height: 110px;">
+                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) }}" alt="profile-img" class="w-100 h-100 object-fit-cover rounded-circle">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="text-center">
                                     <h5 class="mb-0">{{ Auth::user()->name }}</h5>
-                                    <p class="mb-0">IT Developer</p>
+                                    <p class="mb-0">{{ Auth::user()->email }}</p>
                                 </div>
                             </div>
                         </div>
@@ -135,6 +128,15 @@
                     </div>
                     <ul class="nav nav-pills user-profile-tab justify-content-end mt-2 bg-primary-subtle rounded-2 rounded-top-0"
                         id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-expertise-tab"
+                                data-bs-toggle="pill" data-bs-target="#pills-expertise" type="button" role="tab"
+                                aria-controls="pills-expertise" aria-selected="true">
+                                <i class="ti ti-user-circle fs-5"></i>
+                                <span class="d-none d-md-block">Mapping Expertise</span>
+                            </button>
+                        </li>
+
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active hstack gap-2 rounded-0 fs-12 py-6" id="pills-appointment-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-appointment" type="button" role="tab"

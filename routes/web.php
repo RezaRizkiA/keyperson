@@ -8,7 +8,6 @@ Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])-
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google_callback');
 
 Route::middleware('auth')->group(function () {
-
     Route::get('register-expert', [AuthController::class, 'register'])->name('register_expert');
     Route::post('register-expert', [AuthController::class, 'register_expert_post'])->name('register_expert_post');
 
@@ -21,7 +20,6 @@ Route::middleware('auth')->group(function () {
     Route::post('renew-profile', [AuthController::class, 'renew_profile'])->name('renew_profile');
 
     Route::get('profile', [AuthController::class, 'profile'])->name('profile');
-
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
@@ -35,14 +33,14 @@ Route::get('make-appointment', function () {
 })->name('appointment');
 
 Route::get('/', function () {
-    return view('client');
+    return view('home');
 })->name('home');
 
 Route::get('/expert', function () {
     return view('expert');
 })->name('expert');
 
-Route::get('/login', function () {
+Route::get('login', function () {
     return view('authentication.login');
 })->name('login')->middleware('guest');
 

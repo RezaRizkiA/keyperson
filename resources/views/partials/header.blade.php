@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg py-10">
         <div class="container-fluid d-flex justify-content-between">
             <a href="" class="text-nowrap logo-img">
-                <img src="{{ asset('assets/images/logos/logo.svg') }}" alt="Logo" />
+                <img src="{{ asset('assets/images/logos/meetPro.png') }}" height="50" alt="Logo" />
             </a>
             <button class="navbar-toggler border-0 p-0 shadow-none" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -11,19 +11,19 @@
             <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                 <ul class="navbar-nav mb-2 gap-xl-7 gap-8 mb-lg-0 me-5">
                     <li class="nav-item">
-                        <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">About Us</a>
+                        <a class="nav-link fs-4 fw-bold text-dark link-primary active" href="{{route('home')}}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">Dashboard</a>
+                        <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">Abour Us</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">Contact</a>
                     </li>
                 </ul>
                 @if (!Auth::check())
-                    <a href="{{ route('login') }}" class="btn btn-dark btn-sm py-2 px-9">Log In</a>
+                    <a href="{{ route('login') }}" class="btn btn-dark">Log In</a>
                 @else
-                    <a href="{{ route('profile') }}" class="btn btn-dark btn-sm py-2 px-9">Profile</a>
+                    <a href="{{ route('profile') }}" class="btn btn-dark">Profile</a>
                 @endif
             </div>
         </div>

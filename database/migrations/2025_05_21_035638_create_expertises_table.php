@@ -10,9 +10,12 @@ return new class extends Migration
     {
         Schema::create('expertises', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->nullable()->constrained('expertise_categories')->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('expertises')->onDelete('cascade');
             $table->string('name')->nullable();
             $table->string('slug')->unique()->nullable();
+            $table->integer('level')->nullable();
+            $table->integer('order')->nullable();
+            $table->string('ilustration_img')->nullable();
             $table->timestamps();
         });
     }
