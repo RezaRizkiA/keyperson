@@ -34,4 +34,16 @@ class Expertise extends Model
     {
         return Expert::whereJsonContains('expertise_id', (string) $this->id)->count();
     }
+
+    // Mendapatkan semua expert yang memiliki expertise ini (JSON)
+    public function getExpertsAttribute()
+    {
+        return Expert::whereJsonContains('expertise_id', (string) $this->id)->get();
+    }
+
+    // Jumlah expert yang punya expertise ini (JSON)
+    public function getExpertsCountAttribute()
+    {
+        return Expert::whereJsonContains('expertise_id', (string) $this->id)->count();
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ExpertController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
@@ -20,7 +21,12 @@ Route::middleware('auth')->group(function () {
     Route::post('renew-profile', [AuthController::class, 'renew_profile'])->name('renew_profile');
 
     Route::get('profile', [AuthController::class, 'profile'])->name('profile');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment'])->name('appointment');
+    Route::post('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment_post'])->name('appointment_post');
+
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');
@@ -28,9 +34,6 @@ Route::get('client-{slug_page}/category-expert-{slug}', [ClientController::class
 
 Route::get('/expert-detail-{expert_id}', [ClientController::class, 'expert_detail'])->name('expert_detail');
 
-Route::get('make-appointment', function () {
-    return view('appointment');
-})->name('appointment');
 
 Route::get('/', function () {
     return view('home');

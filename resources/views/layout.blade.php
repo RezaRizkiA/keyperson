@@ -27,7 +27,7 @@
 
   <main class="flex-fill">
     @yield('top')
-    
+
     @yield('content')
   </main>
 
@@ -62,6 +62,7 @@
   <script src="{{asset('assets/js/forms/material-datepicker-init.js')}}"></script>
 
 
+  @yield('script')
 </body>
 
 </html>

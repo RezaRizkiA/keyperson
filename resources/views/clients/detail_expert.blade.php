@@ -43,7 +43,7 @@
                             <a href="#experience" class="text-dark fs-3 fw-semibold link-primary">Experience</a>
                             <a href="#licenced" class="text-dark fs-3 fw-semibold link-primary">Licence Expert</a>
                         </div>
-                        <a href="{{ route('appointment') }}" class="btn bg-primary-subtle text-primary mb-3 w-100">Make
+                        <a href="{{ route('appointment', $expert->id) }}" class="btn bg-primary-subtle text-primary mb-3 w-100">Make
                             Appointment</a>
                         <div class="pt-9">
                             <h4 class="text-uppercase fs-3 fw-bold">Social Media</h4>

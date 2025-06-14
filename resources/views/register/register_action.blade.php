@@ -501,6 +501,7 @@
                                                     value="{{ old('slug_page', $client->slug_page ?? '') }}">
                                             </div>
                                         </div>
+
                                     </div>
 
                                     <div class="col-lg-4">
