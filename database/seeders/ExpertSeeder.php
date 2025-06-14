@@ -14,9 +14,9 @@ class ExpertSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        $positions          = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'System Analyst', 'DevOps Engineer'];
-        $companies          = ['Tokopedia', 'Gojek', 'Bukalapak', 'Traveloka', 'Shopee', 'OVO', 'Ruangguru', 'Zenius'];
-        $certifications     = ['AWS Certified Developer', 'Google Cloud Engineer', 'Laravel Professional', 'Scrum Master', 'Microsoft Azure Associate'];
+        $positions = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'System Analyst', 'DevOps Engineer'];
+        $companies = ['Tokopedia', 'Gojek', 'Bukalapak', 'Traveloka', 'Shopee', 'OVO', 'Ruangguru', 'Zenius'];
+        $certifications = ['AWS Certified Developer', 'Google Cloud Engineer', 'Laravel Professional', 'Scrum Master', 'Microsoft Azure Associate'];
         $expertiseSummaries = [
             'Keahlian dalam pengembangan backend dan sistem API.',
             'Ahli dalam manajemen proyek dan DevOps.',
@@ -26,12 +26,12 @@ class ExpertSeeder extends Seeder
             'Ahli dalam pengembangan aplikasi Laravel dan RESTful API.',
             'Pakar dalam digital transformation dan integrasi sistem.',
         ];
+        $types = ['Counselor', 'Psychologist', 'Coach', 'Trainer', 'Consultant'];
 
         for ($i = 1; $i <= 20; $i++) {
-            $name  = $faker->name();
+            $name = $faker->name();
             $email = "user{$i}@example.com";
 
-            // Skip jika email sama dengan admin
             if ($email === 'kastaraparama.idn@gmail.com') {
                 continue;
             }
@@ -75,6 +75,8 @@ class ExpertSeeder extends Seeder
                 'background'   => null,
                 'expertise'    => $expertiseSummaries[array_rand($expertiseSummaries)],
                 'expertise_id' => array_map('strval', array_rand(array_flip(range(1, 59)), 4)),
+                'price'        => rand(5, 20) * 10000,
+                'type'         => $faker->randomElements($types, rand(1, 3)),
             ]);
         }
     }

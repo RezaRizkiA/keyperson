@@ -208,14 +208,59 @@
 
                             <div class="tab-pane fade @if (Route::currentRouteName() == 'register_expert') show active @endif"
                                 id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab" tabindex="0">
-                                <form action="{{ route('register_expert_post') }}" method="POST" class="row"
-                                    enctype="multipart/form-data">@csrf
+                                <form action="{{ route('register_expert_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
                                     <div class="col-lg-8">
-                                        <div class="mb-4">
-                                            <label class="form-label" for="expertise">Expertise</label>
-                                            <input name="expertise" type="text" class="form-control" id="expertise"
-                                                value="{{ old('expertise', $expert->expertise ?? '') }}">
-                                            <p class="fs-2 mb-1">Simple expertise</p>
+                                        <div class="row">
+                                            <div class="col-md-9">
+                                                <div class="mb-4">
+                                                    <label class="form-label" for="expertise">Expertise</label>
+                                                    <input name="expertise" type="text" class="form-control" id="expertise"
+                                                        value="{{ old('expertise', $expert->expertise ?? '') }}">
+                                                    <p class="fs-2 mb-1">Simple expertise</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="mb-4">
+                                                    <label class="form-label" for="price">Rate/Hours</label>
+                                                    <input name="price" type="number" class="form-control" id="price"
+                                                        value="{{ old('price', $expert->price ?? '') }}">
+                                                    <p class="fs-2 mb-1">Price / hours</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-4">
+                                            <label class="form-label" for="">Expert type</label>
+                                            <div class="col-auto">
+                                                <div class="form-check py-0">
+                                                    <input type="checkbox" value="Counselor" name="type[]" class="form-check-input" id="Counselor" aria-invalid="false" @if (in_array('Counselor', $expert->type ?? [])) checked @endif>
+                                                    <label class="form-check-label font-weight-bold small" for="Counselor">Counselor</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="form-check py-0">
+                                                    <input type="checkbox" value="Psychologist" name="type[]" class="form-check-input" id="Psychologist" aria-invalid="false" @if (in_array('Psychologist', $expert->type ?? [])) checked @endif>
+                                                    <label class="form-check-label font-weight-bold small" for="Psychologist">Psychologist</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="form-check py-0">
+                                                    <input type="checkbox" value="Coach" name="type[]" class="form-check-input" id="Coach" aria-invalid="false" @if (in_array('Coach', $expert->type ?? [])) checked @endif>
+                                                    <label class="form-check-label font-weight-bold small" for="Coach">Coach</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="form-check py-0">
+                                                    <input type="checkbox" value="Trainer" name="type[]" class="form-check-input" id="Trainer" aria-invalid="false" @if (in_array('Trainer', $expert->type ?? [])) checked @endif>
+                                                    <label class="form-check-label font-weight-bold small" for="Trainer">Trainer</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="form-check py-0">
+                                                    <input type="checkbox" value="Consultant" name="type[]" class="form-check-input" id="Consultant" aria-invalid="false" @if (in_array('Consultant', $expert->type ?? [])) checked @endif>
+                                                    <label class="form-check-label font-weight-bold small" for="Consultant">Consultant</label>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="mb-4">
@@ -311,7 +356,7 @@
                                         </div>
 
                                         <div class="mb-4 repeater-group">
-                                            <div class="d-flex justify-content-start align-items-center mb-3">
+                                            <div class="d-flex justify-content-start align-items-center">
                                                 <button type="button" data-repeater-create
                                                     class="btn bg-primary-subtle btn-sm text-primary d-flex justify-content-center py-0 px-3">
                                                     <span class="fs-4">+</span>
@@ -319,8 +364,8 @@
                                                 <label class="form-label m-0 ms-2">Social Media</label>
                                             </div>
 
-                                            <div data-repeater-list="socials">
-                                                @php $socials = old('socials', $expert->socials ?? []); @endphp
+                                            @php $socials = old('socials', $expert->socials ?? []); @endphp
+                                            <div data-repeater-list="socials" class="row mb-1">
                                                 @if (count($socials) > 0)
                                                     @foreach ($socials as $item)
                                                         @include('register.partial_social_item', [
@@ -336,43 +381,17 @@
                                                     @include('register.partial_social_item')
                                                 @endif
                                             </div>
-                                            <p class="fs-2 mb-0">Set a social media to special expert.</p>
+                                            <p class="fs-2 mb-0">Set a your social media</p>
                                         </div>
-
-
                                     </div>
 
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Choose Your Specialist Expert</label>
-                                            <div class="card border position-relative overflow-hidden mb-0">
-                                                <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
-                                                    @foreach ($expertise_categories as $category)
-                                                        <div class="mb-3 form-group validate">
-                                                            <label class="form-label">{{ $category->name }} <span
-                                                                    class="text-danger">*</span></label>
-                                                            <div class="controls">
-                                                                @foreach ($category->expertises as $expertise)
-                                                                    <fieldset>
-                                                                        <div class="form-check py-0">
-                                                                            <input type="checkbox"
-                                                                                value="{{ $expertise->id }}"
-                                                                                name="expertise_id[]"
-                                                                                class="form-check-input"
-                                                                                id="expert{{ $expertise->id }}"
-                                                                                aria-invalid="false"
-                                                                                @if ($expert != null && in_array($expertise->id, $expert->expertise_id)) checked @endif>
-                                                                            <label class="form-check-label"
-                                                                                for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
-                                                                        </div>
-                                                                    </fieldset>
-                                                                @endforeach
-                                                                <div class="help-block"></div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
+                                            @include('register.parital_expertise', [
+                                                'expertises' => $expertises,
+                                                'expertiseSelected' => $expert?->expertise_id ?? []
+                                            ])
                                         </div>
                                     </div>
 
@@ -482,13 +501,16 @@
                                                     value="{{ old('slug_page', $client->slug_page ?? '') }}">
                                             </div>
                                         </div>
-
                                     </div>
 
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Choose specialist you are showing</label>
-                                            <div class="card border position-relative overflow-hidden mb-0">
+                                            @include('register.parital_expertise', [
+                                                'expertises' => $expertises,
+                                                'expertiseSelected' => $client?->expertise_id ?? []
+                                            ])
+                                            {{-- <div class="card border position-relative overflow-hidden mb-0">
                                                 <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
                                                     @foreach ($expertise_categories as $category)
                                                         <div class="mb-3 form-group validate">
@@ -515,7 +537,7 @@
                                                         </div>
                                                     @endforeach
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
 

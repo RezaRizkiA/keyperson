@@ -1,14 +1,15 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\ExpertiseCategory;
 use App\Models\User;
+use App\Models\Expertise;
 use Illuminate\Http\Request;
+use App\Models\ExpertiseCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -75,11 +76,10 @@ class AuthController extends Controller
     public function register()
     {
         $user                 = Auth::user();
-        $expertise_categories = ExpertiseCategory::with('expertises')->get();
-
+        $expertises = Expertise::whereNull('parent_id')->orderBy('order')->with('childrensRecursive')->get();
         $client = $user->client;
         $expert = $user->expert;
-        return view('register.register_action', compact('expertise_categories', 'client', 'expert'));
+        return view('register.register_action', compact('expertises', 'client', 'expert'));
     }
 
     public function logout(Request $request)

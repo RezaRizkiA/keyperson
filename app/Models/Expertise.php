@@ -8,10 +8,19 @@ class Expertise extends Model
     protected $table   = 'expertises';
     protected $guarded = ['id'];
 
-    public function category()
+    public function childrens()
     {
-        // Setiap expertise “belongTo / milik” satu category
-        return $this->belongsTo(ExpertiseCategory::class, 'category_id');
+        return $this->hasMany(Expertise::class, 'parent_id')->orderBy('order');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Expertise::class, 'parent_id');
+    }
+
+    public function childrensRecursive()
+    {
+        return $this->childrens()->with('childrensRecursive');
     }
 
     // Mendapatkan semua expert yang memiliki expertise ini (JSON)

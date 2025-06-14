@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('type')->nullable();
             $table->string('expertise')->nullable();
             $table->text('biography')->nullable();
             $table->text('experiences')->nullable();
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->text('socials')->nullable();
             $table->string('background')->nullable();
             $table->text('expertise_id')->nullable();
+            $table->integer('price')->nullable();
             $table->timestamps();
         });
     }
