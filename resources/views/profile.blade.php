@@ -77,7 +77,7 @@
                                 <div class="d-flex align-items-center justify-content-center mb-2">
                                     <div class="d-flex align-items-center justify-content-center round-110">
                                         <div class="border border-4 border-white rounded-circle overflow-hidden" style="width: 110px; height: 110px;">
-                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) }}" alt="profile-img" class="w-100 h-100 object-fit-cover rounded-circle">
+                                            <img src="{{ urlpathSTORAGE(Auth::user()->picture) ?? asset('assets/images/profile/user-3.jpg') }}" alt="profile-img" class="w-100 h-100 object-fit-cover rounded-circle">
                                         </div>
                                     </div>
                                 </div>
@@ -128,14 +128,16 @@
                     </div>
                     <ul class="nav nav-pills user-profile-tab justify-content-end mt-2 bg-primary-subtle rounded-2 rounded-top-0"
                         id="pills-tab" role="tablist">
+                        @if (in_array('administrator', Auth::user()->roles ?? []))
                         <li class="nav-item" role="presentation">
                             <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-expertise-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-expertise" type="button" role="tab"
                                 aria-controls="pills-expertise" aria-selected="true">
-                                <i class="ti ti-user-circle fs-5"></i>
-                                <span class="d-none d-md-block">Mapping Expertise</span>
+                                <i class="ti ti-settings fs-5"></i>
+                                <span class="d-none d-md-block">Expertises</span>
                             </button>
                         </li>
+                        @endif
 
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active hstack gap-2 rounded-0 fs-12 py-6" id="pills-appointment-tab"
@@ -145,6 +147,7 @@
                                 <span class="d-none d-md-block">Appointment</span>
                             </button>
                         </li>
+
                         <li class="nav-item" role="presentation">
                             <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-members-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-members" type="button" role="tab"
@@ -153,6 +156,7 @@
                                 <span class="d-none d-md-block">User Members</span>
                             </button>
                         </li>
+
                         <li class="nav-item" role="presentation">
                             <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-calender-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-calender" type="button" role="tab"
@@ -165,6 +169,119 @@
                 </div>
             </div>
             <div class="tab-content" id="pills-tabContent">
+                @if (in_array('administrator', Auth::user()->roles ?? []))
+
+                <div class="modal fade" id="expertise-modal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header align-items-start">
+                                <div class="">
+                                    <p class="small mb-0">Skill Under</p>
+                                    <h5 class="modal-title" id="parent_name">
+                                        Business Management
+                                    </h5>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" enctype="multipart/form-data"> @csrf
+                                <div class="modal-body">
+                                    <div class="mb-4">
+                                        <label for="name" class="mb-1">Skill Name:</label>
+                                        <input type="text" name="name" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="name" class="mb-1">Scope Skill:</label>
+                                        <div class="input-group">
+                                            <label class="input-group-text" for="parent_id">Under</label>
+                                            <select name="parent_id" class="form-select" id="parent_id" required>
+                                                <option value="">Core Skill</option>
+                                                @foreach ($expertises as $expertise)
+                                                    <option value="{{$expertise->id}}">{{$expertise->name}}</option>
+                                                    @foreach ($expertise->childrensRecursive as $expertise)
+                                                        <option value="{{$expertise->id}}">{{$expertise->name}}</option>
+                                                    @endforeach
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="file_ilustration_img mb-1" class="mb-1">Ilustration Img:</label>
+                                        <input name="file_ilustration_img" class="form-control" type="file" id="file_ilustration_img">
+                                        <i class="fs-2"><b>File IMG</b> <a target="_blank" class="fw-bold" href="" id="ilustration_img"></a></i>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn bg-danger-subtle text-danger " data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        Submit Form
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+  
+                <div class="tab-pane fade" id="pills-expertise" role="tabpanel" aria-labelledby="pills-expertise-tab" tabindex="0">
+                    <div class="card card-body border">
+                        <div class="d-sm-flex align-items-center justify-space-between">
+                            <div class="ms-auto">
+                                <a type="button" data-bs-toggle="modal" data-bs-target="#expertise-modal" data-action="{{route('store_expertise')}}" data-parent_name="Core Skill" data-parent_id="" class="badge fw-bolder py-2 fs-2 bg-danger-subtle text-danger">
+                                    Create Core Skill
+                                </a>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table search-table align-middle text-nowrap">
+                                <thead class="header-item">
+                                    <th>Expertise Name</th>
+                                    <th class="text-center">Experts</th>
+                                    <th>Action</th>
+                                </thead>
+                                <tbody>
+                                    @foreach ($expertises as $expertise)
+                                        <tr class="search-items">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                @php $color = $expertise->level == 1 ? 'primary' : ($expertise->level == 2 ? 'warning' : ($expertise->level == 3 ? 'success' : 'secondary')); @endphp
+                                                <span class="badge bg-{{$color}}-subtle text-{{$color}} fw-bolder">Lvl.{{$expertise->level}}</span>
+                                                <div class="ms-3">
+                                                    <h6 class="user-name mb-0 text-wrap" data-name="Emma Adams">{{$expertise->name}}</h6>
+                                                    <span class="user-work fs-3" data-occupation="Web Developer">{{ $expertise->parent ? "Skill under {$expertise->parent->name}" : 'Core Skill' }}</span>
+                                                </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <h5 class="fs-4 fw-semibold mb-0">1</h5>
+                                            </td>
+                                            <td>
+                                                <div class="action-btn d-flex align-items-center">
+                                                    <a type="button" data-bs-toggle="modal" data-bs-target="#expertise-modal" data-action="{{route('update_expertise', $expertise->id)}}" data-expertise="{{json_encode(['name'=>$expertise->name, 'ilustration_img'=>$expertise->ilustration_img])}}" data-parent_name="{{$expertise->parent->name ?? 'Core Skill'}}" data-parent_id="{{$expertise->parent_id}}" class="text-primary edit">
+                                                        <i class="ti ti-edit fs-5"></i>
+                                                    </a>
+                                                    <a href="{{route('destroy_expertise', $expertise->id)}}" class="text-dark delete ms-2">
+                                                        <i class="ti ti-trash fs-5"></i>
+                                                    </a>
+
+                                                    @if($expertise->level != 3)
+                                                    <a type="button" data-bs-toggle="modal" data-bs-target="#expertise-modal" data-action="{{route('store_expertise')}}" data-parent_name="{{$expertise->name}}" data-parent_id="{{$expertise->id}}" class="badge fw-bold fs-2 bg-{{$color}}-subtle text-{{$color}} ms-2">
+                                                        Add Skill
+                                                    </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+
+
                 <div class="tab-pane fade show active" id="pills-appointment" role="tabpanel"
                     aria-labelledby="pills-appointment-tab" tabindex="0">
                     <div class="card overflow-hidden chat-application border">
@@ -438,4 +555,63 @@
 
 @section('footer')
     @include('partials.footer')
+@endsection
+
+@section('script')
+<script>
+    const modal = document.getElementById('expertise-modal');
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        // Ambil semua data dari tombol
+        const action = button.getAttribute('data-action');
+        const parentName = button.getAttribute('data-parent_name') || 'Core Skill';
+        const parentId = button.getAttribute('data-parent_id');
+        const expertiseData = button.getAttribute('data-expertise');
+
+        // Ambil form dan reset terlebih dahulu
+        const form = modal.querySelector('form');
+        form.reset();
+
+        // Set action form
+        form.setAttribute('action', action);
+
+        // Set nama parent di judul modal
+        modal.querySelector('#parent_name').textContent = parentName;
+
+        // Atur selected parent_id di dropdown
+        const select = modal.querySelector('#parent_id');
+        console.log(parentId);
+        select.value = parentId ?? ''; // fallback ke kosong kalau NULL
+
+        // Atur input dan link jika mode edit
+        if (expertiseData) {
+            try {
+                const data = JSON.parse(expertiseData);
+                modal.querySelector('input[name="name"]').value = data.name || '';
+                const ilustrationLink = modal.querySelector('#ilustration_img');
+                if (data.ilustration_img) {
+                    const { endpoint, bucket } = window.S3_CONFIG;
+                    const fullURL = `${endpoint}/${bucket}/${data.ilustration_img.replace(/^\/+/, '')}`;
+                    ilustrationLink.href = fullURL;
+                    ilustrationLink.textContent = data.ilustration_img;
+                } else {
+                    ilustrationLink.href = '';
+                    ilustrationLink.textContent = '';
+                }
+
+            } catch (e) {
+                console.error('Invalid JSON in data-expertise:', e);
+            }
+        } else {
+            // Kosongkan input & link jika bukan edit
+            modal.querySelector('input[name="name"]').value = '';
+            const ilustrationLink = modal.querySelector('#ilustration_img');
+            ilustrationLink.href = '';
+            ilustrationLink.textContent = '';
+        }
+    });
+</script>
+
 @endsection

@@ -207,7 +207,21 @@ class AuthController extends Controller
 
     public function profile()
     {
-        return view('profile');
+        if (in_array('administrator', Auth::user()->roles ?? [])){
+            // $expertises = Expertise::whereNull('parent_id')->orderBy('order')->with('childrensRecursive')->get();
+            $roots = Expertise::whereNull('parent_id')->orderBy('order')->with('childrensRecursive')->get();
+
+            $expertises = collect();
+
+            foreach ($roots as $root) {
+                $expertises = $expertises
+                    ->merge([$root]) // level 1 (parent)
+                    ->merge($root->flattenAllDescendants()); // level 2 & 3
+            }
+        }else{
+            $expertises = null;
+        }
+        return view('profile', compact('expertises'));
     }
 
     public function register_client_post(Request $request)

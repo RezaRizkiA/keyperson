@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExpertController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExpertiseController;
 
 Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google_callback');
@@ -22,11 +23,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('profile', [AuthController::class, 'profile'])->name('profile');
 
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment'])->name('appointment');
     Route::post('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment_post'])->name('appointment_post');
 
+    Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
+    Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');
+    Route::get('destroy-expertise-{expertise_id}', [ExpertiseController::class, 'destroy_expertise'])->name('destroy_expertise');
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');

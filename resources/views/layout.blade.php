@@ -18,6 +18,12 @@
   <link rel="stylesheet" href="{{asset('assets/libs/owl.carousel/dist/assets/owl.carousel.min.css')}}" />
   <script src="https://cdn.jsdelivr.net/npm/initial.js@1.0.0/initial.min.js"></script>
 
+  <script>
+    window.S3_CONFIG = {
+        endpoint: "{{ rtrim(config('filesystems.disks.s3.endpoint'), '/') }}",
+        bucket: "{{ config('filesystems.disks.s3.bucket') }}"
+    };
+  </script>
 </head>
 
 <body class="d-flex flex-column min-vh-100">

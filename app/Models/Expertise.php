@@ -23,6 +23,18 @@ class Expertise extends Model
         return $this->childrens()->with('childrensRecursive');
     }
 
+    public function flattenAllDescendants()
+    {
+        $flat = collect();
+        foreach ($this->childrensRecursive as $child) {
+            $flat->push($child);
+            if ($child->childrensRecursive->isNotEmpty()) {
+                $flat = $flat->merge($child->flattenAllDescendants());
+            }
+        }
+        return $flat;
+    }
+
     // Mendapatkan semua expert yang memiliki expertise ini (JSON)
     public function getExpertsAttribute()
     {

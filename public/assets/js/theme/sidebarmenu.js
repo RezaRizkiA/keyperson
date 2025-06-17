@@ -169,6 +169,7 @@ if ((at = "horizontal")) {
 // ----------------------------------------
 // Active 2 file at same time 
 // ----------------------------------------
+// console.log('test');
 
 var currentURL =
   window.location != window.parent.location
@@ -177,10 +178,12 @@ var currentURL =
 
 var link = document.getElementById("get-url");
 
-if (currentURL.includes("/main/index.html")) {
-  link.setAttribute("href", "../main/index.html");
-} else if (currentURL.includes("/index.html")) {
-  link.setAttribute("href", "./index.html");
-} else {
-  link.setAttribute("href", "./");
+if (link) {
+  if (currentURL.includes("/main/index.html")) {
+    link.setAttribute("href", "../main/index.html");
+  } else if (currentURL.includes("/index.html")) {
+    link.setAttribute("href", "./index.html");
+  } else {
+    link.setAttribute("href", "./");
+  }
 }
