@@ -23,7 +23,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('profile', [AuthController::class, 'profile'])->name('profile');
 
-
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment'])->name('appointment');

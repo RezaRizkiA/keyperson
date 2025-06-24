@@ -60,7 +60,7 @@
                                                         class="min-width-40 flex-grow-0 border border-muted text-muted fs-3 fw-semibold form-control text-center qty"
                                                         placeholder="" aria-label="Example text with button addon"
                                                         aria-describedby="add1" value="1" id="qty"
-                                                        data-target-id='priceDisplay' >
+                                                        data-target-id='priceDisplay'>
                                                     <button
                                                         class="btn min-width-40 py-0 border border-muted border-start-0 text-muted add"
                                                         type="button" id="addo2">
@@ -89,7 +89,8 @@
                                     <div class="d-flex align-items-center gap-6 py-1 flex-nowrap">
                                         <input name="date" type="text" class="form-control" placeholder="2023-06-04"
                                             id="mdate" />
-                                        <input name="time" class="form-control" id="timepicker" placeholder="Check time" />
+                                        <input name="time" class="form-control" id="timepicker"
+                                            placeholder="Check time" />
                                     </div>
                                     <p class="fs-2 mb-0">Request date and time</p>
                                 </div>
@@ -104,7 +105,7 @@
 @endsection
 
 @section('footer')
-    @include('partials/footer')
+    @include('partials.footer')
 @endsection
 
 @section('script')
