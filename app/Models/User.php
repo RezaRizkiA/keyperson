@@ -34,4 +34,10 @@ class User extends Authenticatable
     {
         return in_array($role, $this->roles ?? [], true);
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
 }
