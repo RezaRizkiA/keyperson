@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\ExpertiseController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google_callback');
@@ -37,7 +37,6 @@ Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name
 Route::get('client-{slug_page}/expertise-{slug}', [ClientController::class, 'list_conselor'])->name('list_conselor');
 
 Route::get('/expert-detail-{expert_id}', [ClientController::class, 'expert_detail'])->name('expert_detail');
-
 
 Route::get('/', function () {
     return view('home');

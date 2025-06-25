@@ -80,7 +80,7 @@
                                 <h5 class="fs-5 fw-semibold mb-4">Appointment</h5>
                                 <div class="mb-4">
                                     <label class="form-label">Detail Appointment</label>
-                                    <textarea name="appoinment" class="form-control" placeholder="" rows="2"></textarea>
+                                    <textarea name="appointment" class="form-control" placeholder="" rows="2"></textarea>
                                     <p class="fs-2 mb-2">Input detail appointment</p>
                                 </div>
 
