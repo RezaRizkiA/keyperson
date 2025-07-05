@@ -14,7 +14,7 @@
                         <a class="nav-link fs-4 fw-bold text-dark link-primary active" href="{{route('home')}}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">Abour Us</a>
+                        <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">About Us</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fs-4 fw-bold text-dark link-primary" href="">Contact</a>

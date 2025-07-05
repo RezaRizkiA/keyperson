@@ -339,7 +339,7 @@
                                     <div class="px-4 pt-9 pb-6 d-none d-lg-block">
                                         <form class="position-relative">
                                             <input type="text" class="form-control search-chat py-2 ps-5"
-                                                id="text-srh" placeholder="Search">
+                                                id="text-srh" placeholder="Cari Nama Konselor...">
                                             <i
                                                 class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                                         </form>
@@ -525,20 +525,26 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="eventModalLabel">
-                                        Add / Edit Event
+                                        Event Details
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-12" id="event-title-group">
                                             <div>
                                                 <label class="form-label">Event Title</label>
                                                 <input id="event-title" type="text" class="form-control" />
                                             </div>
                                         </div>
-                                        <div class="col-md-12 mt-6">
+                                        <div class="col-md-12" id="event-title-display-group" style="display: none;">
+                                            <div>
+                                                <label class="form-label">Event Title</label>
+                                                <p id="event-title-display" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 mt-6" id="event-color-group">
                                             <div>
                                                 <label class="form-label">Event Color</label>
                                             </div>
@@ -574,17 +580,24 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12 mt-6">
+                                        <div class="col-md-12 mt-6" id="event-start-date-group">
                                             <div>
                                                 <label class="form-label">Enter Start Date</label>
                                                 <input id="event-start-date" type="date" class="form-control" />
                                             </div>
                                         </div>
-
-                                        <div class="col-md-12 mt-6">
+                                        <div class="col-md-12 mt-6" id="event-start-date-display-group"
+                                            style="display: none;">
                                             <div>
-                                                <label class="form-label">Enter End Date</label>
-                                                <input id="event-end-date" type="date" class="form-control" />
+                                                <label class="form-label">Start Date</label>
+                                                <p id="event-start-date-display" class="form-control-static"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12 mt-6" id="event-end-date-group">
+                                            <div>
+                                                <label class="form-label">End Date</label>
+                                                <p id="event-end-date-display" class="form-control-static"></p>
                                             </div>
                                         </div>
                                     </div>

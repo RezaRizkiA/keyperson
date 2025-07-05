@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\ExpertiseController;
+use App\Http\Controllers\PaymentController; // Ditambahkan
 use Illuminate\Support\Facades\Route;
 
 Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
@@ -34,6 +35,11 @@ Route::middleware('auth')->group(function () {
     Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
     Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');
     Route::get('destroy-expertise-{expertise_id}', [ExpertiseController::class, 'destroy_expertise'])->name('destroy_expertise');
+    
+    // Rute Pembayaran
+    Route::get('payment/{appointment}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::post('payment/{appointment}', [PaymentController::class, 'process'])->name('payment.process');
+    Route::get('payment/{appointment}/success', [PaymentController::class, 'success'])->name('payment.success');
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');
@@ -54,3 +60,6 @@ Route::get('login', function () {
 })->name('login')->middleware('guest');
 
 Route::post('/login', [AuthController::class, 'login_post'])->name('login_post')->middleware('guest');
+
+// Callback iPaymu - Rute ini di luar grup 'web' untuk menghindari masalah CSRF
+Route::post('payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');

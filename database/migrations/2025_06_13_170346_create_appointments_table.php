@@ -17,10 +17,11 @@ return new class extends Migration
             $table->foreignId('expert_id')->nullable()->constrained('experts')->onDelete('cascade');
             $table->text('appointment')->nullable();
             $table->timestamp('date_time')->nullable();
-            $table->text('calendar_token')->nullable();
+            $table->string('google_calendar_event_id')->nullable();
             $table->integer('hours')->nullable();
             $table->bigInteger('price')->nullable();
-            $table->string('status')->nullable();
+            $table->string('status')->default('pending');
+            $table->string('payment_status')->default('pending');
             $table->timestamps();
         });
     }

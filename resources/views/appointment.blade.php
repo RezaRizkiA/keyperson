@@ -95,7 +95,7 @@
                                     <p class="fs-2 mb-0">Request date and time</p>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary">Checkout</button>
                         </form>
                     </section>
                 </div>

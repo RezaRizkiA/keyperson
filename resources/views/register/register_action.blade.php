@@ -205,7 +205,6 @@
                         </div>
 
                         @if (Route::currentRouteName() == 'register_expert' || $expert != null)
-
                             <div class="tab-pane fade @if (Route::currentRouteName() == 'register_expert') show active @endif"
                                 id="pills-expert" role="tabpanel" aria-labelledby="pills-expert-tab" tabindex="0">
                                 <form action="{{ route('register_expert_post') }}" method="POST" class="row" enctype="multipart/form-data">@csrf
@@ -388,7 +387,7 @@
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Choose Your Specialist Expert</label>
-                                            @include('register.parital_expertise', [
+                                            @include('register.partial_expertise', [
                                                 'expertises' => $expertises,
                                                 'expertiseSelected' => $expert?->expertise_id ?? []
                                             ])
@@ -507,7 +506,7 @@
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Choose specialist you are showing</label>
-                                            @include('register.parital_expertise', [
+                                            @include('register.partial_expertise', [
                                                 'expertises' => $expertises,
                                                 'expertiseSelected' => $client?->expertise_id ?? []
                                             ])

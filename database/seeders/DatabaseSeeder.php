@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             ExpertiseSeeder::class,
             ExpertSeeder::class,
             ClientSeeder::class,
+            IpaymuSeeder::class,
         ]);
     }
 }

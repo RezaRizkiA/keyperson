@@ -9,8 +9,7 @@ class Appointment extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'date_time'      => 'datetime',
-        'calendar_token' => 'array',
+        'date_time' => 'datetime',
     ];
 
     protected $fillable = [
@@ -18,9 +17,11 @@ class Appointment extends Model
         'expert_id',
         'appointment',
         'date_time',
+        'google_calendar_event_id',
         'hours',
         'price',
         'status',
+        'payment_status',
     ];
 
     public function user()
@@ -31,5 +32,10 @@ class Appointment extends Model
     public function expert()
     {
         return $this->belongsTo(Expert::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

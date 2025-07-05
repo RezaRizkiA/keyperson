@@ -33,7 +33,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/help_common.php"
+            "app/Helpers/help_common.php",
+            "app/Helpers/IpaymuHelper.php"
         ]
     },
     "autoload-dev": {
