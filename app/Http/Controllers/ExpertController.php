@@ -43,8 +43,6 @@ class ExpertController extends Controller
             'payment_status' => 'pending', // Status pembayaran awal
         ]);
 
-        // Logika Google Calendar dihapus dari sini
-
         // Arahkan ke halaman pembayaran
         return redirect()->route('payment.show', ['appointment' => $appointment->id]);
     }

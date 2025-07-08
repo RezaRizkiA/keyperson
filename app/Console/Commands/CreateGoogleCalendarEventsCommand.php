@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Jobs\CreateGoogleCalendarEvent;
@@ -31,8 +30,8 @@ class CreateGoogleCalendarEventsCommand extends Command
         Log::info('Running CreateGoogleCalendarEventsCommand...');
 
         $appointments = Appointment::where('payment_status', 'paid')
-                                   ->whereNull('google_calendar_event_id')
-                                   ->get();
+            ->whereNull('google_calendar_event_id')
+            ->get();
 
         if ($appointments->isEmpty()) {
             $this->info('No paid appointments found without a Google Calendar event.');

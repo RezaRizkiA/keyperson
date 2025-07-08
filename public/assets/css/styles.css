@@ -23328,7 +23328,7 @@ fieldset:disabled .btn {
 }
 
 .accordion-button:not(.collapsed)::after {
-  background-image: var(--bs-accordion-btn-active-icon);
+  /* background-image: var(--bs-accordion-btn-active-icon); */
   transform: var(--bs-accordion-btn-icon-transform)
 }
 
@@ -23336,9 +23336,9 @@ fieldset:disabled .btn {
   flex-shrink: 0;
   width: var(--bs-accordion-btn-icon-width);
   height: var(--bs-accordion-btn-icon-width);
-  margin-left: auto;
+  /* margin-left: auto; */
   content: "";
-  background-image: var(--bs-accordion-btn-icon);
+  /* background-image: var(--bs-accordion-btn-icon); */
   background-repeat: no-repeat;
   background-size: var(--bs-accordion-btn-icon-width);
   transition: var(--bs-accordion-btn-icon-transition)

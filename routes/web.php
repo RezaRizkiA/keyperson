@@ -32,14 +32,16 @@ Route::middleware('auth')->group(function () {
     Route::get('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment'])->name('appointment');
     Route::post('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment_post'])->name('appointment_post');
 
-    Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
-    Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');
-    Route::get('destroy-expertise-{expertise_id}', [ExpertiseController::class, 'destroy_expertise'])->name('destroy_expertise');
-    
     // Rute Pembayaran
     Route::get('payment/{appointment}', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('payment/{appointment}', [PaymentController::class, 'process'])->name('payment.process');
-    Route::get('payment/{appointment}/success', [PaymentController::class, 'success'])->name('payment.success');
+    Route::get('payment-{sid}', [PaymentController::class, 'transaction'])->name('payment.transaction');
+    Route::post('payment/notify', [PaymentController::class, 'notify'])->name('payment.notify');
+
+    Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
+    Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');
+    Route::get('destroy-expertise-{expertise_id}', [ExpertiseController::class, 'destroy_expertise'])->name('destroy_expertise');
+
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');

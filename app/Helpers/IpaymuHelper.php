@@ -2,7 +2,7 @@
 
 use App\Models\Ipaymu;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log; // Sesuaikan jika nama model Anda berbeda
+use Illuminate\Support\Facades\Log;
 
 /**
  * Pastikan fungsi tidak dideklarasikan ulang.
@@ -54,3 +54,34 @@ function listPaymentIpaymu()
         }
     }
 } // api get list payment method
+
+function directPaymentIpaymu($body)
+{
+    $signature = GenerateSignature($body, 'POST');
+    $response  = Http::withHeaders([
+        'Content-Type' => 'application/json',
+        'signature'    => $signature,
+        'va'           => config('ipaymu.va'),
+        'timestamp'    => Date('YmdHis'),
+    ])->post(config('ipaymu.url_payment'), $body);
+
+    $responseData = $response->json();
+    if ($response->failed() || $responseData['Status'] != 200 || ! $responseData['Success']) {
+        Log::error('Ipaymu payment error: ', $responseData);
+        return null;
+    }
+
+    Log::info('Ipaymu payment created successfully: ', $responseData);
+    return $responseData['Data'];
+}
+
+function randomCode()
+{
+    $randomPart1 = bin2hex(random_bytes(4));
+    $randomPart2 = bin2hex(random_bytes(2));
+    $randomPart3 = bin2hex(random_bytes(2));
+    $randomPart4 = bin2hex(random_bytes(2));
+    $randomPart5 = bin2hex(random_bytes(6));
+    $randomCode  = $randomPart1 . '-' . $randomPart2 . '-' . $randomPart3 . '-' . $randomPart4 . '-' . $randomPart5;
+    return $randomCode;
+}
