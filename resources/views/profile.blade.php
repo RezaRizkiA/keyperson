@@ -242,7 +242,7 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn bg-danger-subtle text-danger "
                                             data-bs-dismiss="modal">
-                                            Close
+                                            Close.
                                         </button>
                                         <button type="submit" class="btn btn-success">
                                             Submit Form

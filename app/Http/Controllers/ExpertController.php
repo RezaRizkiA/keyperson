@@ -28,9 +28,7 @@ class ExpertController extends Controller
             "{$request->date} {$request->time}",
             config('app.timezone')
         );
-
         $expert = Expert::with('user')->findOrFail($expert_id);
-
         // Buat appointment dengan status pembayaran 'pending'
         $appointment = Appointment::create([
             'user_id'     => Auth::user()->id,
