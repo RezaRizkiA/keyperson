@@ -170,7 +170,7 @@
                                                 <div class="mb-4">
                                                     <label for="slug" class="form-label">Unique URL</label>
                                                     <div class="input-group mb-3">
-                                                        <span class="input-group-text">meetpro.com /</span>
+                                                        <span class="input-group-text">keyperson.id /</span>
                                                         <input type="text" name="slug_name" class="form-control"
                                                             id="slug" placeholder="{{ Auth::user()->slug }}"
                                                             value="{{ Auth::user()->slug }}">
@@ -494,7 +494,7 @@
                                         <div class="mb-4">
                                             <label class="form-label">Section Page</label>
                                             <div class="input-group mb-3">
-                                                <span class="input-group-text">meetpro.com /</span>
+                                                <span class="input-group-text">keyperson.id /</span>
                                                 <input type="text" class="form-control" id="slug"
                                                     name="slug_page"
                                                     value="{{ old('slug_page', $client->slug_page ?? '') }}">

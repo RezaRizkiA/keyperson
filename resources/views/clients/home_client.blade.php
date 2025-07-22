@@ -13,7 +13,7 @@
                 </h2>
                 <div class="d-flex align-items-center gap-6">
                     <a href="{{ route('home') }}" class="text-muted fw-bolder link-primary fs-3 text-uppercase">
-                        MeetPro
+                        keyPerson
                     </a>
                     <iconify-icon icon="solar:alt-arrow-right-outline" class="fs-5 text-muted"></iconify-icon>
                     <a href="#" class="text-primary link-primary fw-bolder fs-3 text-uppercase">

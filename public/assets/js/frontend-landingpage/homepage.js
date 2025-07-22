@@ -23,8 +23,6 @@ $(function () {
     // On scroll, Show/Hide the btn with animation
     window.onscroll = () => topBtn.style.opacity = window.scrollY > 500 ? 1 : 0;
 
-
-
     $('.leadership-carousel').owlCarousel({
         loop: true,
         margin: 10,

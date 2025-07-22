@@ -12,7 +12,7 @@
 
   <link rel="stylesheet" href="{{asset('assets/css/styles.css')}}" />
 
-  <title>MeetPro</title>
+  <title>keyPerson</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-datetimepicker/2.7.1/css/bootstrap-material-datetimepicker.min.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="{{asset('assets/libs/owl.carousel/dist/assets/owl.carousel.min.css')}}" />

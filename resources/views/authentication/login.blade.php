@@ -12,10 +12,9 @@
                                     <div class="col-lg-11">
                                         <div class="card-body">
                                             <a href="{{ route('home') }}" class="text-nowrap logo-img d-block mb-4 w-100">
-                                                <img src="{{ asset('assets/images/logos/logo.svg') }}" class="dark-logo"
-                                                    alt="Logo-Dark" />
+                                                <img src="{{ asset('assets/images/logos/key-person.png') }}" class="dark-logo" width="150" alt="Logo-Dark" />
                                             </a>
-                                            <h2 class="lh-base mb-4">Let's get you signed in</h2>
+                                            <h2 class="lh-base mb-4 text-center">Let's get you signed in</h2>
                                             <div class="row">
                                                 <div class="col-12">
                                                     <a class="btn btn-white shadow-sm text-dark link-primary border fw-semibold d-flex align-items-center justify-content-center rounded-1 py-6"
@@ -73,7 +72,7 @@
                                                             type="checkbox" value="" id="remember" name="remember"
                                                             checked>
                                                         <label class="form-check-label text-dark" for="remember">
-                                                            Remember Me
+                                                            I agree to the <a class="fw-bolder" href="{{route('terms')}}">Terms Of Service</a> and <a class="fw-bolder" href="{{route('privacy')}}">Privacy Policy</a>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -86,11 +85,11 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                             <div class="col-xl-6 d-none d-xl-block">
                                 <div class="row justify-content-center align-items-center h-100">
                                     <div class="col-lg-9">
+                                        
                                         <div id="auth-login" class="carousel slide auth-carousel" data-bs-ride="carousel">
                                             <div class="carousel-indicators">
                                                 <button type="button" data-bs-target="#auth-login" data-bs-slide-to="0"
@@ -134,6 +133,7 @@
                                             </div>
 
                                         </div>
+
 
 
                                     </div>

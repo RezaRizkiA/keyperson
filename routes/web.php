@@ -58,9 +58,21 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/expert', function () {
-    return view('expert');
-})->name('expert');
+Route::get('about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('support', function () {
+    return view('support');
+})->name('support');
+
+Route::get('terms', function () {
+    return view('terms');
+})->name('terms');
+
+Route::get('privacy', function () {
+    return view('privacy');
+})->name('privacy');
 
 Route::get('login', function () {
     return view('authentication.login');
