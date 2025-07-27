@@ -8,8 +8,8 @@
                     Create Appointment
                 </h2>
                 <div class="d-flex align-items-center gap-6">
-                    <a href="{{ route('home') }}" class="text-muted fw-bolder link-primary fs-3 text-uppercase">
-                        Home
+                    <a href="{{ route('expert_detail', $expert->id) }}" class="text-muted fw-bolder link-primary fs-3 text-uppercase">
+                        {{ $expert->user->name }}
                     </a>
                     <iconify-icon icon="solar:alt-arrow-right-outline" class="fs-5 text-muted"></iconify-icon>
                     <a href="#" class="text-primary link-primary fw-bolder fs-3 text-uppercase">
@@ -95,7 +95,9 @@
                                     <p class="fs-2 mb-0">Request date and time</p>
                                 </div>
                             </div>
+                            @if($expert->user_id != auth()->user()->id)
                             <button type="submit" class="btn btn-primary">Checkout</button>
+                            @endif
                         </form>
                     </section>
                 </div>

@@ -120,7 +120,7 @@
                         {{ $client->banner_footer_desc }}
                     </p>
                     @if (!Auth::check())
-                        <a href="{{ route('google_redirect') }}" class="btn btn-outline-light">
+                        <a href="{{ route('google.login') }}" class="btn btn-outline-light">
                             Register
                         </a>
                     @endif

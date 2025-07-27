@@ -8,8 +8,12 @@ use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\PaymentController; // Ditambahkan
 use Illuminate\Support\Facades\Route;
 
-Route::get('/auth/google/redirect', [AuthController::class, 'google_redirect'])->name('google_redirect');
-Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google_callback');
+// Untuk login saja
+Route::get('/auth/google/login', [AuthController::class, 'google_login'])->name('google.login');
+// Untuk koneksi ke kalender
+Route::get('/auth/google/calendar-connect', [AuthController::class, 'google_calendar_connect'])->name('google.calendar.connect');
+// Callback tetap sama
+Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google.callback');
 
 Route::middleware('auth')->group(function () {
 

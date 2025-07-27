@@ -19,6 +19,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
         'google_token_expires_at' => 'datetime',
+        'google_scopes' => 'array',
+        'calendar_connected' => 'boolean',
     ];
 
     public function client()

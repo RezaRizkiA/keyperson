@@ -34,10 +34,10 @@ class ClientController extends Controller
         return view('clients.list_expert', compact('client', 'expertise'));
     }
 
-    public function expert_detail($expert_id)
-    {
+    public function expert_detail($expert_id) {
         $expert = Expert::with('user')->findOrFail($expert_id);
         $back = request('back'); // Tangkap query string back
+        
         return view('clients.detail_expert', compact('expert', 'back'));
     }
 }

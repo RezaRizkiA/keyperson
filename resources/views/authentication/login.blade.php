@@ -18,7 +18,7 @@
                                             <div class="row">
                                                 <div class="col-12">
                                                     <a class="btn btn-white shadow-sm text-dark link-primary border fw-semibold d-flex align-items-center justify-content-center rounded-1 py-6"
-                                                        href="{{ route('google_redirect') }}" role="button">
+                                                        href="{{ route('google.login') }}" role="button">
                                                         <img src="{{ asset('assets/images/svgs/google-icon.svg') }}"
                                                             alt="matdash-img" class="img-fluid me-2" width="18"
                                                             height="18">
@@ -79,7 +79,7 @@
                                                 <button type="submit" class="btn btn-dark w-100 py-8 mb-4 rounded-1">Sign In</button>
                                                 <div class="d-flex align-items-center justify-content-center">
                                                     <p class="fs-12 mb-0 fw-medium">Don’t have account?</p>
-                                                    <a class="text-primary fw-bolder ms-2" href="{{ route('google_redirect') }}">Sign Up&nbsp;Google</a>
+                                                    <a class="text-primary fw-bolder ms-2" href="{{ route('google.login') }}">Sign Up&nbsp;Google</a>
                                                 </div>
                                             </form>
                                         </div>

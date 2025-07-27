@@ -7,80 +7,107 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    public function google_redirect()
-    {
+    public function google_login() {
         return Socialite::driver('google')
-            ->scopes(config('google-calendar.scopes'))
-            ->with(['access_type' => 'offline', 'prompt' => 'consent'])
+            ->scopes(['openid', 'email', 'profile'])
+            ->with([
+                'access_type' => 'offline',
+                'prompt' => 'consent',
+                'include_granted_scopes' => 'true',
+            ])
+            ->redirect();
+    }
+
+    public function google_calendar_connect(Request $request)
+    {
+        // Tangkap dan simpan URL asal (jika ada)
+        if ($request->has('redirect')) {
+            session()->put('calendar_redirect_back', $request->get('redirect'));
+        }
+
+        return Socialite::driver('google')
+            ->scopes([
+                'openid', 'email', 'profile',
+                'https://www.googleapis.com/auth/calendar.events'
+            ])
+            ->with([
+                'access_type' => 'offline',
+                'prompt' => 'consent',
+                'include_granted_scopes' => 'true',
+            ])
             ->redirect();
     }
 
     public function google_callback(Request $request)
     {
         try {
-            if (session()->has('url.intended')) {
-                $redirectTo = session()->get('url.intended');
-            } else {
-                $redirectTo = false;
-            } //if intended url is available
-
-            $google_user = Socialite::driver('google')->user();
-            $avatarUrl = $google_user->getAvatar();
+            $redirectTo = session()->pull('calendar_redirect_back') ?? session()->pull('url.intended') ?? route('profile');
+            $googleUser = Socialite::driver('google')->user();
+            $avatarUrl = $googleUser->getAvatar();
             $imageContents = file_get_contents($avatarUrl);
             $filename = 'avatars/' . uniqid() . '.png';
 
-            $user = User::where('email', $google_user->email)->first();
+            // Dapatkan user
+            $user = User::where('email', $googleUser->email)->first();
+
+            // Ambil scope yang disetujui user
+            $accessToken = $googleUser->token;
+            $scopeResponse = Http::get('https://www.googleapis.com/oauth2/v1/tokeninfo', [
+                'access_token' => $accessToken,
+            ]);
+            $grantedScopes = explode(' ', $scopeResponse->json('scope') ?? '');
+
+            // Periksa apakah kalender disetujui
+            $calendarGranted = in_array('https://www.googleapis.com/auth/calendar.events', $grantedScopes);
 
             if ($user) {
-                // Update existing user
                 $user->update([
-                    'google_id' => $google_user->id,
-                    'google_access_token' => $google_user->token,
-                    'google_refresh_token' => $google_user->refreshToken,
-                    'google_token_expires_at' => now()->addSeconds($google_user->expiresIn),
+                    'google_id' => $googleUser->id,
+                    'google_access_token' => $googleUser->token,
+                    'google_refresh_token' => $googleUser->refreshToken ?? $user->google_refresh_token,
+                    'google_token_expires_at' => now()->addSeconds($googleUser->expiresIn),
+                    'google_scopes' => $grantedScopes,
+                    'calendar_connected' => $calendarGranted,
                 ]);
             } else {
-                // Create new user
                 $user = User::create([
-                    'email' => $google_user->email,
-                    'name' => $google_user->name,
-                    'roles' => ['user'], // Set default role
-                    'google_id' => $google_user->id,
-                    'google_access_token' => $google_user->token,
-                    'google_refresh_token' => $google_user->refreshToken,
-                    'google_token_expires_at' => now()->addSeconds($google_user->expiresIn),
+                    'email' => $googleUser->email,
+                    'name' => $googleUser->name,
+                    'roles' => ['user'],
+                    'google_id' => $googleUser->id,
+                    'google_access_token' => $googleUser->token,
+                    'google_refresh_token' => $googleUser->refreshToken,
+                    'google_token_expires_at' => now()->addSeconds($googleUser->expiresIn),
+                    'google_scopes' => $grantedScopes,
+                    'calendar_connected' => $calendarGranted,
                     'email_verified_at' => now(),
                 ]);
             }
 
             Auth::login($user, true);
 
-            $user->slug ??= slugName($user->name, $user->id);
+            // Simpan foto jika belum ada
             if (!$user->picture) {
                 Storage::disk('s3')->put($filename, $imageContents, 'public');
                 $user->picture = $filename;
+                $user->save();
             }
-            $user->save();
 
-            $credentials = [
-                'user' => Auth::user()->id,
-            ];
             $request->session()->regenerate();
-            $request->session()->put('loggedUser', $credentials);
+            $request->session()->put('loggedUser', ['user' => $user->id]);
 
-            if ($redirectTo != false) {
-                session()->forget('url.intended');
-                return redirect($redirectTo);
-            }
-            return redirect()->route('profile');
+            return redirect($redirectTo)->with('success', 'Berhasil login dengan Google.');
         } catch (\Exception $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Google authentication failed: ' . $e->getMessage()]);
+            return redirect()->route('login')->withErrors([
+                'email' => 'Google authentication failed: ' . $e->getMessage(),
+            ]);
         }
     }
 

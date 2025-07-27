@@ -30,6 +30,11 @@ class GoogleCalendarService
             'expires_in' => $user->google_token_expires_at->diffInSeconds(now()),
         ]);
 
+        if (!$user->google_refresh_token) {
+            Log::warning("Missing refresh token for user {$user->id}");
+            throw new \Exception("Google Calendar not connected or token invalid.");
+        }
+
         if ($this->client->isAccessTokenExpired()) {
             $newAccessToken = $this->client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
             $user->update([

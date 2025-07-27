@@ -14,6 +14,9 @@ return new class extends Migration
             $table->text('google_access_token')->nullable();
             $table->text('google_refresh_token')->nullable();
             $table->timestamp('google_token_expires_at')->nullable();
+            $table->json('google_scopes')->nullable();
+            $table->boolean('calendar_connected')->default(false);
+            
             $table->string('roles');
             $table->string('name')->nullable();
             $table->string('slug')->unique()->nullable();

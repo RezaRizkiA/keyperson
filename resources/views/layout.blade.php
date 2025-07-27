@@ -9,6 +9,7 @@
   <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/key-color.png')}}" />
   <link rel="stylesheet" href="{{asset('assets/libs/quill/dist/quill.snow.css')}}">
   <link rel="stylesheet" href="{{asset('assets/libs/@claviska/jquery-minicolors/jquery.minicolors.css')}}">
+  <link type="text/css" href="{{ asset('assets/css/fontawesome5pro/css/all.css') }}" rel="stylesheet">
 
   <link rel="stylesheet" href="{{asset('assets/css/styles.css')}}" />
 

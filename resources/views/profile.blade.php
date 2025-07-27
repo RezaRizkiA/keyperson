@@ -90,62 +90,33 @@
                                 </div>
                                 <div class="text-center">
                                     <h5 class="mb-0">{{ Auth::user()->name }}</h5>
-                                    <p class="mb-0">{{ Auth::user()->email }}</p>
+                                    <p class="mb-1">{{ Auth::user()->email }}</p>
+                                    @if (!auth()->user()->calendar_connected)
+                                        <p class="text-danger small mb-0">
+                                            Calendar access is required to use all scheduling features. Please connect your Google Calendar.
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-lg-4 order-last">
-                            <ul
-                                class="list-unstyled d-flex align-items-center justify-content-center justify-content-lg-end my-3 mx-4 gap-3">
-                                {{-- button sosmed expert --}}
+                            <ul class="list-unstyled d-flex align-items-center justify-content-center justify-content-lg-end my-3 mx-4 gap-3">
                                 @if (in_array('expert', Auth::user()->roles ?? []))
-                                    @php
-                                        $socialConfig = [
-                                            'facebook' => [
-                                                'class' => 'btn-primary',
-                                                'icon' => 'ti ti-brand-facebook',
-                                            ],
-                                            'instagram' => [
-                                                'class' => 'btn-secondary',
-                                                'icon' => 'ti ti-brand-instagram',
-                                            ],
-                                            'youtube' => [
-                                                'class' => 'btn-danger',
-                                                'icon' => 'ti ti-brand-youtube',
-                                            ],
-                                            'linkedin' => [
-                                                'class' => 'btn-info',
-                                                'icon' => 'ti ti-brand-linkedin',
-                                            ],
-                                        ];
-                                        $expert = Auth::user()->expert ?? null;
-                                        $socials = $expert->socials;
-                                    @endphp
-
-                                    @foreach ($socials as $sosmed)
-                                        @php
-                                            $key = $sosmed['key'] ?? '';
-                                            $val = $sosmed['value'] ?? '#';
-                                            $btnClass = $socialConfig[$key]['class'] ?? 'btn-dark';
-                                            $iconClass = $socialConfig[$key]['icon'] ?? 'ti ti-link';
-                                        @endphp
+                                    @foreach(getSocialMedias(Auth::user()) as $sosmed)
                                         <li>
-                                            <a class="d-flex align-items-center justify-content-center btn {{ $btnClass }} p-2 fs-4 rounded-circle"
-                                                href="{{ $val }}" target="_blank" width="30" height="30">
-                                                <i class="{{ $iconClass }}"></i>
-                                            </a>
+                                            <a class="d-flex align-items-center justify-content-center btn {{ $sosmed['btn_class'] }} p-2 fs-4 rounded-circle" href="{{ $sosmed['url'] }}" target="_blank"><i class="{{ $sosmed['icon_class'] }}"></i></a>
                                         </li>
                                     @endforeach
-                                @endif
-                                {{-- button mypage client --}}
-                                @if (in_array('client', Auth::user()->roles ?? []))
-                                    <li class="">
-                                        <a href="{{ route('home_client', Auth::user()->client->slug_page) }}"
-                                            class="btn btn-outline-primary border-2 text-nowrap py-2">My Page</a>
+                                @endif {{-- button sosmed expert --}}
+
+                                
+                                @if (array_intersect(['client', 'expert'], Auth::user()->roles ?? []))
+                                    <li class="btn-group">
+                                        @if (in_array('client', Auth::user()->roles ?? [])) <a href="{{ route('home_client', Auth::user()->client->slug_page) }}" class="btn btn-outline-primary border-2 text-nowrap py-2">Client</a> {{-- button mypage client --}} @endif
+                                        @if (in_array('expert', Auth::user()->roles ?? [])) <a href="{{ route('expert_detail', Auth::user()->expert->id) }}" class="btn btn-outline-primary border-2 text-nowrap py-2 px-2 small">Expert</a> {{-- button mypage client --}} @endif
                                     </li>
                                 @endif
-
                             </ul>
                         </div>
                     </div>
@@ -166,7 +137,7 @@
                             <button class="nav-link active hstack gap-2 rounded-0 fs-12 py-6" id="pills-appointment-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-appointment" type="button" role="tab"
                                 aria-controls="pills-appointment" aria-selected="true">
-                                <i class="ti ti-user-circle fs-5"></i>
+                                <i class="ti ti-user-circle me-1 fs-5"></i>
                                 <span class="d-none d-md-block">Appointment</span>
                             </button>
                         </li>
@@ -175,18 +146,25 @@
                             <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-members-tab"
                                 data-bs-toggle="pill" data-bs-target="#pills-members" type="button" role="tab"
                                 aria-controls="pills-members" aria-selected="false">
-                                <i class="ti ti-users fs-5"></i>
+                                <i class="ti ti-users me-1 fs-5"></i>
                                 <span class="d-none d-md-block">User Members</span>
                             </button>
                         </li>
 
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-calendar-tab"
-                                data-bs-toggle="pill" data-bs-target="#pills-calendar" type="button" role="tab"
-                                aria-controls="pills-calendar" aria-selected="false">
-                                <i class="ti ti-photo fs-5"></i>
-                                <span class="d-none d-md-block">Calendar</span>
-                            </button>
+                            @if (!auth()->user()->calendar_connected)
+                                <a href="{{ route('google.calendar.connect', ['redirect' => request()->fullUrl()]) }}" class="nav-link hstack gap-2 rounded-0 fs-12 py-6 text-danger">
+                                    <i class="far fa-calendar-alt me-1 icon-pulse fs-5"></i>
+                                    <span class="d-none d-md-block">Need Calendar</span>
+                                </a>
+                            @else
+                                <button class="nav-link hstack gap-2 rounded-0 fs-12 py-6" id="pills-calendar-tab"
+                                    data-bs-toggle="pill" data-bs-target="#pills-calendar" type="button" role="tab"
+                                    aria-controls="pills-calendar" aria-selected="false">
+                                    <i class="far fa-calendar-alt me-1 fs-5"></i>
+                                    <span class="d-none d-md-block">Calendar</span>
+                                </button>
+                            @endif
                         </li>
                     </ul>
                 </div>
