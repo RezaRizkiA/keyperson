@@ -34,7 +34,7 @@
                         <div class="p-4 p-lg-5 flex-grow-1">
                             <div class="py-lg-4 d-flex flex-column gap-3">
                                 <h2 class="fw-bolder fs-8">{{ $client->banner_title }}</h2>
-                                <p class="">{{ $client->banner_desc }}</p>
+                                <p class="">{!! nl2br(e($client->banner_desc)) !!}</p>
                                 <div class="d-flex justify-content-end align-items-center">
                                     <div class="d-flex gap-2">
                                         <i class="ti ti-circle"></i>
