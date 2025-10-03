@@ -105,7 +105,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-910 text-center">
                     <a class="round-56 mx-auto rounded-2 shadow bg-white hstack justify-content-center" href="">
-                        <img src="{{ urlpathSTORAGE($client->logo) }}" alt="logo">
+                        <img src="{{ urlpathSTORAGE($client->logo) }}" alt="logo" width="100" height="auto">
                     </a>
                     <h2 class="fs-15 my-9 fw-bolder text-white text-center lh-sm">
                         {{ $client->banner_footer }}
