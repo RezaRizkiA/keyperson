@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -10,11 +11,20 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    public function google_login() {
+    public function loginView()
+    {
+        return Inertia::render('Auth/Login', [
+            // Kirim status jika ada redirect message (misal: "Silakan login dulu")
+            'status' => session('status'),
+        ]);
+    }
+    public function google_login()
+    {
         return Socialite::driver('google')
             ->scopes(['openid', 'email', 'profile'])
             ->with([
@@ -34,7 +44,9 @@ class AuthController extends Controller
 
         return Socialite::driver('google')
             ->scopes([
-                'openid', 'email', 'profile',
+                'openid',
+                'email',
+                'profile',
                 'https://www.googleapis.com/auth/calendar.events'
             ])
             ->with([
@@ -277,7 +289,6 @@ class AuthController extends Controller
                 ->get();
 
             $appointmentsCount = $appointments->count();
-
         } else {
             $appointments = Appointment::with([
                 // ambil data expert beserta user-nya dan email
@@ -301,7 +312,6 @@ class AuthController extends Controller
                 'title' => $person->name . ' (' . ucfirst(str_replace('_', ' ', $app->status)) . ')',
                 'start' => $app->date_time,
             ];
-
         });
 
         return view('profile', compact('expertises', 'appointments', 'isExpert', 'calendarAppointments', 'appointmentsCount'));
@@ -405,9 +415,9 @@ class AuthController extends Controller
             $the_process = is_array($expert->$key_process ?? null) ? $expert->$key_process : [];
             foreach ($need_process as $key_data_db => $process_data) {            // key ini untuk database data keberapa '[0]', '[1]'
                 foreach ($process_data as $key_item => $value) {                      // key ini untuk index data keberapa 'certification', 'attachment' or...
-                                                                                          // cek apakah data yang baru ini string atau file
+                    // cek apakah data yang baru ini string atau file
                     if ($request->hasFile("{$key_process}.{$key_data_db}.{$key_item}")) { // jika file proses ke s3 baru name file simpan database
-                                                                                              // cek apakah file yang sebelumnya ada
+                        // cek apakah file yang sebelumnya ada
                         if (isset($the_process[$key_data_db][$key_item])) {                   // hapus dulu di s3 nya
                             Storage::disk('s3')->delete($the_process[$key_data_db][$key_item]);
                         }

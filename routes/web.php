@@ -7,6 +7,18 @@ use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\PaymentController; // Ditambahkan
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LandingController;
+
+// routes tanpa login
+Route::get('/', [LandingController::class, 'home'])->name('home');
+Route::get('about', [LandingController::class, 'about'])->name('about');
+Route::get('support', [LandingController::class, 'support'])->name('support');
+Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
+Route::get('terms', [LandingController::class, 'terms'])->name('terms');
+Route::get('privacy', [LandingController::class, 'privacy'])->name('privacy');
+
+// Routes Login
+Route::get('login', [AuthController::class, 'loginView'])->name('login')->middleware('guest');
 
 // Untuk login saja
 Route::get('/auth/google/login', [AuthController::class, 'google_login'])->name('google.login');
@@ -50,7 +62,6 @@ Route::middleware('auth')->group(function () {
     Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
     Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');
     Route::get('destroy-expertise-{expertise_id}', [ExpertiseController::class, 'destroy_expertise'])->name('destroy_expertise');
-
 });
 
 Route::get('client-{slug_page}', [ClientController::class, 'home_client'])->name('home_client');
@@ -58,29 +69,6 @@ Route::get('client-{slug_page}/expertise-{slug}', [ClientController::class, 'lis
 
 Route::get('/expert-detail-{expert_id}', [ClientController::class, 'expert_detail'])->name('expert_detail');
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
-Route::get('about', function () {
-    return view('about');
-})->name('about');
-
-Route::get('support', function () {
-    return view('support');
-})->name('support');
-
-Route::get('terms', function () {
-    return view('terms');
-})->name('terms');
-
-Route::get('privacy', function () {
-    return view('privacy');
-})->name('privacy');
-
-Route::get('login', function () {
-    return view('authentication.login');
-})->name('login')->middleware('guest');
 
 Route::post('/login', [AuthController::class, 'login_post'])->name('login_post')->middleware('guest');
 

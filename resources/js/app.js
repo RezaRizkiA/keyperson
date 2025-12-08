@@ -1,1 +1,27 @@
-import './bootstrap';
+import "./bootstrap";
+import "../css/app.css";
+
+import { createApp, h } from "vue";
+import { createInertiaApp } from "@inertiajs/vue3";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { ZiggyVue } from "ziggy-js";
+
+createInertiaApp({
+    title: (title) => `${title} - KeyPerson`,
+    // Ini memberitahu Vue untuk mencari komponen halaman di folder Pages
+    resolve: (name) =>
+        resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob("./Pages/**/*.vue")
+        ),
+    setup({ el, App, props, plugin }) {
+        return createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(ZiggyVue)
+            .mount(el);
+    },
+    progress: {
+        color: "#7c3aed", // Warna Violet untuk loading bar
+        showSpinner: true,
+    },
+});
