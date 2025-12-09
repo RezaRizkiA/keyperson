@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
     registerClientUrl: String,
@@ -67,14 +68,14 @@ onMounted(() => {
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <a :href="registerClientUrl"
+                        <Link :href="registerClientUrl"
                             class="inline-flex justify-center items-center px-6 py-3 text-base font-bold font-display text-white transition-all bg-violet-600 rounded-full shadow-lg hover:bg-violet-700 hover:-translate-y-1 cursor-pointer">
                             Create an Organizer
-                        </a>
-                        <a :href="registerExpertUrl"
+                        </Link>
+                        <Link :href="registerExpertUrl"
                             class="inline-flex justify-center items-center px-6 py-3 text-base font-bold font-display text-violet-700 transition-all bg-white border border-violet-200 rounded-full hover:bg-violet-50 hover:border-violet-300 cursor-pointer">
                             I am Professional
-                        </a>
+                        </Link>
                     </div>
                 </div>
 

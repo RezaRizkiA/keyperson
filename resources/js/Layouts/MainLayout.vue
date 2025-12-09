@@ -1,8 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import { usePage } from '@inertiajs/vue3'; // Hook untuk ambil data shared
-import AppNavbar from '../components/AppNavbar.vue';
-import AppFooter from '../components/AppFooter.vue';
+import AppNavbar from '../Components/AppNavbar.vue';
+import AppFooter from '../Components/AppFooter.vue';
+import ToastNotification from '../Components/ToastNotification.vue';
 
 // Mengakses data yang dikirim dari HandleInertiaRequests.php
 const page = usePage();
@@ -16,6 +17,8 @@ const componentName = computed(() => page.component);
 
 <template>
     <div class="flex flex-col min-h-screen font-sans">
+        <ToastNotification />
+
         <AppNavbar :user="user" :routes="routes" :logo-url="assets.logoUrl"
             :current-route-name="componentName.toLowerCase()" />
 

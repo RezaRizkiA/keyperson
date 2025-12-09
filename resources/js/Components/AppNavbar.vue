@@ -65,7 +65,7 @@ const isActive = (name) => {
                         <a :href="routes.profile"
                             class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-violet-700 bg-violet-50 rounded-full hover:bg-violet-100 transition-all border border-violet-100">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            Profile
+                            Dashboard
                         </a>
                     </template>
                 </div>

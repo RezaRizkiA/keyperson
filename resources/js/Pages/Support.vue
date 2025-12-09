@@ -1,7 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import MainLayout from '../Layouts/MainLayout.vue';
-import SupportPage from '../components/SupportPage.vue';
+import SupportPage from '../Components/SupportPage.vue';
 
 import { ref, onMounted } from 'vue';
 

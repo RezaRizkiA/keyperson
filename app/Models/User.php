@@ -1,13 +1,16 @@
 <?php
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
     protected $table   = 'users';
     protected $guarded = ['id'];
+    protected $appends = ['picture_url', 'has_password'];
 
     protected $hidden = [
         'password',
@@ -22,6 +25,22 @@ class User extends Authenticatable
         'google_scopes' => 'array',
         'calendar_connected' => 'boolean',
     ];
+
+    public function getPictureUrlAttribute()
+    {
+        if (!$this->picture) {
+            return asset('assets/images/profile/user-3.jpg');
+        }
+
+        // Storage::url() otomatis mendeteksi apakah pakai S3 atau Local
+        // dan menghasilkan URL lengkap (https://...)
+        return Storage::url($this->picture);
+    }
+
+    public function getHasPasswordAttribute()
+    {
+        return !is_null($this->password);
+    }
 
     public function client()
     {
@@ -42,5 +61,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Appointment::class);
     }
-
 }

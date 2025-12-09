@@ -1,7 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import MainLayout from '../Layouts/MainLayout.vue';
-import AboutPage from '../components/AboutPage.vue';
+import AboutPage from '../Components/AboutPage.vue';
 import { ref, onMounted } from 'vue';
 
 const isLoaded = ref(false);

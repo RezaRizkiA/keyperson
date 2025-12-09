@@ -1,7 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import MainLayout from '../Layouts/MainLayout.vue';
-import TermsPage from '../components/TermsPage.vue';
+import TermsPage from '../Components/TermsPage.vue';
 
 import { ref, onMounted } from 'vue';
 

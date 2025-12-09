@@ -23,6 +23,141 @@ class AuthController extends Controller
             'status' => session('status'),
         ]);
     }
+
+    public function registerClient(Request $request)
+    {
+        $user = Auth::user();
+
+        // Ambil data expertise untuk form Expert (jika nanti digabung)
+        $expertises = Expertise::whereNull('parent_id')
+            ->orderBy('order')
+            ->with('childrensRecursive')
+            ->get();
+
+        // Render ke folder Register/Index.vue
+        // Kita kirim props 'type' = 'client' agar Vue tahu harus buka tab Client
+        return Inertia::render('Register/Index', [
+            'user' => $user,
+            'client' => $user->client, // Data client user (jika ada)
+            'expert' => $user->expert, // Data expert user (jika ada)
+            'expertises' => $expertises,
+            'initialTab' => 'client' // Penanda untuk Vue
+        ]);
+    }
+
+    public function registerExpert(Request $request)
+    {
+        $user = Auth::user();
+        $expertises = Expertise::whereNull('parent_id')->orderBy('order')->with('childrensRecursive')->get();
+
+        return Inertia::render('Register/Index', [
+            'user' => $user,
+            'client' => $user->client,
+            'expert' => $user->expert,
+            'expertises' => $expertises,
+            'initialTab' => 'expert' // Penanda untuk Vue
+        ]);
+    }
+
+    public function profile()
+    {
+        $user = Auth::user();
+        // Load relasi client & expert agar bisa diakses di frontend (untuk link dashboard)
+        $user->load(['client', 'expert']);
+
+        $roles = $user->roles ?? [];
+        $isAdmin = in_array('administrator', $roles, true);
+        $isExpert = in_array('expert', $roles, true);
+        $isClient = in_array('client', $roles, true);
+
+        // 1. DATA EXPERTISES (Khusus Admin)
+        $expertises = [];
+        if ($isAdmin) {
+            // Kita ambil struktur tree (nested) agar cocok dengan komponen ExpertiseSelector.vue
+            // yang menggunakan loop parent -> child -> grandchild
+            $expertises = Expertise::whereNull('parent_id')
+                ->orderBy('order')
+                ->with('childrensRecursive')
+                ->get();
+        }
+
+        // 2. DATA APPOINTMENTS
+        // Kita inisialisasi query builder
+        $query = Appointment::latest();
+
+        if ($isExpert && optional($user->expert)->id) {
+            // Jika Login sebagai EXPERT -> Ambil appointment berdasarkan expert_id
+            // Eager load 'user' (klien) beserta fotonya
+            $query->where('expert_id', $user->expert->id)
+                ->with('user:id,name,email,picture');
+        } else {
+            // Jika Login sebagai CLIENT -> Ambil appointment berdasarkan user_id
+            // Eager load 'expert.user' (profesional) beserta fotonya
+            $query->where('user_id', $user->id)
+                ->with(['expert.user:id,name,email,picture']);
+        }
+
+        $appointments = $query->get();
+        $appointmentsCount = $appointments->count();
+
+        // 3. FORMAT DATA KALENDER (Untuk FullCalendar Vue)
+        // Kita ubah nama variabel jadi 'calendarEvents' agar sesuai prop Vue
+        $calendarEvents = $appointments->map(function ($app) use ($isExpert) {
+            // Tentukan siapa "Lawan Bicara" di event tersebut
+            $person = $isExpert ? $app->user : optional($app->expert)->user;
+
+            // Tentukan warna berdasarkan status (Opsional, untuk visual kalender)
+            $color = match ($app->status) {
+                'confirmed' => '#10b981', // Emerald 500
+                'cancelled' => '#ef4444', // Red 500
+                default => '#3b82f6',     // Blue 500 (Pending)
+            };
+
+            return [
+                'id' => $app->id,
+                'title' => ($person->name ?? 'Unknown') . ' (' . ucfirst($app->status) . ')',
+                'start' => $app->date_time, // Format ISO8601 dari Laravel biasanya sudah aman
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'extendedProps' => [
+                    'status' => $app->status,
+                    'topic' => $app->topic
+                ]
+            ];
+        });
+
+        // 4. SOCIAL MEDIA (Menggunakan helper yang ada di project lama Anda)
+        $socialMedias = function_exists('getSocialMedias') ? getSocialMedias($user) : [];
+
+        // 5. RETURN INERTIA
+        return Inertia::render('Profile/Index', [
+            'user' => $user,
+            'roles' => $roles,
+            'isExpert' => $isExpert,
+            'isClient' => $isClient,
+            'isAdmin' => $isAdmin,
+
+            // Data Tabs
+            'expertises' => $expertises,
+            'appointments' => $appointments,
+            'appointmentsCount' => $appointmentsCount,
+            'calendarEvents' => $calendarEvents, // Nama prop disesuaikan dengan CalendarTab.vue
+            'socialMedias' => $socialMedias,
+        ]);
+    }
+
+    public function settings()
+    {
+        return Inertia::render('Profile/Settings', [
+            'user' => Auth::user(),
+            // Kirim flash message jika ada (sukses/gagal update)
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error'),
+            ]
+        ]);
+    }
+
     public function google_login()
     {
         return Socialite::driver('google')
@@ -130,8 +265,10 @@ class AuthController extends Controller
         $client     = $user->client;
         $expert     = $user->expert;
 
-        return view('register.register_action', compact('expertises', 'client', 'expert'));
+        return Inertia::render('Register/Index', compact('expertises', 'client', 'expert'));
     }
+
+    
 
     public function logout(Request $request)
     {
@@ -255,67 +392,67 @@ class AuthController extends Controller
         return redirect()->route('profile')->with('success', 'Profile updated successfully.');
     }
 
-    public function profile()
-    {
-        $user  = Auth::user();
-        $roles = $user->roles ?? [];
+    // public function profile()
+    // {
+    //     $user  = Auth::user();
+    //     $roles = $user->roles ?? [];
 
-        $expertises = null;
+    //     $expertises = null;
 
-        if (in_array('administrator', $roles, true)) {
-            $roots = Expertise::whereNull('parent_id')
-                ->orderBy('order')
-                ->with('childrensRecursive')
-                ->get();
+    //     if (in_array('administrator', $roles, true)) {
+    //         $roots = Expertise::whereNull('parent_id')
+    //             ->orderBy('order')
+    //             ->with('childrensRecursive')
+    //             ->get();
 
-            $expertises = collect();
-            foreach ($roots as $root) {
-                $expertises = $expertises
-                    ->merge([$root])                         // level-1
-                    ->merge($root->flattenAllDescendants()); // level-2 & 3
-            }
-        }
+    //         $expertises = collect();
+    //         foreach ($roots as $root) {
+    //             $expertises = $expertises
+    //                 ->merge([$root])                         // level-1
+    //                 ->merge($root->flattenAllDescendants()); // level-2 & 3
+    //         }
+    //     }
 
-        $isExpert = in_array('expert', $roles, true);
-        $appointmentsCount = 0;
-        if ($isExpert && optional($user->expert)->id) {
+    //     $isExpert = in_array('expert', $roles, true);
+    //     $appointmentsCount = 0;
+    //     if ($isExpert && optional($user->expert)->id) {
 
-            // ⇢ Login sebagai EXPERT  → tampilkan user
-            $appointments = Appointment::with([
-                'user:id,name,email',
-            ])
-                ->where('expert_id', $user->expert->id)
-                ->latest()
-                ->get();
+    //         // ⇢ Login sebagai EXPERT  → tampilkan user
+    //         $appointments = Appointment::with([
+    //             'user:id,name,email',
+    //         ])
+    //             ->where('expert_id', $user->expert->id)
+    //             ->latest()
+    //             ->get();
 
-            $appointmentsCount = $appointments->count();
-        } else {
-            $appointments = Appointment::with([
-                // ambil data expert beserta user-nya dan email
-                'expert' => function ($q) {
-                    // harus include user_id agar relasi "user" bisa bekerja
-                    $q->select('id', 'user_id', 'expertise', 'price')
-                        ->with('user:id,name,email');
-                },
-            ])
-                ->where('user_id', $user->id)
-                ->latest()
-                ->get();
+    //         $appointmentsCount = $appointments->count();
+    //     } else {
+    //         $appointments = Appointment::with([
+    //             // ambil data expert beserta user-nya dan email
+    //             'expert' => function ($q) {
+    //                 // harus include user_id agar relasi "user" bisa bekerja
+    //                 $q->select('id', 'user_id', 'expertise', 'price')
+    //                     ->with('user:id,name,email');
+    //             },
+    //         ])
+    //             ->where('user_id', $user->id)
+    //             ->latest()
+    //             ->get();
 
-            $appointmentsCount = $appointments->count();
-        }
+    //         $appointmentsCount = $appointments->count();
+    //     }
 
-        // dd($appointments);
-        $calendarAppointments = $appointments->map(function ($app) use ($isExpert) {
-            $person = $isExpert ? $app->user : optional($app->expert)->user;
-            return [
-                'title' => $person->name . ' (' . ucfirst(str_replace('_', ' ', $app->status)) . ')',
-                'start' => $app->date_time,
-            ];
-        });
+    //     // dd($appointments);
+    //     $calendarAppointments = $appointments->map(function ($app) use ($isExpert) {
+    //         $person = $isExpert ? $app->user : optional($app->expert)->user;
+    //         return [
+    //             'title' => $person->name . ' (' . ucfirst(str_replace('_', ' ', $app->status)) . ')',
+    //             'start' => $app->date_time,
+    //         ];
+    //     });
 
-        return Inertia::render('Profile', compact('expertises', 'appointments', 'isExpert', 'calendarAppointments', 'appointmentsCount'));
-    }
+    //     return Inertia::render('Profile/Index', compact('expertises', 'appointments', 'isExpert', 'calendarAppointments', 'appointmentsCount'));
+    // }
 
     public function register_client_post(Request $request)
     {

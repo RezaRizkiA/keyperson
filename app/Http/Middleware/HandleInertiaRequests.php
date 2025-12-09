@@ -64,6 +64,12 @@ class HandleInertiaRequests extends Middleware
                 'register_client' => route('register_client'),
                 'register_expert' => route('register_expert'),
             ],
+
+            // 4. Flash Message
+            'flash' => [
+                'success' => fn() => $request->session()->get('success'),
+                'error' => fn() => $request->session()->get('error'),
+            ],
         ]);
     }
 }

@@ -1,9 +1,9 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import MainLayout from '../Layouts/MainLayout.vue';
-import HomeHero from '../components/HomeHero.vue';
-import LogoCloud from '../components/LogoCloud.vue';
-import FeatureSection from '../components/FeatureSection.vue';
+import HomeHero from '../Components/HomeHero.vue';
+import LogoCloud from '../Components/LogoCloud.vue';
+import FeatureSection from '../Components/FeatureSection.vue';
 
 // Props khusus untuk Home (dikirim dari Controller)
 defineProps({

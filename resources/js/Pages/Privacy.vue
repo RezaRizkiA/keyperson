@@ -1,7 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
 import MainLayout from '../Layouts/MainLayout.vue';
-import PrivacyPage from '../components/PrivacyPage.vue';
+import PrivacyPage from '../Components/PrivacyPage.vue';
 import { ref, onMounted } from 'vue';
 
 const isLoaded = ref(false);

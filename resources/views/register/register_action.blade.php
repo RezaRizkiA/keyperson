@@ -510,34 +510,6 @@
                                                 'expertises' => $expertises,
                                                 'expertiseSelected' => $client?->expertise_id ?? []
                                             ])
-                                            {{-- <div class="card border position-relative overflow-hidden mb-0">
-                                                <div class="card-body p-2" style="max-height: 900px; overflow-y: auto;">
-                                                    @foreach ($expertise_categories as $category)
-                                                        <div class="mb-3 form-group validate">
-                                                            <label class="form-label">{{ $category->name }} <span
-                                                                    class="text-danger">*</span></label>
-                                                            <div class="controls">
-                                                                @foreach ($category->expertises as $expertise)
-                                                                    <fieldset>
-                                                                        <div class="form-check py-0">
-                                                                            <input type="checkbox"
-                                                                                value="{{ $expertise->id }}"
-                                                                                name="expertise_id[]"
-                                                                                class="form-check-input"
-                                                                                id="expert{{ $expertise->id }}"
-                                                                                aria-invalid="false"
-                                                                                @if ($client != null && in_array($expertise->id, $client->expertise_id)) checked @endif>
-                                                                            <label class="form-check-label"
-                                                                                for="expert{{ $expertise->id }}">{{ $expertise->name }}</label>
-                                                                        </div>
-                                                                    </fieldset>
-                                                                @endforeach
-                                                                <div class="help-block"></div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div> --}}
                                         </div>
                                     </div>
 
