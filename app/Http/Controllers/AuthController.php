@@ -193,7 +193,6 @@ class AuthController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        // Load relasi client & expert agar bisa diakses di frontend (untuk link dashboard)
         $user->load(['client', 'expert']);
 
         $roles = $user->roles ?? [];
@@ -203,8 +202,6 @@ class AuthController extends Controller
 
         $expertises = [];
         if ($isAdmin) {
-            // Kita ambil struktur tree (nested) agar cocok dengan komponen ExpertiseSelector.vue
-            // yang menggunakan loop parent -> child -> grandchild
             $expertises = Expertise::whereNull('parent_id')
                 ->orderBy('order')
                 ->with('childrensRecursive')
@@ -214,13 +211,9 @@ class AuthController extends Controller
         $query = Appointment::latest();
 
         if ($isExpert && optional($user->expert)->id) {
-            // Jika Login sebagai EXPERT -> Ambil appointment berdasarkan expert_id
-            // Eager load 'user' (klien) beserta fotonya
             $query->where('expert_id', $user->expert->id)
                 ->with('user:id,name,email,picture');
         } else {
-            // Jika Login sebagai CLIENT -> Ambil appointment berdasarkan user_id
-            // Eager load 'expert.user' (profesional) beserta fotonya
             $query->where('user_id', $user->id)
                 ->with(['expert.user:id,name,email,picture']);
         }
@@ -229,20 +222,17 @@ class AuthController extends Controller
         $appointmentsCount = $appointments->count();
 
         $calendarEvents = $appointments->map(function ($app) use ($isExpert) {
-            // Tentukan siapa "Lawan Bicara" di event tersebut
             $person = $isExpert ? $app->user : optional($app->expert)->user;
-
-            // Tentukan warna berdasarkan status (Opsional, untuk visual kalender)
             $color = match ($app->status) {
-                'confirmed' => '#10b981', // Emerald 500
-                'cancelled' => '#ef4444', // Red 500
-                default => '#3b82f6',     // Blue 500 (Pending)
+                'confirmed' => '#10b981',
+                'cancelled' => '#ef4444',
+                default => '#3b82f6',
             };
 
             return [
                 'id' => $app->id,
                 'title' => ($person->name ?? 'Unknown') . ' (' . ucfirst($app->status) . ')',
-                'start' => $app->date_time, // Format ISO8601 dari Laravel biasanya sudah aman
+                'start' => $app->date_time,
                 'backgroundColor' => $color,
                 'borderColor' => $color,
                 'extendedProps' => [
@@ -254,9 +244,20 @@ class AuthController extends Controller
 
         $socialMedias = function_exists('getSocialMedias') ? getSocialMedias($user) : [];
 
-        $transactions = Transaction::where('user_id', $user->id)
-            ->latest()
-            ->get();
+        if ($isExpert && optional($user->expert)->id) {
+            // Jika Expert: Cari transaksi yang BERHUBUNGAN dengan appointment milik expert ini
+            // (Meskipun user_id di transaksi adalah milik client, kita filter via relasi appointment)
+            $transactions = Transaction::whereHas('appointment', function ($q) use ($user) {
+                $q->where('expert_id', $user->expert->id);
+            })
+                ->latest()
+                ->get();
+        } else {
+            // Jika Client: Cari transaksi yang DIBUAT oleh user ini
+            $transactions = Transaction::where('user_id', $user->id)
+                ->latest()
+                ->get();
+        }
             
         return Inertia::render('Profile/Index', [
             'user' => $user,
@@ -264,7 +265,6 @@ class AuthController extends Controller
             'isExpert' => $isExpert,
             'isClient' => $isClient,
             'isAdmin' => $isAdmin,
-
             // Data Tabs
             'expertises' => $expertises,
             'appointments' => $appointments,

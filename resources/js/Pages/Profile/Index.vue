@@ -201,7 +201,7 @@ const tabs = [
                                             <p class="text-slate-500 mt-1">Manage your invoices and pending payments.
                                             </p>
                                         </div>
-                                        <PaymentTab :transactions="transactions" />
+                                        <PaymentTab :transactions="transactions" :is-expert="isExpert" />
                                     </div>
 
                                 </Transition>

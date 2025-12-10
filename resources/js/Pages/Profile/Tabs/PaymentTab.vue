@@ -9,7 +9,8 @@ import {
 } from 'lucide-vue-next';
 
 const props = defineProps({
-    transactions: Array
+    transactions: Array,
+    isExpert: Boolean
 });
 
 // Helper Format Currency
@@ -26,7 +27,7 @@ const formatDate = (dateString) => {
 // Helper Status Color
 const getStatusColor = (status) => {
     switch (status) {
-        case 'paid': return 'bg-green-100 text-green-700 border-green-200';
+        case 'berhasil': return 'bg-green-100 text-green-700 border-green-200';
         case 'pending': return 'bg-orange-100 text-orange-700 border-orange-200';
         case 'expired': return 'bg-red-100 text-red-700 border-red-200';
         default: return 'bg-slate-100 text-slate-700 border-slate-200';
@@ -42,7 +43,9 @@ const getStatusColor = (status) => {
                 <CreditCard class="w-8 h-8 text-slate-300" />
             </div>
             <h3 class="text-slate-900 font-bold mb-1">No Transactions Yet</h3>
-            <p class="text-slate-500 text-sm">You haven't made any payments.</p>
+            <p class="text-slate-500 text-sm">
+                {{ isExpert ? "No income transactions found." : "You haven't made any payments." }}
+            </p>
         </div>
 
         <div v-else class="space-y-4">
@@ -50,8 +53,8 @@ const getStatusColor = (status) => {
                 class="bg-white p-5 rounded-2xl border border-slate-200 hover:border-violet-200 transition-all shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-start gap-4">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-                        :class="trx.status === 'paid' ? 'bg-green-50' : (trx.status === 'pending' ? 'bg-orange-50' : 'bg-red-50')">
-                        <CheckCircle2 v-if="trx.status === 'paid'" class="w-6 h-6 text-green-500" />
+                        :class="trx.status === 'berhasil' ? 'bg-green-50' : (trx.status === 'pending' ? 'bg-orange-50' : 'bg-red-50')">
+                        <CheckCircle2 v-if="trx.status === 'berhasil'" class="w-6 h-6 text-green-500" />
                         <Clock v-else-if="trx.status === 'pending'" class="w-6 h-6 text-orange-500" />
                         <XCircle v-else class="w-6 h-6 text-red-500" />
                     </div>
@@ -78,7 +81,7 @@ const getStatusColor = (status) => {
                         <p class="font-bold text-slate-900 text-lg">{{ formatCurrency(trx.total) }}</p>
                     </div>
 
-                    <Link v-if="trx.status === 'pending'" :href="route('payment.transaction', trx.sid)"
+                    <Link v-if="trx.status === 'pending' && !isExpert" :href="route('payment.transaction', trx.sid)"
                         class="px-5 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-violet-600 transition-colors shadow-lg shadow-slate-900/20 flex items-center gap-2">
                         Pay Now
                         <ArrowRight class="w-4 h-4" />
@@ -86,7 +89,7 @@ const getStatusColor = (status) => {
 
                     <button v-else
                         class="px-4 py-2 bg-slate-50 text-slate-600 text-sm font-bold rounded-xl border border-slate-200 cursor-default">
-                        {{ trx.status === 'paid' ? 'Completed' : 'Failed' }}
+                        {{ (trx.status === 'berhasil') ? 'Completed' : (trx.status === 'pending') ? 'Pending' : 'Failed' }}
                     </button>
                 </div>
             </div>

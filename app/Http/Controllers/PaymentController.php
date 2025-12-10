@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -109,7 +110,6 @@ class PaymentController extends Controller
 
         // --- Langkah 7: Mengarahkan Pengguna ---
         return redirect()->route('payment.transaction', ['sid' => $transaction->sid]);
-
     }
 
     public function transaction($sid_transaction)
@@ -117,7 +117,7 @@ class PaymentController extends Controller
         $transaction = Transaction::where('sid', $sid_transaction)->firstOrFail();
 
         // 1. Cek Status Paid
-        if ($transaction->status === 'paid') {
+        if ($transaction->status === 'berhasil') {
             return redirect()->route('profile')->with('success', 'Payment has been completed successfully.');
         }
 
@@ -150,7 +150,7 @@ class PaymentController extends Controller
         $dataNotify = $request->all();
         Log::info('Payment Notification Received', $dataNotify);
 
-        if (! isset($dataNotify['trx_id'])) {
+        if (!isset($dataNotify['trx_id'])) {
             Log::error('Missing trx_id in payment notification');
             return response()->json(['error' => 'Missing trx_id'], 400);
         }
@@ -158,17 +158,17 @@ class PaymentController extends Controller
         // cari transaksi berdasarkan kolom referenceId
         $transaction = Transaction::where('transactionId', $dataNotify['trx_id'])->first();
 
-        if (! $transaction) {
+        if (!$transaction) {
             Log::error('Transaction not found for trx_id: ' . $dataNotify['trx_id']);
             return response()->json(['error' => 'Transaction not found'], 404);
         }
 
+        $checkTransaction = checkTransactionIpaymu($transaction->transactionId);
 
-        if ($transaction->status !== 'berhasil') {
-            // validasi ulang
-            $checkTransaction = checkTransactionIpaymu($transaction->transactionId);
-            if($checkTransaction['StatusDesc'] === 'Berhasil') {
+        if (isset($checkTransaction['StatusDesc']) && $checkTransaction['StatusDesc'] === 'Berhasil') {
+            if ($transaction->status !== 'berhasil') {
                 $transaction->update([
+                    'status'        => strtolower($checkTransaction['StatusDesc'] ?? 'berhasil'),
                     'status'        => strtolower($checkTransaction['StatusDesc'] ?? 'berhasil'),
                     'trx_id'        => $checkTransaction['TransactionId'] ?? $transaction->transactionId,
                     'reference_id'  => $checkTransaction['ReferenceId'] ?? $transaction->reference_id,
@@ -176,11 +176,27 @@ class PaymentController extends Controller
                 ]);
                 $transaction->appointment->update(['payment_status' => 'berhasil']);
                 CreateGoogleCalendarEvent::dispatch($transaction->appointment);
-
-                return response()->json(['message' => 'Google Calendar event created successfully.']);
-            } else {
             }
-                return response()->json(['message' => 'Transaksi belum berhasil']);
-            }
+            return response()->json(['status' => 'success', 'message' => 'Payment processed, Google Calendar event created successfully']);
         }
+        return response()->json(['message' => 'Payment not yet successful']);
+
+        // if ($transaction->status !== 'berhasil') {
+        //     $checkTransaction = checkTransactionIpaymu($transaction->transactionId);
+        //     if ($checkTransaction['StatusDesc'] === 'Berhasil') {
+        //         $transaction->update([
+        //             'status'        => strtolower($checkTransaction['StatusDesc'] ?? 'berhasil'),
+        //             'trx_id'        => $checkTransaction['TransactionId'] ?? $transaction->transactionId,
+        //             'reference_id'  => $checkTransaction['ReferenceId'] ?? $transaction->reference_id,
+        //             'payment_date'  => isset($checkTransaction['SuccessDate']) ? Carbon::parse($checkTransaction['SuccessDate']) : null,
+        //         ]);
+        //         $transaction->appointment->update(['payment_status' => 'berhasil']);
+        //         CreateGoogleCalendarEvent::dispatch($transaction->appointment);
+
+        //         return response()->json(['message' => 'Google Calendar event created successfully.']);
+        //     } else {
+        //     }
+        //     return response()->json(['message' => 'Transaksi belum berhasil']);
+        // }
+    }
 }

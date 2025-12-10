@@ -92,7 +92,8 @@ const submit = () => {
                                         </div>
                                         <textarea v-model="form.topic" rows="4"
                                             class="block w-full pl-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all text-sm"
-                                            placeholder="Describe what you want to discuss..." required></textarea>
+                                            placeholder="Describe what you want to discuss..." required>
+                                        </textarea>
                                     </div>
                                     <p v-if="form.errors.topic" class="text-red-500 text-xs mt-1">{{ form.errors.topic}}</p>
                                 </div>
@@ -114,7 +115,7 @@ const submit = () => {
                                                 required>
                                         </div>
                                         <p v-if="form.errors.date" class="text-red-500 text-xs mt-1">{{ form.errors.date
-                                            }}</p>
+                                        }}</p>
                                     </div>
 
                                     <div>
@@ -132,7 +133,7 @@ const submit = () => {
                                                 required>
                                         </div>
                                         <p v-if="form.errors.time" class="text-red-500 text-xs mt-1">{{ form.errors.time
-                                            }}</p>
+                                        }}</p>
                                     </div>
 
                                 </div>
@@ -170,7 +171,7 @@ const submit = () => {
                                         class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white hover:shadow-sm text-slate-500 transition-all disabled:opacity-50"
                                         :disabled="form.hours <= 1">-</button>
                                     <span class="w-8 text-center font-bold text-slate-900 text-sm">{{ form.hours
-                                        }}h</span>
+                                    }}h</span>
                                     <button type="button" @click="updateHours(1)"
                                         class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white hover:shadow-sm text-slate-500 transition-all">+</button>
                                 </div>

@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment'])->name('appointment');
     Route::post('make-appointment-{expert_id}', [ExpertController::class, 'make_appointment_post'])->name('appointment_post');
+    
     Route::post('appointment/{id}/update-status', [AppointmentController::class, 'updateStatus'])->name('appointment.update_status');
     Route::put('/appointments/{id}/edit-schedule', [AppointmentController::class, 'editSchedule'])->name('appointment.edit_schedule');
 
@@ -51,9 +52,11 @@ Route::middleware('auth')->group(function () {
     Route::get('payment-{sid}', [PaymentController::class, 'transaction'])->name('payment.transaction');
     Route::post('payment-notify', [PaymentController::class, 'notify'])->name('payment.notify');
 
-    Route::get('paymentnotify-test', function () {
-        return view('payment.notify_test');
-    })->name('payment.notify_test');
+    if (app()->isLocal()) {
+        Route::get('paymentnotify-test', function () {
+            return view('payment.notify_test');
+        })->name('payment.notify_test');
+    }
 
     Route::post('create-expertise', [ExpertiseController::class, 'store_expertise'])->name('store_expertise');
     Route::post('create-expertise-{expertise_id}', [ExpertiseController::class, 'update_expertise'])->name('update_expertise');

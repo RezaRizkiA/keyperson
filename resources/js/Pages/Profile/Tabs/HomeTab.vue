@@ -46,8 +46,8 @@ const assets = computed(() => usePage().props.assets);
                             class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-600 text-sm font-medium">
                             <AlertCircle class="w-4 h-4" />
                             <span>Calendar not connected</span>
-                            <Link :href="route('google.calendar.connect')" class="underline hover:text-red-700">Connect
-                                Now</Link>
+                            <a :href="route('google.calendar.connect')" class="underline hover:text-red-700">Connect
+                                Now</a>
                         </div>
                     </div>
 

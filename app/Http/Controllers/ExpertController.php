@@ -26,6 +26,7 @@ class ExpertController extends Controller
 
     public function make_appointment_post(Request $request, $expert_id) // GoogleCalendarService dihapus
     {
+        // dd($request->all());
         $request->validate([
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
