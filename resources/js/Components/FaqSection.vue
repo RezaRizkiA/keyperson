@@ -3,51 +3,70 @@ import { ref } from 'vue';
 
 const faqs = [
     {
-        question: 'Apakah aplikasi ini gratis?',
-        answer: 'Kami menawarkan paket gratis untuk pemula. Untuk fitur advanced seperti pembayaran otomatis dan integrasi kalender penuh, ada biaya layanan kecil per transaksi.'
+        question: 'Apa itu Keyperson.id?',
+        answer: 'Platform yang membantu Anda menemukan dan memesan jadwal konsultasi dengan profesional (konselor, mentor, guru) secara mudah. Semua jadwal otomatis tersinkronisasi dengan Google Calendar.'
     },
     {
-        question: 'Bagaimana sistem pembayarannya?',
-        answer: 'Klien membayar saat booking menggunakan QRIS, E-Wallet, atau Transfer Bank. Dana akan diteruskan ke akun Anda setelah sesi selesai.'
+        question: 'Apakah saya butuh akun Google?',
+        answer: 'Ya. Anda perlu masuk menggunakan akun Google untuk memesan jadwal. Sistem kami menggunakan Google Calendar untuk memastikan tidak ada jadwal yang bentrok.'
     },
     {
-        question: 'Apakah bisa reschedule jadwal?',
-        answer: 'Ya, Anda bisa mengatur kebijakan reschedule sendiri. Klien dapat mengubah jadwal sesuai ketersediaan waktu Anda.'
+        question: 'Apakah ada biaya penggunaan?',
+        answer: 'Mendaftar dan mencari profesional itu GRATIS. Anda hanya membayar biaya sesi konsultasi sesuai tarif yang ditentukan oleh masing-masing profesional.'
     },
     {
-        question: 'Apakah mendukung video call?',
-        answer: 'Tentu. Link Google Meet atau Zoom akan digenerate otomatis dan dikirim ke email kedua belah pihak.'
+        question: 'Bagaimana jika saya ingin membatalkan jadwal?',
+        answer: 'Bisa. Kebijakan pembatalan tergantung pada masing-masing profesional. Tombol reschedule/cancel tersedia di dashboard Anda setelah booking berhasil.'
     }
 ];
 
-const openIndex = ref(0); // Buka yang pertama secara default
+const openIndex = ref(0);
+
+const toggleFaq = (index) => {
+    openIndex.value = openIndex.value === index ? null : index;
+};
 </script>
 
 <template>
-    <section class="py-20 bg-white">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6">
-            <h2 class="text-3xl font-bold text-center text-slate-900 mb-12 font-display">Pertanyaan yang Sering Diajukan
-            </h2>
+    <section class="py-20 lg:py-28 bg-white font-sans">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                    Pertanyaan yang Sering Diajukan
+                </h2>
+                <p class="text-slate-500 text-lg">
+                    Hal-hal yang perlu Anda ketahui sebelum memulai.
+                </p>
+            </div>
 
             <div class="space-y-4">
                 <div v-for="(faq, index) in faqs" :key="index"
-                    class="border border-slate-200 rounded-xl overflow-hidden">
-                    <button @click="openIndex = openIndex === index ? null : index"
-                        class="flex items-center justify-between w-full p-5 text-left bg-white hover:bg-slate-50 transition-colors">
-                        <span class="font-bold text-slate-800">{{ faq.question }}</span>
-                        <svg class="w-5 h-5 text-slate-500 transform transition-transform duration-300"
-                            :class="openIndex === index ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                    class="border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300"
+                    :class="openIndex === index ? 'bg-slate-50 border-violet-200 shadow-sm' : 'bg-white hover:border-slate-300'">
+
+                    <button @click="toggleFaq(index)"
+                        class="w-full flex justify-between items-center px-6 py-5 text-left focus:outline-none">
+                        <span class="font-display font-semibold text-lg text-slate-900">
+                            {{ faq.question }}
+                        </span>
+                        <span
+                            class="shrink-0 ml-4 w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-transform duration-300"
+                            :class="openIndex === index ? 'rotate-180 text-violet-600 border-violet-200' : 'text-slate-400'">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
                     </button>
 
-                    <div v-show="openIndex === index"
-                        class="p-5 pt-0 bg-white text-slate-600 leading-relaxed border-t border-slate-100">
-                        <div class="mt-3">{{ faq.answer }}</div>
+                    <div v-show="openIndex === index" class="px-6 pb-6 pt-0">
+                        <p class="text-slate-600 leading-relaxed border-t border-slate-200/60 pt-4">
+                            {{ faq.answer }}
+                        </p>
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 </template>

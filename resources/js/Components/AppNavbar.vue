@@ -114,7 +114,7 @@ const isActive = (name) => {
                     <template v-if="!user">
                         <Link :href="routes.login"
                             class="block w-full text-center px-6 py-3 text-base font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700">
-                            Get Started
+                            Sign In
                         </Link>
                     </template>
                     <template v-else>
