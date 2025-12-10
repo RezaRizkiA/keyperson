@@ -1,67 +1,91 @@
 <script setup>
+// Kita menggunakan gambar statis dari folder public Anda
 const features = [
     {
-        title: 'Easy Scheduling',
-        desc: 'No more back-and-forth emails. Clients can see your availability and book in seconds.',
-        icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+        title: 'Sinkronisasi Kalender Otomatis',
+        desc: 'Jangan pernah khawatir jadwal bentrok lagi. keyPerson tersambung langsung dengan Google Calendar Anda secara 2 arah (Two-way sync).',
+        image: '/assets/images/apps/app-calendar.jpg', // Menggunakan file yang ada
+        align: 'left'
     },
     {
-        title: 'Google Calendar Sync',
-        desc: 'Automatic two-way sync keeps your schedule up-to-date and prevents double booking.',
-        icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+        title: 'Pembayaran Terintegrasi',
+        desc: 'Terima pembayaran sebelum sesi dimulai. Mendukung QRIS, Virtual Account, dan E-Wallet. Dana langsung masuk ke dashboard Anda.',
+        image: '/assets/images/products/payment.svg', // Menggunakan file yang ada
+        align: 'right'
     },
     {
-        title: 'Secure Payments',
-        desc: 'Handle payments automatically before the session starts. Supports various local payment methods.',
-        icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' // Icon check
-    },
-    {
-        title: 'Video Integration',
-        desc: 'Meeting links are automatically generated and sent to both parties via email and dashboard.',
-        icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'
+        title: 'Dashboard Manajemen Lengkap',
+        desc: 'Pantau semua janji temu, pendapatan, dan data klien dalam satu dashboard yang intuitif dan mudah digunakan.',
+        image: '/assets/images/dashboards/dashboard1.js', // Sepertinya ini JS, kita pakai gambar placeholder dashboard
+        // Ganti path di bawah jika Anda punya screenshot dashboard yang lebih bagus
+        image: '/assets/images/apps/app-ecommerce-list.jpg',
+        align: 'left'
     }
 ];
 </script>
 
 <template>
-    <section class="py-16 lg:py-24 bg-slate-50 font-sans">
+    <section class="py-20 bg-slate-50 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div class="text-center max-w-2xl mx-auto mb-16">
+            <div class="text-center max-w-3xl mx-auto mb-20">
                 <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                    Everything you need to run your practice
+                    Semua yang Anda butuhkan untuk layanan profesional
                 </h2>
                 <p class="text-slate-600 text-lg">
-                    Focus on your clients, not the admin work. KeyPerson handles the logistics so you can deliver value.
+                    Fokus pada klien Anda, biarkan keyPerson menangani administrasi, pembayaran, dan teknis lainnya.
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div 
-                    v-for="(feature, index) in features" 
-                    :key="index"
-                    class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-                >
-                    <div class="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center mb-6 group-hover:bg-violet-600 transition-colors duration-300">
-                        <svg 
-                            class="w-6 h-6 text-violet-600 group-hover:text-white transition-colors duration-300" 
-                            fill="none" 
-                            viewBox="0 0 24 24" 
-                            stroke="currentColor"
-                        >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="feature.icon" />
-                        </svg>
+            <div class="space-y-24">
+                <div v-for="(feature, index) in features" :key="index"
+                    class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+
+                    <div class="w-full lg:w-1/2" :class="feature.align === 'right' ? 'lg:order-2' : ''">
+                        <div class="relative rounded-2xl bg-white p-2 shadow-xl border border-slate-200">
+                            <div class="absolute -top-4 -right-4 w-24 h-24 bg-dots-pattern opacity-20"></div>
+                            <img :src="feature.image" :alt="feature.title"
+                                class="rounded-xl w-full h-auto object-cover shadow-inner bg-slate-100">
+                        </div>
                     </div>
 
-                    <h3 class="font-display text-xl font-bold text-slate-900 mb-3">
-                        {{ feature.title }}
-                    </h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        {{ feature.desc }}
-                    </p>
+                    <div class="w-full lg:w-1/2" :class="feature.align === 'right' ? 'lg:order-1' : ''">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="w-12 h-1 bg-violet-600 rounded-full"></span>
+                            <span class="text-violet-600 font-bold uppercase tracking-wider text-sm">Fitur
+                                Unggulan</span>
+                        </div>
+                        <h3 class="text-3xl font-bold text-slate-900 mb-6 font-display">{{ feature.title }}</h3>
+                        <p class="text-lg text-slate-600 leading-relaxed mb-8">
+                            {{ feature.desc }}
+                        </p>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-green-500 mt-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-slate-700">Mudah digunakan di Mobile & Desktop</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-green-500 mt-1" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span class="text-slate-700">Notifikasi Real-time via Email</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
         </div>
     </section>
 </template>
+
+<style scoped>
+.bg-dots-pattern {
+    background-image: radial-gradient(#6366f1 1px, transparent 1px);
+    background-size: 10px 10px;
+}
+</style>
