@@ -55,7 +55,7 @@ class PaymentController extends Controller
         ]);
         // dd(request()->all());
 
-        if ($appointment->transactions()->where('status', 'paid')->exists()) {
+        if ($appointment->transactions()->where('status', 'berhasil')->exists()) {
             return back()->with('error', 'This appointment has already been paid.');
         }
 
@@ -75,13 +75,18 @@ class PaymentController extends Controller
             'expired_date'   => trim(24),
             'description'    => $trx_desc,
             'feeDirection'   => 'BUYER',
-            // 'product'        => $appointment->appointment,
-            // 'qty'            => $appointment->hours,
-            // 'price'          => $appointment->price,
         ];
 
         // memanggil fungsi helper
         $ipaymuResponse = directPaymentIpaymu($body);
+
+        if (!$ipaymuResponse || !isset($ipaymuResponse['SessionId'])) {
+            // Debugging: Log error untuk melihat pesan asli dari iPaymu (jika ada)
+            \Illuminate\Support\Facades\Log::error('Ipaymu Payment Failed', ['body' => $body, 'response' => $ipaymuResponse]);
+
+            // Kembalikan user ke halaman sebelumnya dengan pesan error
+            return back()->with('error', 'Gagal memproses pembayaran. Silakan coba lagi atau pilih metode lain.');
+        }
 
         $transaction = Transaction::create([
             'appointment_id' => $appointment->id,
@@ -140,7 +145,7 @@ class PaymentController extends Controller
 
         return Inertia::render('Client/Payment/Transaction', [
             'transaction' => $transaction,
-            'qrCodeImage' => $qrCodeImage, // Kirim gambar ke Vue
+            'qrCodeImage' => $qrCodeImage,
         ]);
     }
 
@@ -180,23 +185,5 @@ class PaymentController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Payment processed, Google Calendar event created successfully']);
         }
         return response()->json(['message' => 'Payment not yet successful']);
-
-        // if ($transaction->status !== 'berhasil') {
-        //     $checkTransaction = checkTransactionIpaymu($transaction->transactionId);
-        //     if ($checkTransaction['StatusDesc'] === 'Berhasil') {
-        //         $transaction->update([
-        //             'status'        => strtolower($checkTransaction['StatusDesc'] ?? 'berhasil'),
-        //             'trx_id'        => $checkTransaction['TransactionId'] ?? $transaction->transactionId,
-        //             'reference_id'  => $checkTransaction['ReferenceId'] ?? $transaction->reference_id,
-        //             'payment_date'  => isset($checkTransaction['SuccessDate']) ? Carbon::parse($checkTransaction['SuccessDate']) : null,
-        //         ]);
-        //         $transaction->appointment->update(['payment_status' => 'berhasil']);
-        //         CreateGoogleCalendarEvent::dispatch($transaction->appointment);
-
-        //         return response()->json(['message' => 'Google Calendar event created successfully.']);
-        //     } else {
-        //     }
-        //     return response()->json(['message' => 'Transaksi belum berhasil']);
-        // }
     }
 }

@@ -182,7 +182,7 @@ const tabs = [
                                             <h2 class="text-2xl font-bold text-slate-900">Schedule Calendar</h2>
                                             <p class="text-slate-500 mt-1">Visualize your upcoming sessions.</p>
                                         </div>
-                                        <CalendarTab :events="calendarEvents" />
+                                        <CalendarTab :calendar-events="calendarEvents" />
                                     </div>
 
                                     <div v-else-if="activeTab === 'members'" class="h-full flex flex-col p-8"

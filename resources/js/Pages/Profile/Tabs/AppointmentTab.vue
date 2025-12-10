@@ -248,7 +248,7 @@ const filters = [
                                 <div class="w-1 h-1 bg-slate-300 rounded-full hidden sm:block"></div>
                                 <div>
                                     <span class="font-medium text-slate-700">Rp {{ formatCurrency(appointment.price)
-                                        }}</span>
+                                    }}</span>
                                     <span class="text-xs ml-1">({{ appointment.hours }} Hours)</span>
                                 </div>
                             </div>
@@ -264,39 +264,64 @@ const filters = [
 
                         <div v-if="isExpert" class="flex items-center gap-2">
 
-                            <template v-if="['need_confirmation', 'paid'].includes(appointment.status)">
-                                <button @click="openRescheduleModal(appointment)" title="Reschedule"
-                                    class="p-2 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors">
-                                    <CalendarClock class="w-5 h-5" />
-                                </button>
-                                <button @click="openActionModal(appointment.id, 'declined')"
-                                    class="px-4 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-transparent hover:border-red-200 transition-all">
-                                    Decline
-                                </button>
-                                <button @click="openActionModal(appointment.id, 'progress')"
-                                    class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-violet-600 shadow-lg shadow-slate-900/20 hover:shadow-violet-600/30 transition-all flex items-center gap-2">
-                                    Accept
-                                    <ChevronRight class="w-3 h-3" />
-                                </button>
-                            </template>
+                            <template
+                                v-if="!['paid', 'berhasil'].includes(appointment.payment_status) && appointment.status !== 'cancelled'">
+                                <div class="flex items-center gap-2 px-4 py-2 rounded-xl border bg-slate-50 border-slate-200 cursor-not-allowed opacity-80"
+                                    :title="`Payment Status: ${appointment.payment_status}`">
+                                    <Clock v-if="appointment.payment_status === 'pending'"
+                                        class="w-4 h-4 text-orange-500" />
+                                    <XCircle v-else class="w-4 h-4 text-red-500" />
 
-                            <template v-if="appointment.status === 'progress'">
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="text-xs font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full animate-pulse border border-green-100">
-                                        Session Active
-                                    </span>
-                                    <button @click="openActionModal(appointment.id, 'completed')"
-                                        class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all flex items-center gap-2">
-                                        <Medal class="w-4 h-4" /> Complete Session
-                                    </button>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-xs font-bold text-slate-600 uppercase">
+                                            {{ appointment.payment_status || 'Unpaid' }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 font-medium leading-none">
+                                            Waiting for Client
+                                        </span>
+                                    </div>
                                 </div>
                             </template>
 
-                            <span v-if="['completed', 'declined', 'cancelled'].includes(appointment.status)"
-                                class="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
-                                {{ appointment.status === 'completed' ? 'Archived' : 'Closed' }}
-                            </span>
+                            <template v-else>
+
+                                <template v-if="['need_confirmation', 'paid'].includes(appointment.status)">
+                                    <button @click="openRescheduleModal(appointment)" title="Reschedule"
+                                        class="p-2 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors">
+                                        <CalendarClock class="w-5 h-5" />
+                                    </button>
+
+                                    <button @click="openActionModal(appointment.id, 'declined')"
+                                        class="px-4 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-transparent hover:border-red-200 transition-all">
+                                        Decline
+                                    </button>
+
+                                    <button @click="openActionModal(appointment.id, 'progress')"
+                                        class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-violet-600 shadow-lg shadow-slate-900/20 hover:shadow-violet-600/30 transition-all flex items-center gap-2">
+                                        Accept
+                                        <ChevronRight class="w-3 h-3" />
+                                    </button>
+                                </template>
+
+                                <template v-if="appointment.status === 'progress'">
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="text-xs font-medium text-green-600 bg-green-50 px-3 py-1 rounded-full animate-pulse border border-green-100">
+                                            Session Active
+                                        </span>
+                                        <button @click="openActionModal(appointment.id, 'completed')"
+                                            class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all flex items-center gap-2">
+                                            <Medal class="w-4 h-4" /> Complete Session
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <span v-if="['completed', 'declined', 'cancelled'].includes(appointment.status)"
+                                    class="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100">
+                                    {{ appointment.status === 'completed' ? 'Archived' : 'Closed' }}
+                                </span>
+
+                            </template>
                         </div>
                     </div>
                 </div>

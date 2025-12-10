@@ -249,16 +249,14 @@ class AuthController extends Controller
             // (Meskipun user_id di transaksi adalah milik client, kita filter via relasi appointment)
             $transactions = Transaction::whereHas('appointment', function ($q) use ($user) {
                 $q->where('expert_id', $user->expert->id);
-            })
-                ->latest()
-                ->get();
+            })->latest()->get();
         } else {
             // Jika Client: Cari transaksi yang DIBUAT oleh user ini
             $transactions = Transaction::where('user_id', $user->id)
                 ->latest()
                 ->get();
         }
-            
+
         return Inertia::render('Profile/Index', [
             'user' => $user,
             'roles' => $roles,

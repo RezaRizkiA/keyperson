@@ -42,7 +42,7 @@ class ExpertController extends Controller
         $appointment = Appointment::create([
             'user_id'     => Auth::user()->id,
             'expert_id'   => $expert_id,
-            'appointment' => $request->appointment,
+            'appointment' => $request->topic,
             'date_time'   => $dateTime,
             'hours'       => $request->hours,
             'price'       => $expert->price,
