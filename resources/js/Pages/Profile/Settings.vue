@@ -160,7 +160,7 @@ const submitPicture = () => {
 
                             <div class="mt-3 pt-3 border-t border-slate-100">
                                 <Link :href="route('logout')" method="post" as="button"
-                                    class="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium text-sm">
+                                    class="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium text-sm cursor-pointer">
                                     <LogOut class="w-5 h-5" />
                                     Sign Out
                                 </Link>

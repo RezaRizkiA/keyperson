@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { Head, usePage, Link } from "@inertiajs/vue3";
 import AppLayout from "../../Layouts/AppLayout.vue";
+import { Menu as HeadlessMenu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'; // Rename agar tidak bentrok dengan Icon Menu
 
 // Components
 import HomeTab from "./Tabs/HomeTab.vue";
@@ -18,11 +19,19 @@ import {
     Calendar as CalendarIcon,
     Users,
     Settings,
-    ChevronRight,
+    LayoutDashboard,
     CreditCard,
     LogOut,
-    Menu,
-    X
+    Menu as MenuIcon,
+    X,
+    PanelLeftClose,
+    PanelLeftOpen,
+    ChevronDown,
+    User as UserIcon,
+    Bell,
+    Moon,
+    Search,
+    Sun
 } from "lucide-vue-next";
 
 // Props
@@ -40,79 +49,27 @@ const props = defineProps({
     transactions: Array,
 });
 
-// Assets Helper
 const page = usePage();
 const assets = computed(() => page.props.assets);
 
 // State
 const activeTab = ref("home");
+const isSidebarExpanded = ref(true); 
 const isMobileMenuOpen = ref(false);
 
-// Config Menu Tabs
+const toggleSidebar = () => {
+    isSidebarExpanded.value = !isSidebarExpanded.value;
+};
+
 const tabs = [
-    {
-        id: 'home',
-        label: 'Overview',
-        desc: 'Stats & Activity',
-        icon: Home,
-        show: true,
-        color: 'text-violet-600',
-        bgActive: 'bg-violet-50',
-        borderActive: 'border-violet-200'
-    },
-    {
-        id: 'appointments',
-        label: 'My Appointments',
-        desc: 'Manage Sessions',
-        icon: Briefcase,
-        show: true,
-        color: 'text-blue-600',
-        bgActive: 'bg-blue-50',
-        borderActive: 'border-blue-200'
-    },
-    {
-        id: 'calendar',
-        label: 'Schedule',
-        desc: 'Calendar View',
-        icon: CalendarIcon,
-        show: true,
-        color: 'text-emerald-600',
-        bgActive: 'bg-emerald-50',
-        borderActive: 'border-emerald-200'
-    },
-    {
-        id: 'transactions',
-        label: 'Billing',
-        desc: 'Invoices & History',
-        icon: CreditCard,
-        show: true,
-        color: 'text-pink-600',
-        bgActive: 'bg-pink-50',
-        borderActive: 'border-pink-200'
-    },
-    {
-        id: 'members',
-        label: 'Community',
-        desc: 'Experts & Users',
-        icon: Users,
-        show: true,
-        color: 'text-indigo-600',
-        bgActive: 'bg-indigo-50',
-        borderActive: 'border-indigo-200'
-    },
-    {
-        id: 'expertises',
-        label: 'Settings',
-        desc: 'System Config',
-        icon: Settings,
-        show: props.isAdmin,
-        color: 'text-orange-600',
-        bgActive: 'bg-orange-50',
-        borderActive: 'border-orange-200'
-    },
+    { id: 'home', label: 'Overview', icon: Home, show: true, activeClass: 'bg-violet-50 text-violet-600 border-r-4 border-violet-600' },
+    { id: 'appointments', label: 'Appointments', icon: Briefcase, show: true, activeClass: 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' },
+    { id: 'calendar', label: 'Calendar', icon: CalendarIcon, show: true, activeClass: 'bg-emerald-50 text-emerald-600 border-r-4 border-emerald-600' },
+    { id: 'transactions', label: 'Billing', icon: CreditCard, show: true, activeClass: 'bg-pink-50 text-pink-600 border-r-4 border-pink-600' },
+    { id: 'members', label: 'Community', icon: Users, show: true, activeClass: 'bg-indigo-50 text-indigo-600 border-r-4 border-indigo-600' },
+    { id: 'expertises', label: 'Settings', icon: Settings, show: props.isAdmin, activeClass: 'bg-orange-50 text-orange-600 border-r-4 border-orange-600' },
 ];
 
-// Computed Title untuk Header Kanan
 const currentTabTitle = computed(() => {
     const tab = tabs.find(t => t.id === activeTab.value);
     return tab ? tab.label : 'Dashboard';
@@ -120,186 +77,271 @@ const currentTabTitle = computed(() => {
 </script>
 
 <template>
-
     <Head title="My Dashboard" />
 
-    <AppLayout>
-        <div class="bg-slate-50/50 min-h-screen pt-28 pb-20 font-sans">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-slate-50 font-sans flex">
 
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-                    <div>
-                        <h1 class="font-display text-3xl md:text-4xl font-bold text-slate-900">
-                            Welcome back, <span class="text-violet-600">{{ user.name.split(' ')[0] }}</span>!
-                        </h1>
-                        <p class="text-slate-500 mt-2 text-lg">Here's what's happening with your account today.</p>
-                    </div>
+        <aside 
+            class="fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col"
+            :class="[
+                isSidebarExpanded ? 'w-64' : 'w-20',
+                isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            ]"
+        >
+            <div class="h-20 flex items-center border-b border-slate-100"
+                 :class="isSidebarExpanded ? 'px-6 justify-between' : 'justify-center px-0'">
+                
+                <Link :href="route('home')" class="flex items-center gap-2 overflow-hidden">
+                    <img :src="assets.logoSmallUrl" class="h-9 w-auto shrink-0" alt="Logo">
+                    <span v-if="isSidebarExpanded" class="font-display font-bold text-xl text-slate-900 transition-opacity duration-300 whitespace-nowrap">
+                        Key<span class="text-violet-600">Person</span>
+                    </span>
+                </Link>
 
-                    <button @click="isMobileMenuOpen = !isMobileMenuOpen"
-                        class="md:hidden flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-700 font-bold">
-                        <Menu v-if="!isMobileMenuOpen" class="w-5 h-5" />
-                        <X v-else class="w-5 h-5" />
-                        Menu
+                <button @click="isMobileMenuOpen = false" class="lg:hidden p-1 text-slate-400">
+                    <X class="w-5 h-5" />
+                </button>
+            </div>
+
+            <div class="flex-1 py-6 space-y-1 custom-scrollbar" 
+                 :class="isSidebarExpanded ? 'overflow-y-auto' : 'overflow-visible'">
+                <template v-for="tab in tabs" :key="tab.id">
+                    <button v-if="tab.show" 
+                        @click="activeTab = tab.id; isMobileMenuOpen = false"
+                        class="relative w-full flex items-center py-3 transition-all duration-200 group"
+                        :class="[
+                            isSidebarExpanded ? 'px-6' : 'justify-center px-2',
+                            activeTab === tab.id 
+                                ? tab.activeClass 
+                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                        ]"
+                    >
+                        <component :is="tab.icon" 
+                            class="shrink-0 transition-colors duration-200 relative z-10" 
+                            :class="[
+                                isSidebarExpanded ? 'w-5 h-5 mr-3' : 'w-6 h-6',
+                                activeTab === tab.id ? '' : 'text-slate-400 group-hover:text-slate-600'
+                            ]" 
+                        />
+                        
+                        <span v-if="isSidebarExpanded" class="font-medium text-sm whitespace-nowrap">
+                            {{ tab.label }}
+                        </span>
+
+                        <div v-if="!isSidebarExpanded" 
+                             class="absolute left-full ml-4 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[60] whitespace-nowrap shadow-xl flex items-center -translate-x-2 group-hover:translate-x-0">
+                            <div class="absolute -left-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+                            {{ tab.label }}
+                        </div>
                     </button>
+                </template>
+            </div>
+
+            <div class="p-4 border-t border-slate-100">
+                <button @click="toggleSidebar" 
+                    class="hidden lg:flex w-full items-center py-2 transition-colors rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
+                    :class="isSidebarExpanded ? 'px-2' : 'justify-center'">
+                    <component :is="isSidebarExpanded ? PanelLeftClose : PanelLeftOpen" class="w-5 h-5" />
+                    <span v-if="isSidebarExpanded" class="ml-3 text-xs font-bold uppercase tracking-wider">
+                        Collapse
+                    </span>
+                </button>
+            </div>
+        </aside>
+
+        <main 
+            class="flex-1 min-h-screen transition-all duration-300 ease-in-out flex flex-col"
+            :class="isSidebarExpanded ? 'lg:ml-64' : 'lg:ml-20'"
+        >
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-8 relative flex items-center justify-between">
+                
+                <div class="flex items-center gap-4 shrink-0 relative z-20">
+                    <button @click="isMobileMenuOpen = true" class="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+                        <MenuIcon class="w-6 h-6" />
+                    </button>
+                    <h2 class="text-xl font-bold text-slate-800 hidden sm:block whitespace-nowrap">
+                        {{ currentTabTitle }}
+                    </h2>
                 </div>
 
-                <div class="grid lg:grid-cols-12 gap-8 items-start relative">
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl px-4 hidden md:block z-10">
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search class="h-5 w-5 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
+                        </div>
+                        <input type="text" 
+                            class="block w-full pl-10 pr-4 py-2.5 bg-slate-100/50 border border-transparent rounded-full text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all shadow-sm" 
+                            placeholder="Search anything (press '/' to focus)...">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span class="text-slate-400 text-xs font-bold bg-white border border-slate-200 rounded px-1.5 py-0.5">/</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <div class="lg:col-span-3 lg:sticky lg:top-28 z-20 transition-all duration-300"
-                        :class="isMobileMenuOpen ? 'block' : 'hidden lg:block'">
+                <div class="flex items-center gap-2 sm:gap-4 shrink-0 relative z-20">
+                    
+                    <button class="md:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+                        <Search class="w-5 h-5" />
+                    </button>
 
-                        <div
-                            class="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-xl shadow-slate-200/40 mb-6 text-center relative overflow-hidden group">
-                            <div
-                                class="absolute top-0 left-0 w-full h-20 bg-linear-to-r from-violet-500 to-fuchsia-500 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <button @click="isDarkMode = !isDarkMode" 
+                        class="p-2 text-slate-500 bg-slate-100 rounded-full transition-colors relative group cursor-pointer">
+                        <component :is="isDarkMode ? Sun : Moon" class="w-5 h-5" />
+                        <span class="sr-only">Toggle Theme</span>
+                    </button>
+
+                    <button class="p-2 text-slate-500 bg-slate-100 rounded-full transition-colors relative group cursor-pointer">
+                        <Bell class="w-5 h-5" />
+                        <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+                    </button>
+
+                    <div class="h-6 w-px bg-slate-200 mx-1"></div>
+
+                    <HeadlessMenu as="div" class="relative">
+                        <MenuButton class="flex items-center gap-3 pl-1 pr-1 sm:pl-2 sm:pr-2 py-1 rounded-full hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200 group focus:outline-none">
+                            
+                            <div class="relative">
+                                <img :src="user.profile_photo_url || assets.userPlaceholderUrl" 
+                                     class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-violet-100" 
+                                     alt="Avatar">
+                                <div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+                            </div>
+                            
+                            <div class="hidden lg:flex flex-col items-start mr-1 text-left">
+                                <span class="text-sm font-bold text-slate-900 leading-none max-w-[100px] truncate">{{ user.name }}</span>
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                                    {{ isExpert ? 'Expert' : 'Client' }}
+                                </span>
                             </div>
 
-                            <div class="relative inline-block mt-4 mb-4">
-                                <div class="p-1 bg-white rounded-full">
-                                    <img :src="user.profile_photo_url || assets.userPlaceholderUrl"
-                                        class="w-20 h-20 rounded-full object-cover border-2 border-slate-100 shadow-sm"
-                                        alt="Profile">
+                            <ChevronDown class="w-4 h-4 text-slate-400 group-hover:text-slate-600 hidden lg:block" />
+                        </MenuButton>
+
+                        <transition
+                            enter-active-class="transition duration-100 ease-out"
+                            enter-from-class="transform scale-95 opacity-0"
+                            enter-to-class="transform scale-100 opacity-100"
+                            leave-active-class="transition duration-75 ease-in"
+                            leave-from-class="transform scale-100 opacity-100"
+                            leave-to-class="transform scale-95 opacity-0"
+                        >
+                            <MenuItems class="absolute right-0 mt-2 w-60 origin-top-right divide-y divide-slate-100 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden z-50">
+                                
+                                <div class="px-5 py-4 bg-slate-50 border-b border-slate-100">
+                                    <p class="text-sm font-bold text-slate-900 truncate">{{ user.name }}</p>
+                                    <p class="text-xs text-slate-500 truncate">{{ user.email }}</p>
                                 </div>
-                                <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-white rounded-full"
-                                    title="Online"></div>
-                            </div>
 
-                            <h3 class="font-bold text-slate-900 text-lg leading-tight">{{ user.name }}</h3>
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1 mb-4">
-                                {{ isExpert ? 'Professional Expert' : 'Member Client' }}
-                            </p>
+                                <div class="p-1.5">
+                                    <MenuItem v-slot="{ active }">
+                                        <Link :href="route('update_profile')" 
+                                            :class="[
+                                                active ? 'bg-violet-50 text-violet-700' : 'text-slate-700',
+                                                'group flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors'
+                                            ]">
+                                            <Settings class="mr-3 h-4 w-4 text-slate-400 group-hover:text-violet-500" />
+                                            Account Settings
+                                        </Link>
+                                    </MenuItem>
+                                    <MenuItem v-slot="{ active }">
+                                        <a href="#" :class="[
+                                                active ? 'bg-violet-50 text-violet-700' : 'text-slate-700',
+                                                'group flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors'
+                                            ]">
+                                            <UserIcon class="mr-3 h-4 w-4 text-slate-400 group-hover:text-violet-500" />
+                                            Public Profile
+                                        </a>
+                                    </MenuItem>
+                                </div>
 
-                            <Link :href="route('update_profile')"
-                                class="inline-flex w-full justify-center items-center py-2.5 px-4 rounded-xl bg-slate-50 text-slate-600 text-sm font-bold hover:bg-slate-900 hover:text-white transition-all duration-300">
-                            Edit Profile
-                            </Link>
+                                <div class="p-1.5">
+                                    <MenuItem v-slot="{ active }">
+                                        <Link :href="route('logout')" method="post" as="button"
+                                            :class="[
+                                                active ? 'bg-red-50 text-red-600' : 'text-slate-600',
+                                                'group flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors'
+                                            ]">
+                                            <LogOut class="mr-3 h-4 w-4 text-slate-400 group-hover:text-red-500" />
+                                            Sign Out
+                                        </Link>
+                                    </MenuItem>
+                                </div>
+                            </MenuItems>
+                        </transition>
+                    </HeadlessMenu>
+                </div>
+
+            </header>
+
+            <div class="p-4 sm:p-8 flex-1">
+                <div class="max-w-7xl mx-auto h-full">
+                    <Transition name="fade" mode="out-in">
+                        
+                        <div v-if="activeTab === 'home'" key="home" class="h-full">
+                            <HomeTab :user="user" :appointments-count="appointmentsCount" :is-expert="isExpert" />
                         </div>
 
-                        <div class="bg-white rounded-3xl p-3 border border-slate-200/60 shadow-sm">
-                            <nav class="space-y-1">
-                                <template v-for="tab in tabs" :key="tab.id">
-                                    <button v-if="tab.show" @click="activeTab = tab.id; isMobileMenuOpen = false"
-                                        class="group w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200"
-                                        :class="activeTab === tab.id
-                                            ? `bg-white shadow-md border ${tab.borderActive}`
-                                            : 'hover:bg-slate-50 text-slate-500'">
-
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
-                                                :class="activeTab === tab.id ? tab.bgActive : 'bg-slate-100 group-hover:bg-white'">
-                                                <component :is="tab.icon" class="w-5 h-5"
-                                                    :class="activeTab === tab.id ? tab.color : 'text-slate-500'" />
-                                            </div>
-                                            <div class="text-left">
-                                                <div class="font-bold text-sm"
-                                                    :class="activeTab === tab.id ? 'text-slate-900' : 'text-slate-600'">
-                                                    {{ tab.label }}
-                                                </div>
-                                                <div class="text-[10px] font-medium opacity-60 hidden xl:block">
-                                                    {{ tab.desc }}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <ChevronRight v-if="activeTab === tab.id" class="w-4 h-4 transition-colors"
-                                            :class="tab.color" />
-                                    </button>
-                                </template>
-                            </nav>
-
-                            <div class="mt-3 pt-3 border-t border-slate-100">
-                                <Link :href="route('logout')" method="post" as="button"
-                                    class="w-full flex items-center gap-3 p-3 rounded-xl text-red-600 hover:bg-red-50 transition-colors font-medium text-sm">
-                                <LogOut class="w-5 h-5" />
-                                Sign Out
-                                </Link>
+                        <div v-else-if="activeTab === 'expertises' && isAdmin" key="expertises">
+                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div class="p-6 md:p-8 border-b border-slate-100">
+                                    <h2 class="text-xl font-bold text-slate-900">Expertise Settings</h2>
+                                </div>
+                                <div class="p-6 md:p-8">
+                                    <ExpertiseTab :expertises="expertises" />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="lg:col-span-9">
-                        <div
-                            class="bg-white border border-slate-200/60 shadow-xl shadow-slate-200/30 rounded-[2.5rem] min-h-[600px] overflow-hidden relative flex flex-col">
-
-                            <div class="lg:hidden p-6 border-b border-slate-100 bg-slate-50/50">
-                                <h2 class="text-xl font-bold text-slate-900">{{ currentTabTitle }}</h2>
-                            </div>
-
-                            <div class="flex-1 relative">
-                                <Transition name="fade" mode="out-in">
-
-                                    <div v-if="activeTab === 'home'" key="home">
-                                        <HomeTab :user="user" :appointments-count="appointmentsCount"
-                                            :is-expert="isExpert" />
-                                    </div>
-
-                                    <div v-else-if="activeTab === 'expertises' && isAdmin" key="expertises"
-                                        class="h-full">
-                                        <div
-                                            class="p-8 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur z-10">
-                                            <h2 class="text-2xl font-bold text-slate-900">Expertise Settings</h2>
-                                            <p class="text-slate-500">Configure system categories and skills.</p>
-                                        </div>
-                                        <div class="p-8">
-                                            <ExpertiseTab :expertises="expertises" />
-                                        </div>
-                                    </div>
-
-                                    <div v-else-if="activeTab === 'appointments'" key="appointments" class="h-full">
-                                        <AppointmentTab :appointments="appointments" :is-expert="isExpert"
-                                            class="h-full" />
-                                    </div>
-
-                                    <div v-else-if="activeTab === 'calendar'" key="calendar" class="h-full p-6 md:p-10">
-                                        <div class="mb-8">
-                                            <h2 class="text-2xl font-bold text-slate-900">Your Schedule</h2>
-                                            <p class="text-slate-500">Manage your availability and upcoming sessions.
-                                            </p>
-                                        </div>
-                                        <CalendarTab :calendar-events="calendarEvents" />
-                                    </div>
-
-                                    <div v-else-if="activeTab === 'members'" key="members" class="h-full p-6 md:p-10">
-                                        <div class="mb-8">
-                                            <h2 class="text-2xl font-bold text-slate-900">Community Members</h2>
-                                            <p class="text-slate-500">Explore registered users and experts.</p>
-                                        </div>
-                                        <MembersTab />
-                                    </div>
-
-                                    <div v-else-if="activeTab === 'transactions'" key="transactions"
-                                        class="h-full p-6 md:p-10">
-                                        <div class="mb-8">
-                                            <h2 class="text-2xl font-bold text-slate-900">Transaction History</h2>
-                                            <p class="text-slate-500">Track your payments and invoices.</p>
-                                        </div>
-                                        <PaymentTab :transactions="transactions" :is-expert="isExpert" />
-                                    </div>
-
-                                </Transition>
+                        <div v-else-if="activeTab === 'appointments'" key="appointments">
+                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 md:p-8">
+                                <div class="mb-6">
+                                    <h2 class="text-2xl font-bold text-slate-900">My Appointments</h2>
+                                    <p class="text-slate-500 mt-1">Manage your upcoming and past sessions.</p>
+                                </div>
+                                <AppointmentTab :appointments="appointments" :is-expert="isExpert" />
                             </div>
                         </div>
-                    </div>
 
+                        <div v-else-if="activeTab === 'calendar'" key="calendar">
+                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 md:p-8">
+                                <CalendarTab :calendar-events="calendarEvents" />
+                            </div>
+                        </div>
+
+                        <div v-else-if="activeTab === 'members'" key="members">
+                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 md:p-8">
+                                <MembersTab />
+                            </div>
+                        </div>
+
+                        <div v-else-if="activeTab === 'transactions'" key="transactions">
+                            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden p-6 md:p-8">
+                                <PaymentTab :transactions="transactions" :is-expert="isExpert" />
+                            </div>
+                        </div>
+
+                    </Transition>
                 </div>
             </div>
+        </main>
+
+        <div v-if="isMobileMenuOpen" 
+             @click="isMobileMenuOpen = false"
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden">
         </div>
-    </AppLayout>
+
+    </div>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
+/* Scrollbar */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
 
-.fade-enter-from {
-    opacity: 0;
-    transform: translateY(10px);
-}
-
-.fade-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-}
+/* Transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.fade-enter-from { opacity: 0; transform: translateY(10px); }
+.fade-leave-to { opacity: 0; transform: translateY(-10px); }
 </style>
