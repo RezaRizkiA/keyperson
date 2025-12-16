@@ -37,9 +37,9 @@ const formatCurrency = (value) => {
             <div class="relative bg-slate-900 pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
                 <div class="absolute inset-0 opacity-20">
                     <img v-if="client.banner_url" :src="client.banner_url" class="w-full h-full object-cover blur-sm" />
-                    <div v-else class="w-full h-full bg-gradient-to-r from-violet-900 to-fuchsia-900"></div>
+                    <div v-else class="w-full h-full bg-linear-to-r from-violet-900 to-fuchsia-900"></div>
                 </div>
-                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50"></div>
+                <div class="absolute inset-0 bg-linear-to-b from-transparent to-slate-50"></div>
 
                 <div class="relative max-w-7xl mx-auto z-10">
                     <Link :href="route('home_client', client.slug_page)"
