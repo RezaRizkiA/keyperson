@@ -32,7 +32,7 @@ const submit = () => form.post(route('appointment_post', props.expert.id), { pre
                 <div class="grid lg:grid-cols-12 gap-8 items-start">
 
                     <div class="lg:col-span-7">
-                        <div class="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/40">
+                        <div class="bg-white rounded-4xl p-8 border border-slate-100 shadow-xl shadow-slate-200/40">
                             <h2 class="font-display text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
                                 <div
                                     class="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center text-violet-600">

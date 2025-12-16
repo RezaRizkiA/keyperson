@@ -29,7 +29,7 @@ const routes = props.routes;
             <LogoCloud />
             <HowItWorks />
             <FeatureSection />
-            <FaqSection />
+            <!-- <FaqSection /> -->
             <section class="py-24 bg-violet-900 text-center text-white px-4 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
                     <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-violet-500 blur-3xl"></div>

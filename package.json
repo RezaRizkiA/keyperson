@@ -21,9 +21,11 @@
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@inertiajs/vue3": "^2.2.19",
+        "@popperjs/core": "^2.11.8",
         "@vitejs/plugin-vue": "^6.0.2",
         "@vueup/vue-quill": "^1.0.0-beta.11",
         "lucide-vue-next": "^0.556.0",
+        "v-calendar": "^3.1.2",
         "vue": "^3.5.25",
         "ziggy-js": "^2.6.0"
     }

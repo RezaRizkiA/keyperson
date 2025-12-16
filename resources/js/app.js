@@ -5,6 +5,8 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "ziggy-js";
+import VCalendar from "v-calendar";
+import "v-calendar/dist/style.css";
 
 createInertiaApp({
     title: (title) => `${title} - KeyPerson`,
@@ -18,6 +20,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(VCalendar, {})
             .mount(el);
     },
     progress: {
