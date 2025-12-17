@@ -60,7 +60,9 @@ const menuItems = [
     },
 ];
 
-const isActive = (routeName) => route().current(routeName);
+const isActive = (routeName) => {
+    return page.url && route().current(routeName);
+}
 </script>
 
 <template>
