@@ -38,15 +38,33 @@ class DashboardService
     }
 
     /**
-     * (Opsional) Mengambil statistik untuk Expert
+     * Mengambil statistik dashboard khusus Expert
+     * @param int $expertId
      */
     public function getExpertStats($expertId)
     {
         return [
+            // 1. Total Sesi (Semua status)
             'total_appointments' => Appointment::where('expert_id', $expertId)->count(),
-            // Logika revenue expert (mungkin ada potongan platform fee)
-            'total_revenue' => Transaction::whereHas('appointment', fn($q) => $q->where('expert_id', $expertId))
-                ->where('status', 'paid')
+
+            // 2. Sesi Upcoming (Yang harus dipersiapkan)
+            // Mengambil status 'confirmed' dan 'progress'
+            'upcoming_appointments' => Appointment::where('expert_id', $expertId)
+                ->whereIn('status', ['confirmed', 'progress'])
+                ->where('date_time', '>=', now())
+                ->count(),
+
+            // 3. Menunggu Konfirmasi (Action Needed)
+            'need_confirmation' => Appointment::where('expert_id', $expertId)
+                ->where('status', 'need_confirmation')
+                ->count(),
+
+            // 4. Total Pendapatan Expert
+            // Asumsi: Transaction berelasi dengan Appointment, dan status sukses adalah 'paid' (atau 'berhasil' sesuaikan DB)
+            'total_revenue' => Transaction::whereHas('appointment', function ($q) use ($expertId) {
+                $q->where('expert_id', $expertId);
+            })
+                ->where('status', 'berhasil') // Pastikan string ini sesuai database ('paid' atau 'berhasil')
                 ->sum('amount'),
         ];
     }

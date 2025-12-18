@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AppointmentConfirmed;
+use App\Mail\AppointmentLinkUpdated;
 use App\Mail\AppointmentRescheduled;
 use App\Mail\AppointmentStatusChanged;
 use App\Models\Appointment;
@@ -145,5 +146,33 @@ class AppointmentController extends Controller
         }
 
         return back()->with('success', 'Appointment schedule has been updated successfully.');
+    }
+
+    public function updateLink(Request $request, $id)
+    {
+        $request->validate([
+            'location_url' => 'required|url|max:255',
+        ]);
+
+        $appointment = Appointment::findOrFail($id);
+
+        // Pastikan yang update adalah Expert yang bersangkutan (Security)
+        if (Auth::user()->id !== $appointment->expert->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $appointment->location_url = $request->location_url;
+        $appointment->save();
+
+        if ($appointment->user && $appointment->user->email) {
+            try {
+                Mail::to($appointment->user->email)->send(new AppointmentLinkUpdated($appointment));
+            } catch (\Exception $e) {
+                // Log error jika email gagal kirim, tapi jangan gagalkan proses simpan
+                Log::error('Gagal kirim email update link: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', 'Meeting link updated successfully.');
     }
 }

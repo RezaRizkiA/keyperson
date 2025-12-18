@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('appointments')->name('dashboard.appointments.')->group(function () {
             Route::get('/', [AppointmentController::class, 'index'])->name('index');
             Route::get('/{id}', [AppointmentController::class, 'show'])->name('show');
+            Route::patch('/{id}/update-link', [AppointmentController::class, 'updateLink'])->name('update-link');
 
             // NEW ACTIONS
             Route::patch('/{id}/status', [AppointmentController::class, 'updateStatus'])->name('update-status');

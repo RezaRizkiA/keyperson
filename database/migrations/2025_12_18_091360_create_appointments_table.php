@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('skill_id')->constrained('skills')->onDelete('cascade');
             $table->text('topic')->nullable();
             $table->timestamp('date_time')->nullable();
+            $table->text('location_url')->nullable();
             $table->string('google_calendar_event_id')->nullable();
             $table->integer('hours')->nullable();
             $table->bigInteger('price')->nullable();

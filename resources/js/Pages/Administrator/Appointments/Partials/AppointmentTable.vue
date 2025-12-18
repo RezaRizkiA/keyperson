@@ -18,7 +18,7 @@ const statusConfig = {
     },
     progress: {
         class: "bg-blue-50 text-blue-700 border-blue-100",
-        label: "Active",
+        label: "In Progress",
     },
     confirmed: {
         class: "bg-green-50 text-green-700 border-green-100",

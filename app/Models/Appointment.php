@@ -15,8 +15,10 @@ class Appointment extends Model
     protected $fillable = [
         'user_id',
         'expert_id',
-        'appointment',
+        'skill_id',
         'date_time',
+        'topic',
+        'location_url',
         'google_calendar_event_id',
         'hours',
         'price',

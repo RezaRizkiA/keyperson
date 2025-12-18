@@ -5,8 +5,31 @@ import { Menu as MenuIcon, ChevronDown, User, Settings, LogOut } from 'lucide-vu
 import { Link, usePage } from '@inertiajs/vue3';
 
 const emit = defineEmits(['openMobileMenu']);
+
+const props = defineProps({
+    title: {
+        type: String,
+        default: 'Dashboard' 
+    }
+});
+
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+
+const userRoleLabel = computed(() => {
+    if (!user.value) return 'Guest';
+
+    // Logika deteksi role
+    const roles = user.value.roles || [];
+    const roleNames = Array.isArray(roles) 
+        ? roles.map(r => (typeof r === 'string' ? r : r.name)) 
+        : [];
+
+    if (roleNames.includes('administrator')) return 'Administrator';
+    if (roleNames.includes('expert')) return 'Expert';
+    
+    return 'Client'; 
+});
 
 // Helper untuk Judul Halaman berdasarkan Route
 const pageTitle = computed(() => {
@@ -36,8 +59,12 @@ const pageTitle = computed(() => {
             <Menu as="div" class="relative">
                 <MenuButton class="flex items-center gap-3 pl-2 pr-1 py-1.5 rounded-full hover:bg-slate-100 transition-all border border-transparent hover:border-slate-200">
                     <div class="text-right hidden md:block mr-1">
-                        <p class="text-sm font-bold text-slate-900 leading-none">{{ user.name }}</p>
-                        <p class="text-[10px] text-slate-500 uppercase font-bold mt-0.5 tracking-wider">Administrator</p>
+                        <p class="text-sm font-bold text-slate-900 leading-none">
+                            {{ user?.name }}
+                        </p>
+                        <p class="text-[10px] text-slate-500 uppercase font-bold mt-0.5 tracking-wider">
+                            {{ userRoleLabel }}
+                        </p>
                     </div>
                     <img :src="user.picture_url || 'https://ui-avatars.com/api/?name='+user.name" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm" alt="User">
                     <ChevronDown class="w-4 h-4 text-slate-400" />
