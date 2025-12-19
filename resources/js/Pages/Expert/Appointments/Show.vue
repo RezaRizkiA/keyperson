@@ -1,8 +1,12 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { Link, router, useForm } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import Swal from "sweetalert2";
+
+import { DatePicker } from "v-calendar";
+import "v-calendar/style.css";
+
 import {
     Calendar,
     MapPin,
@@ -16,6 +20,9 @@ import {
     PlayCircle,
     Video,
     Save,
+    RefreshCw,
+    Clock,
+    CheckCircle2,
 } from "lucide-vue-next";
 
 defineOptions({ layout: DashboardLayout });
@@ -114,6 +121,18 @@ const meetingForm = useForm({
     location_url: props.appointment.location_url || "",
 });
 
+const saveMeetingLink = () => {
+    meetingForm.patch(
+        route("dashboard.appointments.update-link", props.appointment.id),
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire("Saved", "Meeting link has been updated.", "success");
+            },
+        }
+    );
+};
+
 const startSession = () => {
     // 1. Validasi: Cek apakah Link sudah ada?
     if (!props.appointment.location_url) {
@@ -159,13 +178,90 @@ const startSession = () => {
     });
 };
 
-const saveMeetingLink = () => {
-    meetingForm.patch(
-        route("dashboard.appointments.update-link", props.appointment.id),
+// ==========================================
+// [UPDATED] RESCHEDULE LOGIC WITH V-CALENDAR
+// ==========================================
+const showRescheduleModal = ref(false);
+const rescheduleForm = ref({ date: "", time: "" });
+
+// State Baru untuk Calendar
+const dateModel = ref(new Date()); // Default hari ini
+const availableTimeSlots = ref([]);
+
+// Helper format DB (YYYY-MM-DD)
+const formatDateToDB = (date) => {
+    const d = new Date(date);
+    const month = "" + (d.getMonth() + 1);
+    const day = "" + d.getDate();
+    const year = d.getFullYear();
+    return [year, month.padStart(2, "0"), day.padStart(2, "0")].join("-");
+};
+
+// Generate Slot (09:00 - 17:00)
+const generateTimeSlots = () => {
+    const slots = [];
+    const startHour = 9;
+    const endHour = 17;
+
+    for (let i = startHour; i < endHour; i++) {
+        const timeString = `${i.toString().padStart(2, "0")}:00`;
+        // Asumsi Expert bebas pilih waktu (Available true),
+        // kecuali Anda mau inject logic 'bookedSlots' dari props
+        slots.push({
+            time: timeString,
+            isAvailable: true,
+        });
+    }
+    availableTimeSlots.value = slots;
+};
+
+// Watcher Date Model
+watch(
+    dateModel,
+    (newDate) => {
+        if (newDate) {
+            rescheduleForm.value.date = formatDateToDB(newDate);
+            rescheduleForm.value.time = ""; // Reset jam saat ganti tanggal
+            generateTimeSlots();
+        }
+    },
+    { immediate: true }
+);
+
+const selectTime = (slot) => {
+    if (slot.isAvailable) {
+        rescheduleForm.value.time = slot.time;
+    }
+};
+
+const submitReschedule = () => {
+    if (!rescheduleForm.value.date || !rescheduleForm.value.time) {
+        Swal.fire("Error", "Please select a date and a time slot.", "error");
+        return;
+    }
+
+    // Gabung Date & Time untuk dikirim ke Backend
+    const newDateTime = `${rescheduleForm.value.date} ${rescheduleForm.value.time}:00`;
+
+    router.patch(
+        route("dashboard.appointments.reschedule", props.appointment.id),
         {
-            preserveScroll: true,
+            date_time: newDateTime,
+        },
+        {
             onSuccess: () => {
-                Swal.fire("Saved", "Meeting link has been updated.", "success");
+                showRescheduleModal.value = false;
+                // Reset form
+                dateModel.value = new Date();
+                rescheduleForm.value = { date: "", time: "" };
+                Swal.fire(
+                    "Success",
+                    "Session rescheduled successfully.",
+                    "success"
+                );
+            },
+            onError: (errors) => {
+                Swal.fire("Error", Object.values(errors)[0], "error");
             },
         }
     );
@@ -240,6 +336,20 @@ const saveMeetingLink = () => {
                                 class="text-lg font-semibold text-slate-800 mt-1"
                             >
                                 {{ formatTime(appointment.date_time) }} WIB
+                            </div>
+                        </div>
+                        <div
+                            class="bg-slate-50 p-4 rounded-xl border border-slate-100"
+                        >
+                            <span
+                                class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+                                >Duration</span
+                            >
+                            <div
+                                class="text-lg font-semibold text-slate-800 mt-1"
+                            >
+                                {{ appointment.hours }}
+                                {{ appointment.hours > 1 ? "Hours" : "Hour" }}
                             </div>
                         </div>
                     </div>
@@ -319,6 +429,12 @@ const saveMeetingLink = () => {
                         >
                             <XCircle class="w-4 h-4" /> Decline
                         </button>
+                        <button
+                            @click="showRescheduleModal = true"
+                            class="flex items-center gap-3 w-full px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 font-medium hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 rounded-xl transition-all text-sm"
+                        >
+                            <RefreshCw class="w-4 h-4" /> Reschedule
+                        </button>
                     </div>
 
                     <div
@@ -371,6 +487,13 @@ const saveMeetingLink = () => {
                         >
                             <PlayCircle class="w-4 h-4" /> Start Session Now
                         </button>
+
+                        <button
+                            @click="showRescheduleModal = true"
+                            class="flex items-center justify-center gap-3 w-full px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 font-medium hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 rounded-xl transition-all text-sm"
+                        >
+                            <RefreshCw class="w-4 h-4" /> Reschedule
+                        </button>
                     </div>
 
                     <div
@@ -407,6 +530,125 @@ const saveMeetingLink = () => {
                                 ? "Waiting for client payment."
                                 : "No actions required."
                         }}
+                    </div>
+
+                    <div
+                        v-if="showRescheduleModal"
+                        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+                    >
+                        <div
+                            class="bg-white rounded-[2rem] shadow-xl w-full max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar"
+                        >
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3
+                                        class="text-xl font-bold text-slate-900 flex items-center gap-2"
+                                    >
+                                        <RefreshCw
+                                            class="w-5 h-5 text-violet-600"
+                                        />
+                                        Reschedule Session
+                                    </h3>
+                                    <p class="text-sm text-slate-500 mt-1">
+                                        Select a new date and time for this
+                                        appointment.
+                                    </p>
+                                </div>
+                                <button
+                                    @click="showRescheduleModal = false"
+                                    class="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                                >
+                                    <XCircle class="w-6 h-6 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div class="space-y-3">
+                                    <label
+                                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1"
+                                        >1. Pick a Date</label
+                                    >
+                                    <div
+                                        class="border border-slate-100 rounded-2xl overflow-hidden p-4 bg-white shadow-sm flex justify-center"
+                                    >
+                                        <DatePicker
+                                            v-model="dateModel"
+                                            mode="date"
+                                            :min-date="new Date()"
+                                            color="purple"
+                                            borderless
+                                            transparent
+                                            class="font-sans w-full"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <label
+                                        class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1"
+                                        >2. Pick a Time</label
+                                    >
+
+                                    <div
+                                        v-if="rescheduleForm.date"
+                                        class="grid grid-cols-2 gap-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar"
+                                    >
+                                        <button
+                                            v-for="slot in availableTimeSlots"
+                                            :key="slot.time"
+                                            type="button"
+                                            @click="selectTime(slot)"
+                                            :disabled="!slot.isAvailable"
+                                            :class="[
+                                                'py-3 px-4 rounded-xl text-sm font-bold border transition-all duration-200 flex items-center justify-between group',
+                                                !slot.isAvailable
+                                                    ? 'bg-slate-100 border-transparent text-slate-400 cursor-not-allowed line-through opacity-60'
+                                                    : rescheduleForm.time ===
+                                                      slot.time
+                                                    ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200'
+                                                    : 'bg-white border-slate-200 text-slate-700 hover:border-violet-300 hover:bg-violet-50',
+                                            ]"
+                                        >
+                                            <span>{{ slot.time }}</span>
+                                            <CheckCircle2
+                                                v-if="
+                                                    rescheduleForm.time ===
+                                                    slot.time
+                                                "
+                                                class="w-4 h-4"
+                                            />
+                                        </button>
+                                    </div>
+                                    <div
+                                        v-else
+                                        class="text-center py-10 text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200"
+                                    >
+                                        Select a date first
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3"
+                            >
+                                <button
+                                    @click="showRescheduleModal = false"
+                                    class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    @click="submitReschedule"
+                                    :disabled="
+                                        !rescheduleForm.date ||
+                                        !rescheduleForm.time
+                                    "
+                                    class="px-8 py-3 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-violet-600 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Confirm New Schedule
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -457,3 +699,16 @@ const saveMeetingLink = () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+</style>

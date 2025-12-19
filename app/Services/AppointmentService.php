@@ -28,6 +28,11 @@ class AppointmentService
         return $this->repo->getAllForAdmin($perPage);
     }
 
+    public function getAllForExpert($expertId, $perPage = 10)
+    {
+        return $this->repo->getAllForExpert($expertId, $perPage);
+    }
+
     public function getAppointmentDetail($id)
     {
         $appointment = $this->repo->getAppointmentDetail($id);

@@ -28,12 +28,42 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        // Controller terima data matang dari Service
-        $appointments = $this->service->getAllForAdmin();
+        $user = Auth::user();
+        $roles = $user->roles ?? []; // Asumsi array role
 
-        return Inertia::render('Administrator/Appointments/Index', [
-            'appointments' => $appointments
-        ]);
+        // --- A. JIKA ADMINISTRATOR ---
+        if (in_array('administrator', $roles)) {
+            // Panggil service Admin (Query Global)
+            $appointments = $this->service->getAllForAdmin();
+
+            return Inertia::render('Administrator/Appointments/Index', [
+                'appointments' => $appointments
+            ]);
+        }
+
+        // --- B. JIKA EXPERT ---
+        if (in_array('expert', $roles)) {
+            // Ambil ID Expert dari relasi User
+            $expert = $user->expert;
+
+            if (!$expert) {
+                return redirect()->route('dashboard')->with('error', 'Profile expert belum aktif.');
+            }
+
+            // Panggil service Expert (Query Terbatas)
+            $appointments = $this->service->getAllForExpert($expert->id);
+
+            // Render ke View KHUSUS Expert (Kita harus buat file ini)
+            return Inertia::render('Expert/Appointments/Index', [
+                'appointments' => $appointments
+            ]);
+        }
+
+        // --- C. JIKA CLIENT/USER BIASA ---
+        // (Nanti implementasi getAllForUser di repo & service)
+        // return Inertia::render('User/Appointments/Index', ...);
+
+        abort(403, 'Unauthorized access.');
     }
 
     public function show($id)

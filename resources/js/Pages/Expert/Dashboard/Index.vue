@@ -64,7 +64,7 @@ const formatCurrency = (amount) => {
                     </div>
                 </div>
 
-                <Link v-if="stats.need_confirmation > 0" :href="route('dashboard.appointments', { status: 'need_confirmation' })" 
+                <Link v-if="stats.need_confirmation > 0" :href="route('dashboard.appointments.index', { status: 'need_confirmation' })" 
                     class="absolute inset-0 z-20" aria-label="View pending appointments">
                 </Link>
             </div>

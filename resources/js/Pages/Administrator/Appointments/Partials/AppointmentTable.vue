@@ -9,28 +9,28 @@ const props = defineProps({
 // Helper Status Config
 const statusConfig = {
     pending: {
-        class: "bg-yellow-50 text-yellow-700 border-yellow-100",
-        label: "Pending",
+        class: "bg-yellow-50 text-yellow-700 border-yellow-200",
+        label: "Waiting Payment",
     },
     need_confirmation: {
-        class: "bg-orange-50 text-orange-700 border-orange-100",
-        label: "Need Confirmation",
-    },
-    progress: {
-        class: "bg-blue-50 text-blue-700 border-blue-100",
-        label: "In Progress",
+        class: "bg-orange-50 text-orange-700 border-orange-200",
+        label: "Action Needed",
     },
     confirmed: {
-        class: "bg-green-50 text-green-700 border-green-100",
-        label: "Confirmed",
+        class: "bg-green-50 text-green-700 border-green-200",
+        label: "Scheduled",
+    },
+    progress: {
+        class: "bg-blue-50 text-blue-700 border-blue-200",
+        label: "In Session",
     },
     completed: {
-        class: "bg-slate-100 text-slate-600 border-slate-200",
-        label: "Done",
+        class: "bg-slate-100 text-slate-700 border-slate-200",
+        label: "Completed",
     },
     declined: {
-        class: "bg-red-50 text-red-700 border-red-100",
-        label: "Cancelled",
+        class: "bg-red-50 text-red-700 border-red-200",
+        label: "Declined",
     },
 };
 

@@ -27,6 +27,37 @@ class AppointmentRepository
     }
 
     /**
+     * Query khusus untuk Expert.
+     * Hanya mengambil data dimana expert_id sesuai dengan yang login.
+     */
+    public function getAllForExpert($expertId, $perPage = 10)
+    {
+        return Appointment::query()
+            // FILTER UTAMA: Hanya data milik expert ini
+            ->where('expert_id', $expertId)
+
+            ->select([
+                'id',
+                'user_id',
+                'skill_id', // Penting agar expert tau topiknya apa
+                'date_time',
+                'status',
+                'payment_status',
+                'topic', // Catatan user
+                'location_url', // Link meeting
+                'created_at'
+            ])
+            // Eager Load: Expert butuh data User (Client) dan Skill (Kategori)
+            ->with([
+                'user:id,name,email,picture', // Ambil foto client juga buat UX bagus
+                'skill:id,name,sub_category_id',
+                'skill.subCategory:id,name'
+            ])
+            ->latest('date_time') // Urutkan berdasarkan jadwal meeting terdekat/terbaru
+            ->paginate($perPage, ['*'], 'appointments_page');
+    }
+
+    /**
      * Mengambil detail appointment lengkap beserta relasinya.
      * Digunakan untuk Admin, Expert, User, dan Client.
      */
