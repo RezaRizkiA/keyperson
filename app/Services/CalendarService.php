@@ -2,46 +2,73 @@
 
 namespace App\Services;
 
-use App\Repositories\AppointmentRepository;
+use App\Models\Appointment;
+use Carbon\Carbon;
 
 class CalendarService
 {
-    protected $appointmentRepo;
-
-    public function __construct(AppointmentRepository $appointmentRepo)
+    /**
+     * Format data appointment menjadi FullCalendar Event Object
+     */
+    private function formatEvents($appointments, $roleContext)
     {
-        $this->appointmentRepo = $appointmentRepo;
-    }
+        return $appointments->map(function ($appointment) use ($roleContext) {
 
-    public function getAdminCalendarEvents()
-    {
-        // 1. Ambil Data Raw dari Repo
-        $rawEvents = $this->appointmentRepo->getAllForCalendar(null, null, true); // isAdmin = true
+            // Tentukan Judul Event berdasarkan siapa yang melihat
+            $title = '';
+            if ($roleContext === 'admin') {
+                $title = $appointment->expert->user->name . ' <> ' . $appointment->user->name;
+            } elseif ($roleContext === 'expert') {
+                $title = 'Session w/ ' . $appointment->user->name; // Expert melihat nama Client
+            } else {
+                $title = 'Consultation w/ ' . $appointment->expert->user->name; // User melihat nama Expert
+            }
 
-        // 2. Format Data (Business Logic)
-        return $rawEvents->map(function ($app) {
-            $clientName = optional($app->user)->name ?? 'Unknown';
-            $expertName = optional(optional($app->expert)->user)->name ?? 'Unknown';
+            // Tentukan Warna berdasarkan Status
+            $color = '#94a3b8'; // Default Gray
+            if ($appointment->status === 'confirmed') $color = '#7c3aed'; // Violet
+            if ($appointment->status === 'progress') $color = '#2563eb'; // Blue
+            if ($appointment->status === 'completed') $color = '#10b981'; // Emerald
+            if ($appointment->status === 'need_confirmation') $color = '#f97316'; // Orange
 
-            // Logic Warna
-            $colors = [
-                'confirmed' => '#10b981', // Green
-                'cancelled' => '#ef4444', // Red
-                'pending'   => '#f59e0b', // Orange
-                'completed' => '#3b82f6', // Blue
-            ];
+            // Hitung Waktu Selesai (Start + Duration)
+            $start = Carbon::parse($appointment->date_time);
+            $end = $start->copy()->addHours($appointment->hours);
 
             return [
-                'id' => $app->id,
-                'title' => "$clientName - $expertName", // Format Khusus Admin
-                'start' => $app->date_time,
-                'backgroundColor' => $colors[$app->status] ?? '#64748b',
-                'borderColor' => $colors[$app->status] ?? '#64748b',
+                'id' => $appointment->id,
+                'title' => $title,
+                'start' => $start->toIso8601String(),
+                'end' => $end->toIso8601String(),
+                'backgroundColor' => $color,
+                'borderColor' => $color,
                 'extendedProps' => [
-                    'status' => $app->status,
-                    'appointment' => $app->appointment
+                    'status' => $appointment->status,
+                    'topic' => $appointment->skill->name ?? 'Consultation'
                 ]
             ];
         });
+    }
+
+    public function getEventsForAdmin()
+    {
+        $data = Appointment::with(['user', 'expert.user'])->get();
+        return $this->formatEvents($data, 'admin');
+    }
+
+    public function getEventsForExpert($expertId)
+    {
+        $data = Appointment::where('expert_id', $expertId)
+            ->with(['user', 'skill']) // Expert butuh nama user
+            ->get();
+        return $this->formatEvents($data, 'expert');
+    }
+
+    public function getEventsForUser($userId)
+    {
+        $data = Appointment::where('user_id', $userId)
+            ->with(['expert.user', 'skill']) // User butuh nama expert
+            ->get();
+        return $this->formatEvents($data, 'user');
     }
 }

@@ -536,7 +536,7 @@ const submitReschedule = () => {
             v-if="showRescheduleModal"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div
-              class="bg-white rounded-[2rem] shadow-xl w-full max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
+              class="bg-white rounded-4xl shadow-xl w-full max-w-4xl p-6 md:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div class="flex justify-between items-center mb-6">
                 <div>
                   <h3
@@ -582,7 +582,7 @@ const submitReschedule = () => {
 
                   <div
                     v-if="rescheduleForm.date"
-                    class="grid grid-cols-2 gap-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+                    class="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                     <button
                       v-for="slot in availableTimeSlots"
                       :key="slot.time"

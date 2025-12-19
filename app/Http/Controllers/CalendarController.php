@@ -3,25 +3,43 @@
 namespace App\Http\Controllers;
 
 use App\Services\CalendarService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CalendarController extends Controller
 {
-    protected $service;
+    protected $calendarService;
 
-    public function __construct(CalendarService $service)
+    public function __construct(CalendarService $calendarService)
     {
-        $this->service = $service;
+        $this->calendarService = $calendarService;
     }
 
     public function index()
     {
-        // Controller super bersih, tidak ada logic map/array di sini
-        $events = $this->service->getAdminCalendarEvents();
+        $user = Auth::user();
+        $roles = $user->roles ?? [];
 
-        return Inertia::render('Administrator/Calendar/Index', [
-            'events' => $events
+        // 1. ADMINISTRATOR
+        if (in_array('administrator', $roles)) {
+            return Inertia::render('Administrator/Calendar/Index', [
+                'events' => $this->calendarService->getEventsForAdmin()
+            ]);
+        }
+
+        // 2. EXPERT
+        if (in_array('expert', $roles)) {
+            $expert = $user->expert;
+            if (!$expert) return redirect()->route('dashboard');
+
+            return Inertia::render('Expert/Calendar/Index', [
+                'events' => $this->calendarService->getEventsForExpert($expert->id)
+            ]);
+        }
+
+        // 3. USER (CLIENT)
+        return Inertia::render('User/Calendar/Index', [
+            'events' => $this->calendarService->getEventsForUser($user->id)
         ]);
     }
 }
