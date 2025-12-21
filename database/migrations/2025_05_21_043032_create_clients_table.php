@@ -10,18 +10,18 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->nullable()->constrained('users')->onDelete('cascade');
-            $table->string('section_hero')->nullable();
-            $table->string('banner_title')->nullable();
-            $table->text('banner_desc')->nullable();
-            $table->string('author_name')->nullable();
-            $table->string('author_photo')->nullable();
-            $table->string('banner_background')->nullable();
-            $table->string('banner_footer')->nullable();
-            $table->text('banner_footer_desc')->nullable();
-            $table->string('color')->nullable();
+            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
+            $table->string('type')->default('company');
+            $table->string('company_name');
+            $table->string('slug')->unique();
             $table->string('logo')->nullable();
-            $table->string('slug_page')->unique()->nullable();
+            $table->string('cover_image')->nullable();
+            $table->boolean('is_verified')->default(false);
+            $table->string('industry')->nullable();
+            $table->string('address')->nullable();
+            $table->string('employee_count')->nullable();
+            $table->string('website')->nullable();
+            $table->text('about')->nullable();
             $table->timestamps();
         });
     }

@@ -127,69 +127,7 @@ class AuthController extends Controller
 
         return redirect()->route('profile');
     }
-
-    public function registerExpert(Request $request)
-    {
-        $user = Auth::user();
-        $expertises = Expertise::whereNull('parent_id')->orderBy('order')->with('childrensRecursive')->get();
-
-        return Inertia::render('Register/Index', [
-            'user' => $user,
-            'client' => $user->client,
-            'expert' => $user->expert,
-            'expertises' => $expertises,
-            'initialTab' => 'expert', // Penanda untuk Vue
-            'isEditMode' => $user->expert !== null
-        ]);
-    }
-
-    public function register_expert_post(Request $request)
-    {
-        $directProcess = $request->except(['_token', 'licenses', 'gallerys', 'socials']);
-
-        $user = Auth::user();
-        if ($user->expert == null) {
-            $expert = $user->expert()->create($directProcess); //data baru
-        } else {
-            $expert = $user->expert;         // data lama
-            $expert->update($directProcess); // data di perbarui
-        }
-
-        $needProcesses = $request->only(['licenses', 'gallerys', 'socials']);
-        foreach ($needProcesses as $key_process => $need_process) { // key ini untuk path 'licenses', 'gallery'
-            $the_process = is_array($expert->$key_process ?? null) ? $expert->$key_process : [];
-            foreach ($need_process as $key_data_db => $process_data) {            // key ini untuk database data keberapa '[0]', '[1]'
-                foreach ($process_data as $key_item => $value) {                      // key ini untuk index data keberapa 'certification', 'attachment' or...
-                    // cek apakah data yang baru ini string atau file
-                    if ($request->hasFile("{$key_process}.{$key_data_db}.{$key_item}")) { // jika file proses ke s3 baru name file simpan database
-                        // cek apakah file yang sebelumnya ada
-                        if (isset($the_process[$key_data_db][$key_item])) {                   // hapus dulu di s3 nya
-                            Storage::disk('s3')->delete($the_process[$key_data_db][$key_item]);
-                        }
-
-                        $file     = $value;
-                        $filename = "expert/{$key_process}/" . uniqid() . '.' . $file->getClientOriginalExtension(); // data baru
-                        Storage::disk('s3')->put($filename, file_get_contents($file), 'public');
-                        $the_process[$key_data_db][$key_item] = $filename;
-                    } else { // langsung update
-                        $the_process[$key_data_db][$key_item] = $value;
-                    }
-                }
-            }
-            $expert->$key_process = $the_process;
-            $expert->save();
-        }
-
-        $roles = $user->roles;
-        if (!in_array('expert', $roles)) {
-            $roles[] = 'expert';
-            $user->roles = $roles;
-            $user->save();
-        }
-
-        return redirect()->route('profile');
-    }
-
+    
     public function profile()
     {
         $user = Auth::user();

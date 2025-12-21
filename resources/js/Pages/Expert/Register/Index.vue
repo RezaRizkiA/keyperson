@@ -35,30 +35,6 @@ const props = defineProps({
   isEditMode: Boolean,
 });
 
-// const getStorageUrl = (path) => {
-//     if (!path) return null;
-
-//     // Cek apakah path sudah berupa URL lengkap (http/https)? (Kasus S3)
-//     if (path.startsWith('http')) {
-//         return path;
-//     }
-
-//     // Jika path relatif dan Anda pakai S3, Anda harus tahu Base URL S3 Anda.
-//     // TAPI, cara paling aman jika Anda campur (lokal/s3) adalah membiarkan backend yang memberi URL.
-
-//     // UNTUK KASUS ANDA SEKARANG (S3 tapi path relatif di DB):
-//     // Kita asumsikan Anda pakai Laravel Storage Link untuk S3 (jarang) atau Public.
-
-//     // SOLUSI TERBAIK SEMENTARA (Hardcode S3 URL Prefix jika pakai S3):
-//     // Ganti URL ini dengan URL Bucket S3 Anda yang asli
-//     // const s3BaseUrl = "https://nama-bucket-anda.s3.region.amazonaws.com/";
-//     // return s3BaseUrl + path;
-
-//     // TAPI JIKA ANDA MASIH DI LOCALHOST (Storage:link):
-//     return `/storage/${path}`;
-// };
-
-// --- HELPER: Safe JSON Parse ---
 
 const parseData = (data, defaultValue = []) => {
   if (!data) return defaultValue;
@@ -178,7 +154,7 @@ const addSocial = () => form.socials.push({ key: "instagram", value: "" });
 const removeSocial = index => form.socials.splice(index, 1);
 
 const submit = () => {
-  form.post(route("expert_store"), {
+  form.post(route("expert_onboarding.store"), {
     forceFormData: true,
     preserveScroll: true,
   });

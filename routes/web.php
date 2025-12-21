@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ClientPortalController;
+use App\Http\Controllers\ClientRegistrationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\ExpertRegistrationController;
@@ -119,20 +120,30 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('expert-onboarding')->group(function () {
         // Halaman Form Registrasi
-        Route::get('/', [ExpertRegistrationController::class, 'create'])->name('expert_create');
+        Route::get('/', [ExpertRegistrationController::class, 'create'])
+            ->name('expert_onboarding.create');
 
         // Proses Simpan Data
-        Route::post('/', [ExpertRegistrationController::class, 'store'])->name('expert_store');
+        Route::post('/', [ExpertRegistrationController::class, 'store'])
+            ->name('expert_onboarding.store');
+    });
+
+    Route::prefix('client-onboarding')->group(function () {
+        // 1. Halaman Form Registrasi Client
+        Route::get('/', [ClientRegistrationController::class, 'create'])
+            ->name('client_onboarding.create');
+
+        // 2. Proses Simpan Data Client
+        Route::post('/', [ClientRegistrationController::class, 'store'])
+            ->name('client_onboarding.store');
     });
 
     // ---------------------------------------------------------------------
     // 2. LEGACY ROUTES (Existing Functionality - Jangan Dihapus)
     // ---------------------------------------------------------------------
     // Auth & Profile Legacy
-    Route::get('register-client', [AuthController::class, 'registerClient'])->name('register_client');
-    Route::post('register-client', [AuthController::class, 'register_client_post'])->name('register_client_post');
-    Route::get('register-expert', [AuthController::class, 'registerExpert'])->name('register_expert');
-    Route::post('register-expert', [AuthController::class, 'register_expert_post'])->name('register_expert_post');
+    // Route::get('register-client', [AuthController::class, 'registerClient'])->name('register_client');
+    // Route::post('register-client', [AuthController::class, 'register_client_post'])->name('register_client_post');
 
     // Route ini bentrok secara konsep dengan 'profile.edit' di atas, tapi URL-nya beda jadi aman.
     Route::get('update-profile', [AuthController::class, 'settings'])->name('update_profile');
@@ -142,7 +153,7 @@ Route::middleware('auth')->group(function () {
 
     // Route Dashboard LAMA (Controller LAMA)
     // Masih bisa diakses via URL /profile jika ada link lama yang mengarah ke sini
-    Route::get('profile', [AuthController::class, 'profile'])->name('profile');
+    // Route::get('profile', [AuthController::class, 'profile'])->name('profile');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

@@ -9,30 +9,37 @@ class Client extends Model
 {
     protected $table = 'clients';
     protected $guarded = ['id'];
-    protected $appends = ['logo_url', 'banner_url', 'photo_url'];
-
-    // Cast “attributes” ke array otomatis
-    protected $casts = [
-        'expertise_id' => 'array',
-    ];
+    protected $appends = ['logo_url', 'cover_url'];
 
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'client_skill');
     }
-    
+
     public function getLogoUrlAttribute()
     {
-        return $this->logo ? Storage::url($this->logo) : null;
+        if (!$this->logo) return null;
+
+        if (filter_var($this->logo, FILTER_VALIDATE_URL)) {
+            return $this->logo;
+        }
+
+        // Generate URL S3 berdasarkan .env AWS_URL
+        return Storage::disk('s3')->url($this->logo);
     }
 
-    public function getBannerUrlAttribute()
+    /**
+     * Accessor untuk mendapatkan Full URL Cover
+     * Cara panggil: $client->cover_url
+     */
+    public function getCoverUrlAttribute()
     {
-        return $this->banner_background ? Storage::url($this->banner_background) : null;
-    }
+        if (!$this->cover_image) return null;
 
-    public function getPhotoUrlAttribute()
-    {
-        return $this->author_photo ? Storage::url($this->author_photo) : null;
+        if (filter_var($this->cover_image, FILTER_VALIDATE_URL)) {
+            return $this->cover_image;
+        }
+
+        return Storage::disk('s3')->url($this->cover_image);
     }
 }

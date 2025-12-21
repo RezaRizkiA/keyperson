@@ -60,12 +60,12 @@ const iconMap = {
         <div
           class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Link
-            :href="routes.register_client"
+            :href="route('client_onboarding.create')"
             class="px-8 py-4 bg-violet-600 text-white rounded-xl font-bold text-lg hover:bg-violet-700 hover:shadow-lg hover:shadow-violet-200 transition-all flex items-center justify-center gap-2">
             Untuk Perusahaan <ArrowRight class="w-5 h-5" />
           </Link>
           <Link
-            :href="route('expert_create')"
+            :href="route('expert_onboarding.create')"
             class="px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all">
             Gabung Expert
           </Link>
