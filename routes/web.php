@@ -2,24 +2,16 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
-// Pastikan Controller baru ini sudah dibuat (walaupun file-nya belum ada di upload list, saya asumsikan sudah generate)
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPortalController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\ExpertiseController;
+use App\Http\Controllers\ExpertRegistrationController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 // =========================================================================
 // PUBLIC ROUTES (Tanpa Login)
@@ -124,6 +116,14 @@ Route::middleware('auth')->group(function () {
         ->name('payment.transaction');
     Route::post('/payment/notify', [PaymentController::class, 'notify'])
         ->name('payment.notify');
+
+    Route::prefix('expert-onboarding')->group(function () {
+        // Halaman Form Registrasi
+        Route::get('/', [ExpertRegistrationController::class, 'create'])->name('expert_create');
+
+        // Proses Simpan Data
+        Route::post('/', [ExpertRegistrationController::class, 'store'])->name('expert_store');
+    });
 
     // ---------------------------------------------------------------------
     // 2. LEGACY ROUTES (Existing Functionality - Jangan Dihapus)

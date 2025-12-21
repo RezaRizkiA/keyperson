@@ -178,7 +178,7 @@ const isActive = (name) => route().current(name);
                                     class="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
                                     <div class="px-1 py-1">
                                         <MenuItem v-slot="{ active }">
-                                        <Link :href="route('profile')"
+                                        <Link :href="route('dashboard')"
                                             :class="[active ? 'bg-violet-50 text-violet-700' : 'text-slate-700', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
                                             <UserIcon class="mr-2 h-5 w-5 text-violet-400" />
                                             Dashboard

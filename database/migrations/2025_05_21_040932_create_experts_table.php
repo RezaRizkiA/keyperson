@@ -10,15 +10,16 @@ return new class extends Migration
     {
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->nullable()->constrained('users')->onDelete('cascade');
-            $table->string('type')->nullable();
-            $table->text('biography')->nullable();
+            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
+            $table->string('title')->nullable();
+            $table->text('about')->nullable();
+            $table->integer('price')->nullable();
+            $table->json('type')->nullable();
             $table->text('experiences')->nullable();
             $table->text('licenses')->nullable();
             $table->text('gallerys')->nullable();
             $table->text('socials')->nullable();
             $table->string('background')->nullable();
-            $table->integer('price')->nullable();
             $table->timestamps();
         });
     }

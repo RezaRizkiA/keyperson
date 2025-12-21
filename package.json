@@ -28,6 +28,7 @@
         "sweetalert2": "^11.26.10",
         "v-calendar": "^3.1.2",
         "vue": "^3.5.25",
+        "vue-sonner": "^2.0.9",
         "ziggy-js": "^2.6.0"
     }
 }

@@ -254,7 +254,7 @@ const submit = () => {
                 <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50">
                     <div>
                         <label
-                            class="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                            class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
                             Public Page URL <span
                                 class="bg-violet-100 text-violet-700 text-[10px] px-2 py-0.5 rounded-full normal-case">Required</span>
                         </label>
