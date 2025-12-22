@@ -27,10 +27,9 @@ Route::get('terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('privacy', [LandingController::class, 'privacy'])->name('privacy');
 
 Route::prefix('portal')->group(function () {
-
-    Route::get('/{client:slug_page}', [ClientPortalController::class, 'index'])
+    Route::get('/{client:slug}', [ClientPortalController::class, 'index'])
         ->name('client.home');
-    Route::get('/{client:slug_page}/category/{expertise:slug}', [ClientPortalController::class, 'experts'])
+    Route::get('/{client:slug}/category/{expertise:slug}', [ClientPortalController::class, 'experts'])
         ->name('client.experts');
 });
 Route::get('/experts/{expert}', [ClientPortalController::class, 'show'])
@@ -50,15 +49,7 @@ Route::get('/auth/google/calendar-connect', [AuthController::class, 'google_cale
 // Callback iPaymu (Luar auth group & csrf protected biasanya, tapi biarkan sesuai setup Anda)
 Route::post('payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
-
-// =========================================================================
-// PROTECTED ROUTES (Harus Login)
-// =========================================================================
 Route::middleware('auth')->group(function () {
-
-    // ---------------------------------------------------------------------
-    // 1. NEW DASHBOARD REFACTOR (Service-Repository Pattern)
-    // ---------------------------------------------------------------------
     Route::prefix('dashboard')->group(function () {
         // Overview
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

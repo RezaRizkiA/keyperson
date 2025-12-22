@@ -1,112 +1,561 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Clock, MapPin, Star, BadgeCheck, MessageSquare } from 'lucide-vue-next';
+import { Head, Link } from "@inertiajs/vue3";
+import { route } from "ziggy-js";
+import { ref, computed } from "vue";
+import MainLayout from "@/Layouts/MainLayout.vue";
+import {
+    Star,
+    ChevronLeft,
+    Mail,
+    Phone,
+    MapPin,
+    MessageCircle,
+    Share2,
+    MoreVertical,
+    CheckCircle,
+} from "lucide-vue-next";
 
-// Props dari ClientPortalController@show
-const props = defineProps({ 
-    expert: Object,
-    backUrl: String 
+// Components
+import ExpertOverview from "@/Components/Portal/ExpertOverview.vue";
+import ExpertAbout from "@/Components/Portal/ExpertAbout.vue";
+import ExpertExperience from "@/Components/Portal/ExpertExperience.vue";
+import ExpertLicenses from "@/Components/Portal/ExpertLicenses.vue";
+import ExpertSocials from "@/Components/Portal/ExpertSocials.vue";
+import ExpertReviews from "@/Components/Portal/ExpertReviews.vue";
+import ExpertSkills from "@/Components/Portal/ExpertSkills.vue";
+
+const props = defineProps({
+    expert: {
+        type: Object,
+        required: true,
+    },
+    reviewsCount: {
+        type: Number,
+        default: 0,
+    },
 });
 
-const formatCurrency = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+// Active tab state
+const activeTab = ref("overview");
 
-// Helper untuk fallback gambar jika null
-const profilePicture = props.expert.user.picture_url || `https://ui-avatars.com/api/?name=${props.expert.user.name}&background=random`;
+// Parse JSON fields safely
+const experiences = computed(() => {
+    try {
+        const exp = props.expert.expert?.experiences;
+        if (typeof exp === "string") return JSON.parse(exp);
+        if (Array.isArray(exp)) return exp;
+        return [];
+    } catch {
+        return [];
+    }
+});
 
+const licenses = computed(() => {
+    try {
+        const lic = props.expert.expert?.licenses;
+        if (typeof lic === "string") return JSON.parse(lic);
+        if (Array.isArray(lic)) return lic;
+        return [];
+    } catch {
+        return [];
+    }
+});
+
+const socials = computed(() => {
+    try {
+        const soc = props.expert.expert?.socials;
+        let parsed = [];
+
+        if (typeof soc === "string") {
+            parsed = JSON.parse(soc);
+        } else if (Array.isArray(soc)) {
+            parsed = soc;
+        }
+
+        // Convert array format [{key, value}] → {key: value}
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.key) {
+            return parsed.reduce((obj, item) => {
+                obj[item.key] = item.value;
+                return obj;
+            }, {});
+        }
+
+        return parsed;
+    } catch {
+        return {};
+    }
+});
+
+const expertTypes = computed(() => {
+    try {
+        const types = props.expert.expert?.type;
+        if (typeof types === "string") return JSON.parse(types);
+        if (Array.isArray(types)) return types;
+        return [];
+    } catch {
+        return [];
+    }
+});
+
+// Tab navigation
+const switchTab = (tab) => {
+    activeTab.value = tab;
+    // Smooth scroll to content
+    const element = document.getElementById("tab-content");
+    if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+};
+
+const navigateToAbout = () => {
+    switchTab("about");
+};
+
+const navigateToReviews = () => {
+    switchTab("reviews");
+};
+
+const navigateToSkills = () => {
+    switchTab("skills");
+};
 </script>
 
 <template>
-    <Head :title="expert.user.name" />
+    <Head :title="`${expert.name} - Expert Profile`" />
 
-    <div class="min-h-screen bg-slate-50 font-sans py-8 px-4">
-        <div class="max-w-5xl mx-auto">
+    <MainLayout>
+        <div class="min-h-screen bg-slate-950 text-white pt-20">
+            <!-- Back Navigation -->
+            <div class="max-w-7xl mx-auto px-6 py-4 mt-5">
+                <Link
+                    :href="route('home')"
+                    class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+                >
+                    <ChevronLeft class="w-5 h-5" />
+                    <span>Back to Experts</span>
+                </Link>
+            </div>
 
-            <Link :href="backUrl || '/'" class="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-6 font-medium transition-colors">
-                <ArrowLeft class="w-4 h-4" /> Back to Experts
-            </Link>
-
-            <div class="grid lg:grid-cols-3 gap-8">
-                
-                <div class="lg:col-span-1">
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm sticky top-8 text-center">
-                        
-                        <div class="relative inline-block mx-auto mb-4">
-                            <img :src="profilePicture" 
-                                class="w-32 h-32 rounded-full object-cover border-4 border-slate-50 shadow-inner">
-                            <div class="absolute bottom-1 right-1 bg-green-500 w-6 h-6 rounded-full border-4 border-white" title="Available"></div>
+            <!-- Cover/Hero Section -->
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="relative rounded-3xl overflow-hidden">
+                    <!-- Cover with Glow -->
+                    <div
+                        class="h-64 md:h-80 relative bg-linear-to-br from-blue-900 via-slate-900 to-cyan-900 overflow-hidden"
+                    >
+                        <div
+                            v-if="expert.expert?.background"
+                            class="absolute inset-0"
+                        >
+                            <img
+                                :src="expert.expert.background"
+                                alt="Background"
+                                class="w-full h-full object-cover opacity-30"
+                            />
                         </div>
-                        
-                        <h1 class="text-xl font-bold text-slate-900 flex items-center justify-center gap-1">
-                            {{ expert.user.name }}
-                            <BadgeCheck class="w-5 h-5 text-blue-500" />
-                        </h1>
-                        <p class="text-sm text-slate-500 mb-6 font-medium">{{ expert.title || 'Professional Consultant' }}</p>
 
-                        <div class="grid grid-cols-2 gap-2 mb-8 text-left">
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-xs text-slate-400 uppercase font-bold">Experience</p>
-                                <div class="flex items-center gap-1 font-bold text-slate-700">
-                                    <Clock class="w-4 h-4" /> {{ expert.experience_years || 5 }}+ Years
+                        <!-- Animated Glow -->
+                        <div class="absolute inset-0 opacity-40">
+                            <div
+                                class="absolute top-0 left-0 w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(59,130,246,0.1)_50%,transparent_75%)] animate-pulse-glow"
+                            ></div>
+                        </div>
+
+                        <div
+                            class="absolute top-10 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"
+                        ></div>
+                        <div
+                            class="absolute bottom-10 left-10 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"
+                        ></div>
+
+                        <!-- Action Buttons -->
+                        <div
+                            class="absolute top-4 right-4 flex items-center gap-2"
+                        >
+                            <button
+                                class="w-10 h-10 bg-slate-900/50 backdrop-blur-sm border border-slate-700 hover:border-blue-500/50 rounded-lg flex items-center justify-center transition-all"
+                            >
+                                <Share2 class="w-5 h-5 text-slate-300" />
+                            </button>
+                            <button
+                                class="w-10 h-10 bg-slate-900/50 backdrop-blur-sm border border-slate-700 hover:border-blue-500/50 rounded-lg flex items-center justify-center transition-all"
+                            >
+                                <MoreVertical class="w-5 h-5 text-slate-300" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expert Info Card -->
+                    <div
+                        class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 p-6"
+                    >
+                        <div
+                            class="flex flex-col md:flex-row items-start md:items-center gap-6"
+                        >
+                            <!-- Avatar -->
+                            <div class="shrink-0 -mt-20 md:-mt-24">
+                                <div
+                                    class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-slate-800 border-4 border-slate-900 overflow-hidden shadow-xl"
+                                >
+                                    <img
+                                        v-if="expert.picture"
+                                        :src="expert.picture"
+                                        :alt="expert.name"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <div
+                                        v-else
+                                        class="w-full h-full flex items-center justify-center text-5xl font-bold text-blue-400 bg-slate-800"
+                                    >
+                                        {{ expert.name?.charAt(0) }}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="bg-slate-50 p-3 rounded-xl">
-                                <p class="text-xs text-slate-400 uppercase font-bold">Session</p>
-                                <div class="flex items-center gap-1 font-bold text-slate-700">
-                                    <MessageSquare class="w-4 h-4" /> Online
+
+                            <!-- Expert Details -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start gap-2 mb-2">
+                                    <h1
+                                        class="text-3xl md:text-4xl font-bold text-white"
+                                    >
+                                        {{ expert.name }}
+                                    </h1>
+                                    <CheckCircle
+                                        class="w-6 h-6 text-blue-500 shrink-0"
+                                    />
                                 </div>
+
+                                <p
+                                    v-if="expert.expert?.title"
+                                    class="text-xl text-blue-400 font-medium mb-3"
+                                >
+                                    {{ expert.expert.title }}
+                                </p>
+
+                                <!-- Expert Types -->
+                                <div
+                                    v-if="expertTypes.length > 0"
+                                    class="flex flex-wrap gap-2 mb-4"
+                                >
+                                    <span
+                                        v-for="(type, index) in expertTypes"
+                                        :key="index"
+                                        class="px-3 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-full text-xs font-medium"
+                                    >
+                                        {{ type }}
+                                    </span>
+                                </div>
+
+                                <!-- Meta Info -->
+                                <div
+                                    class="flex flex-wrap items-center gap-4 text-sm text-slate-400"
+                                >
+                                    <!-- Rating -->
+                                    <div
+                                        v-if="expert.expert?.rating"
+                                        class="flex items-center gap-2"
+                                    >
+                                        <Star
+                                            class="w-5 h-5 text-yellow-400 fill-yellow-400"
+                                        />
+                                        <span class="font-bold text-white">{{
+                                            expert.expert.rating
+                                        }}</span>
+                                        <span
+                                            >({{
+                                                expert.expert.total_reviews
+                                            }}
+                                            reviews)</span
+                                        >
+                                    </div>
+
+                                    <!-- Sessions -->
+                                    <div
+                                        v-if="
+                                            expert.expert &&
+                                            expert.expert.total_sessions !==
+                                                undefined
+                                        "
+                                        class="flex items-center gap-1.5"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                        <span
+                                            >{{ expert.expert.total_sessions }}+
+                                            sessions</span
+                                        >
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div
+                                        v-if="expert.email"
+                                        class="flex items-center gap-1.5"
+                                    >
+                                        <Mail class="w-4 h-4" />
+                                        <span>{{ expert.email }}</span>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div
+                                        v-if="expert.phone"
+                                        class="flex items-center gap-1.5"
+                                    >
+                                        <Phone class="w-4 h-4" />
+                                        <span>{{ expert.phone }}</span>
+                                    </div>
+
+                                    <!-- Location -->
+                                    <div
+                                        v-if="expert.address"
+                                        class="flex items-center gap-1.5"
+                                    >
+                                        <MapPin class="w-4 h-4" />
+                                        <span>{{ expert.address }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CTA Buttons -->
+                            <div class="flex items-center gap-3 shrink-0">
+                                <button
+                                    class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-blue-500/50 rounded-lg font-medium transition-all flex items-center gap-2"
+                                >
+                                    <MessageCircle class="w-5 h-5" />
+                                    Message
+                                </button>
+                                <button
+                                    class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all"
+                                >
+                                    Book · Rp{{
+                                        (
+                                            expert.expert?.price || 0
+                                        ).toLocaleString("id-ID")
+                                    }}/hr
+                                </button>
                             </div>
                         </div>
 
-                        <Link :href="route('booking.create', expert.id) + `?back=${$page.url}`" 
-                            class="block w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-lg shadow-xl shadow-slate-900/20 hover:bg-violet-600 hover:shadow-violet-200 hover:-translate-y-1 transition-all duration-300">
-                            Book Session
-                        </Link>
-                        
-                        <p class="mt-4 text-xs text-slate-400">
-                            Investment starts from <span class="font-bold text-slate-900">{{ formatCurrency(expert.price) }}</span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 space-y-6">
-                    
-                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                        <h2 class="font-bold text-lg text-slate-900 mb-4 border-b border-slate-100 pb-2">About Me</h2>
-                        <div class="prose prose-slate text-sm leading-relaxed text-slate-600 max-w-none">
-                            <p v-if="expert.about">{{ expert.about }}</p>
-                            <p v-else class="italic text-slate-400">Expert has not added a bio yet.</p>
+                        <!-- Tab Navigation -->
+                        <div
+                            class="flex items-center gap-8 mt-6 border-t border-slate-800 pt-4 overflow-x-auto"
+                        >
+                            <button
+                                @click="switchTab('overview')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'overview'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Overview
+                                <div
+                                    v-if="activeTab === 'overview'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                @click="switchTab('about')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'about'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                About
+                                <div
+                                    v-if="activeTab === 'about'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                @click="switchTab('skills')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'skills'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Skills
+                                <div
+                                    v-if="activeTab === 'skills'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                @click="switchTab('reviews')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'reviews'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Reviews
+                                <div
+                                    v-if="activeTab === 'reviews'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                v-if="experiences.length > 0"
+                                @click="switchTab('experience')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'experience'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Experience
+                                <div
+                                    v-if="activeTab === 'experience'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                v-if="licenses.length > 0"
+                                @click="switchTab('licenses')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'licenses'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Licenses
+                                <div
+                                    v-if="activeTab === 'licenses'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
+                            <button
+                                v-if="
+                                    socials.linkedin ||
+                                    socials.twitter ||
+                                    socials.website
+                                "
+                                @click="switchTab('socials')"
+                                :class="[
+                                    'pb-2 font-medium transition-all relative shrink-0',
+                                    activeTab === 'socials'
+                                        ? 'text-blue-400'
+                                        : 'text-slate-400 hover:text-white',
+                                ]"
+                            >
+                                Socials
+                                <div
+                                    v-if="activeTab === 'socials'"
+                                    class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400"
+                                ></div>
+                            </button>
                         </div>
                     </div>
-
-                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                        <h2 class="font-bold text-lg text-slate-900 mb-4 border-b border-slate-100 pb-2">Expertise & Topics</h2>
-                        
-                        <div v-if="expert.skills && expert.skills.length > 0" class="flex flex-wrap gap-2">
-                            <span v-for="skill in expert.skills" :key="skill.id" 
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 rounded-lg text-xs font-bold border border-violet-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
-                                {{ skill.name }}
-                            </span>
-                        </div>
-                        <p v-else class="text-slate-400 text-sm italic">No specific topics listed.</p>
-                    </div>
-
-                    <div v-if="expert.experiences && expert.experiences.length > 0" class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-                        <h2 class="font-bold text-lg text-slate-900 mb-4 border-b border-slate-100 pb-2">Professional Experience</h2>
-                        <ul class="space-y-4">
-                            <li v-for="(exp, index) in expert.experiences" :key="index" class="flex gap-4">
-                                <div class="w-2 h-2 mt-2 rounded-full bg-slate-300 shrink-0"></div>
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm">{{ exp.role || 'Role' }}</p>
-                                    <p class="text-xs text-slate-500">{{ exp.company || 'Company' }}</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-
                 </div>
+            </div>
 
+            <!-- Tab Content -->
+            <div id="tab-content" class="max-w-7xl mx-auto px-6 py-12">
+                <!-- Overview Tab -->
+                <ExpertOverview
+                    v-if="activeTab === 'overview'"
+                    :expert="expert"
+                    :about="expert.expert?.about || ''"
+                    :experiences="experiences"
+                    :licenses="licenses"
+                    @navigate-to-about="navigateToAbout"
+                    @navigate-to-reviews="navigateToReviews"
+                    @navigate-to-skills="navigateToSkills"
+                />
+
+                <!-- About Tab -->
+                <ExpertAbout
+                    v-if="activeTab === 'about'"
+                    :about="expert.expert?.about || ''"
+                />
+
+                <!-- Skills Tab -->
+                <ExpertSkills
+                    v-if="activeTab === 'skills'"
+                    :skills="expert.expert?.skills || []"
+                />
+
+                <!-- Reviews Tab -->
+                <ExpertReviews
+                    v-if="activeTab === 'reviews'"
+                    :expert="expert"
+                    :reviews="expert.expert?.reviews || []"
+                    :reviewsCount="reviewsCount"
+                />
+
+                <!-- Experience Tab -->
+                <ExpertExperience
+                    v-if="activeTab === 'experience'"
+                    :experiences="experiences"
+                />
+
+                <!-- Licenses Tab -->
+                <ExpertLicenses
+                    v-if="activeTab === 'licenses'"
+                    :licenses="licenses"
+                />
+
+                <!-- Socials Tab -->
+                <ExpertSocials
+                    v-if="activeTab === 'socials'"
+                    :socials="socials"
+                />
+            </div>
+
+            <!-- CTA Section -->
+            <div class="max-w-7xl mx-auto px-6 pb-20">
+                <section>
+                    <div
+                        class="relative rounded-3xl overflow-hidden bg-linear-to-br from-blue-900/40 via-slate-900/60 to-cyan-900/40 border border-blue-500/20 p-12 md:p-16"
+                    >
+                        <!-- Glow Effects -->
+                        <div
+                            class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+                        ></div>
+                        <div
+                            class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
+                        ></div>
+
+                        <div
+                            class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 py-4"
+                        >
+                            <div class="flex-1">
+                                <h3
+                                    class="text-4xl md:text-5xl font-bold text-white mb-3"
+                                >
+                                    Ready to accelerate your growth?
+                                </h3>
+                                <p class="text-lg text-slate-300">
+                                    Book a session with {{ expert.name }} today.
+                                </p>
+                            </div>
+                            <button
+                                class="px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-base transition-all shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 shrink-0"
+                            >
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
-    </div>
+    </MainLayout>
 </template>

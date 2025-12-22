@@ -11,6 +11,9 @@ class Expert extends Model
 
     protected $casts = [
         'price'        => 'integer',
+        'rating'       => 'decimal:2',
+        'total_reviews' => 'integer',
+        'total_sessions' => 'integer',
         'experiences'  => 'array',
         'licenses'     => 'array',
         'gallerys'     => 'array',
@@ -31,5 +34,10 @@ class Expert extends Model
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'expert_skill');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

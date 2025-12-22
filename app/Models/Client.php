@@ -11,9 +11,31 @@ class Client extends Model
     protected $guarded = ['id'];
     protected $appends = ['logo_url', 'cover_url'];
 
+    /**
+     * Relationship to User model
+     * Client belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relationship to Skills
+     * Client can have many skills
+     */
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'client_skill');
+    }
+
+    /**
+     * Relationship to Appointments
+     * Client can have many appointments
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     public function getLogoUrlAttribute()

@@ -114,6 +114,11 @@ class ExpertSeeder extends Seeder
 
                             'price'       => $faker->numberBetween(10, 50) * 10000, // 100k - 500k
 
+                            // Rating data (dummy for testing)
+                            'rating'           => $faker->randomFloat(2, 3.5, 5.0), // 3.50 - 5.00
+                            'total_reviews'    => $faker->numberBetween(5, 100),
+                            'total_sessions'   => $faker->numberBetween(10, 200),
+
                             // JSON: Type (Multi-select)
                             'type'        => $faker->randomElements($types, $faker->numberBetween(1, 2)),
                         ]

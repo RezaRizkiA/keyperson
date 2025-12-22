@@ -1,7 +1,14 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { Menu, MenuButton, MenuItems, MenuItem, Dialog, DialogPanel } from '@headlessui/vue';
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { Link, usePage } from "@inertiajs/vue3";
+import {
+    Menu,
+    MenuButton,
+    MenuItems,
+    MenuItem,
+    Dialog,
+    DialogPanel,
+} from "@headlessui/vue";
 import {
     ChevronDownIcon,
     UserGroupIcon,
@@ -9,8 +16,8 @@ import {
     UserIcon,
     ArrowRightOnRectangleIcon,
     Bars3Icon,
-    XMarkIcon
-} from '@heroicons/vue/20/solid';
+    XMarkIcon,
+} from "@heroicons/vue/20/solid";
 
 // --- 1. SETUP DATA ---
 const page = usePage();
@@ -19,7 +26,7 @@ const assets = computed(() => page.props.assets);
 
 // --- 2. LOGIC DETEKSI HALAMAN GELAP (DARK HERO) ---
 // Daftar route yang memiliki background banner gelap di bagian atas
-const darkHeroRoutes = ['home_client', 'list_conselor'];
+const darkHeroRoutes = ["home_client", "list_conselor"];
 
 const isDarkPage = computed(() => {
     return darkHeroRoutes.includes(route().current());
@@ -33,28 +40,34 @@ const handleScroll = () => {
     isScrolled.value = window.scrollY > 20;
 };
 
-onMounted(() => { window.addEventListener('scroll', handleScroll); });
-onUnmounted(() => { window.removeEventListener('scroll', handleScroll); });
+onMounted(() => {
+    window.addEventListener("scroll", handleScroll);
+});
+onUnmounted(() => {
+    window.removeEventListener("scroll", handleScroll);
+});
 
 // --- 4. DYNAMIC STYLING COMPUTED ---
 // Menentukan apakah navbar sedang dalam mode "Transparan di atas Background Gelap"
-const isTransparentOnDark = computed(() => !isScrolled.value && isDarkPage.value);
+const isTransparentOnDark = computed(
+    () => !isScrolled.value && isDarkPage.value
+);
 
 // Warna Teks Menu
 const navTextColor = computed(() => {
-    if (isTransparentOnDark.value) return 'text-white/90 hover:text-white';
-    return 'text-slate-600 hover:text-violet-600';
+    if (isTransparentOnDark.value) return "text-white/90 hover:text-blue-400";
+    return "text-slate-300 hover:text-blue-400";
 });
 
 // Warna Teks Logo
 const logoTextColor = computed(() => {
-    if (isTransparentOnDark.value) return 'text-white';
-    return 'text-slate-900';
+    return "text-white";
 });
 
 // Logo Image Source
 const logoSrc = computed(() => {
-    if (isTransparentOnDark.value) return assets.value.logoWhiteUrl || assets.value.logoUrl;
+    if (isTransparentOnDark.value)
+        return assets.value.logoWhiteUrl || assets.value.logoUrl;
     return assets.value.logoSmallUrl;
 });
 
@@ -63,92 +76,233 @@ const isActive = (name) => route().current(name);
 </script>
 
 <template>
-    <header class="fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out" :class="[
-        isScrolled
-            ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100 py-3'
-            : 'bg-transparent py-6'
-    ]">
-
+    <header
+        class="fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out"
+        :class="[
+            isScrolled
+                ? 'bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-slate-800 py-3'
+                : 'bg-slate-900/50 backdrop-blur-sm py-6 border-b border-slate-800/30',
+        ]"
+    >
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-12">
-
                 <div class="shrink-0 flex items-center cursor-pointer">
-                    <Link :href="route('home')" class="flex items-center gap-2 group">
-                        <img :src="assets.logoSmallUrl" class="h-9 w-auto transition-transform group-hover:scale-105" alt="Logo" />
-                        <span class="font-display font-bold text-xl tracking-tight transition-colors"
-                            :class="logoTextColor">
-                            Key<span :class="isTransparentOnDark ? 'text-white' : 'text-violet-600'">Person</span>
+                    <Link
+                        :href="route('home')"
+                        class="flex items-center gap-2 group"
+                    >
+                        <img
+                            :src="assets.logoSmallUrl"
+                            class="h-9 w-auto transition-transform group-hover:scale-105"
+                            alt="Logo"
+                        />
+                        <span
+                            class="font-display font-bold text-xl tracking-tight transition-colors"
+                            :class="logoTextColor"
+                        >
+                            Key<span class="text-blue-400">Person</span>
                         </span>
                     </Link>
                 </div>
 
-                <div class="hidden lg:flex lg:items-center lg:gap-8">
-                    <Link v-for="item in ['Home', 'About', 'Support', 'Pricing']" :key="item"
-                        :href="route(item.toLowerCase())" class="text-sm font-medium transition-colors duration-200"
+                <div class="hidden lg:flex lg:items-center lg:gap-1">
+                    <Link
+                        :href="route('home')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
                         :class="[
                             navTextColor,
-                            isActive(item.toLowerCase()) ? 'font-bold' : ''
-                        ]">
-                        {{ item }}
+                            isActive('home') ? 'text-blue-400 font-bold' : '',
+                        ]"
+                    >
+                        Home
+                        <span
+                            v-if="isActive('home')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
+                    </Link>
+
+                    <Link
+                        :href="route('about')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
+                        :class="[
+                            navTextColor,
+                            isActive('about') ? 'text-blue-400 font-bold' : '',
+                        ]"
+                    >
+                        About
+                        <span
+                            v-if="isActive('about')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
+                    </Link>
+
+                    <Link
+                        :href="route('services')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
+                        :class="[
+                            navTextColor,
+                            isActive('services')
+                                ? 'text-blue-400 font-bold'
+                                : '',
+                        ]"
+                    >
+                        Services
+                        <span
+                            v-if="isActive('services')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
+                    </Link>
+
+                    <Link
+                        :href="route('pricing')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
+                        :class="[
+                            navTextColor,
+                            isActive('pricing')
+                                ? 'text-blue-400 font-bold'
+                                : '',
+                        ]"
+                    >
+                        Pricing
+                        <span
+                            v-if="isActive('pricing')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
+                    </Link>
+
+                    <Link
+                        :href="route('support')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
+                        :class="[
+                            navTextColor,
+                            isActive('support')
+                                ? 'text-blue-400 font-bold'
+                                : '',
+                        ]"
+                    >
+                        Support
+                        <span
+                            v-if="isActive('support')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
+                    </Link>
+
+                    <Link
+                        :href="route('contact')"
+                        class="px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg relative"
+                        :class="[
+                            navTextColor,
+                            isActive('contact')
+                                ? 'text-blue-400 font-bold'
+                                : '',
+                        ]"
+                    >
+                        Contact
+                        <span
+                            v-if="isActive('contact')"
+                            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-blue-400 rounded-full"
+                        ></span>
                     </Link>
                 </div>
 
                 <div class="hidden lg:flex items-center gap-4">
-
                     <template v-if="!user">
-                        <Link :href="route('login')" class="text-sm font-bold transition-colors" :class="navTextColor">
+                        <Link
+                            :href="route('login')"
+                            class="text-sm font-bold transition-colors"
+                            :class="navTextColor"
+                        >
                             Sign In
                         </Link>
 
                         <Menu as="div" class="relative inline-block text-left">
                             <div>
                                 <MenuButton
-                                    class="group inline-flex items-center justify-center gap-x-1.5 rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-violet-500/50 focus:outline-none bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500">
+                                    class="group inline-flex items-center justify-center gap-x-1.5 rounded-full px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/30 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] focus:outline-none bg-blue-600 hover:bg-blue-700"
+                                >
                                     Get Started
                                     <ChevronDownIcon
-                                        class="-mr-1 h-5 w-5 text-violet-200 group-hover:text-white transition-colors"
-                                        aria-hidden="true" />
+                                        class="-mr-1 h-5 w-5 text-blue-200 group-hover:text-white transition-colors"
+                                        aria-hidden="true"
+                                    />
                                 </MenuButton>
                             </div>
 
-                            <transition enter-active-class="transition duration-200 ease-out"
+                            <transition
+                                enter-active-class="transition duration-200 ease-out"
                                 enter-from-class="translate-y-2 opacity-0 scale-95"
                                 enter-to-class="translate-y-0 opacity-100 scale-100"
                                 leave-active-class="transition duration-150 ease-in"
                                 leave-from-class="translate-y-0 opacity-100 scale-100"
-                                leave-to-class="translate-y-2 opacity-0 scale-95">
+                                leave-to-class="translate-y-2 opacity-0 scale-95"
+                            >
                                 <MenuItems
-                                    class="absolute right-0 mt-3 w-60 origin-top-right divide-y divide-gray-100 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none overflow-hidden z-50">
+                                    class="absolute right-0 mt-3 w-60 origin-top-right divide-y divide-slate-700 rounded-2xl bg-slate-800 shadow-xl ring-1 ring-blue-500/20 focus:outline-none overflow-hidden z-50 border border-slate-700"
+                                >
                                     <div class="px-1 py-1">
                                         <MenuItem v-slot="{ active }">
-                                        <Link :href="route('register_client')" :class="[
-                                            active ? 'bg-violet-50' : '',
-                                            'group flex w-full items-center px-4 py-3 text-sm text-gray-900 transition-colors'
-                                        ]">
-                                            <div
-                                                class="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
-                                                <UserGroupIcon class="h-5 w-5" />
-                                            </div>
-                                            <div class="flex flex-col text-left">
-                                                <span class="font-bold text-violet-900">Sebagai Client</span>
-                                                <span class="text-xs text-slate-500">Cari mentor & booking</span>
-                                            </div>
-                                        </Link>
+                                            <Link
+                                                :href="route('register_client')"
+                                                :class="[
+                                                    active
+                                                        ? 'bg-blue-500/10'
+                                                        : '',
+                                                    'group flex w-full items-center px-4 py-3 text-sm text-white transition-colors',
+                                                ]"
+                                            >
+                                                <div
+                                                    class="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors border border-blue-500/30"
+                                                >
+                                                    <UserGroupIcon
+                                                        class="h-5 w-5"
+                                                    />
+                                                </div>
+                                                <div
+                                                    class="flex flex-col text-left"
+                                                >
+                                                    <span
+                                                        class="font-bold text-white"
+                                                        >Sebagai Client</span
+                                                    >
+                                                    <span
+                                                        class="text-xs text-slate-400"
+                                                        >Cari mentor &
+                                                        booking</span
+                                                    >
+                                                </div>
+                                            </Link>
                                         </MenuItem>
                                         <MenuItem v-slot="{ active }">
-                                        <Link :href="route('register_expert')" :class="[
-                                            active ? 'bg-fuchsia-50' : '',
-                                            'group flex w-full items-center px-4 py-3 text-sm text-gray-900 transition-colors'
-                                        ]">
-                                            <div
-                                                class="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-fuchsia-100 text-fuchsia-600 group-hover:bg-fuchsia-600 group-hover:text-white transition-colors">
-                                                <BriefcaseIcon class="h-5 w-5" />
-                                            </div>
-                                            <div class="flex flex-col text-left">
-                                                <span class="font-bold text-fuchsia-900">Sebagai Expert</span>
-                                                <span class="text-xs text-slate-500">Tawarkan jasa anda</span>
-                                            </div>
-                                        </Link>
+                                            <Link
+                                                :href="route('register_expert')"
+                                                :class="[
+                                                    active
+                                                        ? 'bg-cyan-500/10'
+                                                        : '',
+                                                    'group flex w-full items-center px-4 py-3 text-sm text-white transition-colors',
+                                                ]"
+                                            >
+                                                <div
+                                                    class="mr-3 flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-600 group-hover:text-white transition-colors border border-cyan-500/30"
+                                                >
+                                                    <BriefcaseIcon
+                                                        class="h-5 w-5"
+                                                    />
+                                                </div>
+                                                <div
+                                                    class="flex flex-col text-left"
+                                                >
+                                                    <span
+                                                        class="font-bold text-white"
+                                                        >Sebagai Expert</span
+                                                    >
+                                                    <span
+                                                        class="text-xs text-slate-400"
+                                                        >Tawarkan jasa
+                                                        anda</span
+                                                    >
+                                                </div>
+                                            </Link>
                                         </MenuItem>
                                     </div>
                                 </MenuItems>
@@ -159,39 +313,70 @@ const isActive = (name) => route().current(name);
                     <template v-else>
                         <Menu as="div" class="relative ml-3">
                             <MenuButton
-                                class="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 transition-all border hover:shadow-md"
-                                :class="isTransparentOnDark ? 'bg-white/10 hover:bg-white/20 border-white/20 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'">
-                                <img class="h-8 w-8 rounded-full object-cover border"
-                                    :class="isTransparentOnDark ? 'border-white/30' : 'border-slate-200'"
-                                    :src="user.profile_photo_url || assets.userPlaceholderUrl" alt="" />
-                                <span class="text-sm font-bold hidden sm:block">{{ user.name }}</span>
+                                class="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 transition-all border hover:shadow-md bg-slate-800/50 hover:bg-slate-700/50 border-blue-500/30 text-white hover:border-blue-500/50"
+                            >
+                                <img
+                                    class="h-8 w-8 rounded-full object-cover border border-blue-500/30"
+                                    :src="
+                                        user.profile_photo_url ||
+                                        assets.userPlaceholderUrl
+                                    "
+                                    alt=""
+                                />
+                                <span
+                                    class="text-sm font-bold hidden sm:block"
+                                    >{{ user.name }}</span
+                                >
                                 <ChevronDownIcon class="h-4 w-4 opacity-70" />
                             </MenuButton>
 
-                            <transition enter-active-class="transition duration-200 ease-out"
+                            <transition
+                                enter-active-class="transition duration-200 ease-out"
                                 enter-from-class="translate-y-2 opacity-0 scale-95"
                                 enter-to-class="translate-y-0 opacity-100 scale-100"
                                 leave-active-class="transition duration-150 ease-in"
                                 leave-from-class="translate-y-0 opacity-100 scale-100"
-                                leave-to-class="translate-y-2 opacity-0 scale-95">
+                                leave-to-class="translate-y-2 opacity-0 scale-95"
+                            >
                                 <MenuItems
-                                    class="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none z-50">
+                                    class="absolute right-0 mt-2 w-48 origin-top-right divide-y divide-slate-700 rounded-xl bg-slate-800 shadow-lg ring-1 ring-blue-500/20 focus:outline-none z-50 border border-slate-700"
+                                >
                                     <div class="px-1 py-1">
                                         <MenuItem v-slot="{ active }">
-                                        <Link :href="route('dashboard')"
-                                            :class="[active ? 'bg-violet-50 text-violet-700' : 'text-slate-700', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
-                                            <UserIcon class="mr-2 h-5 w-5 text-violet-400" />
-                                            Dashboard
-                                        </Link>
+                                            <Link
+                                                :href="route('dashboard')"
+                                                :class="[
+                                                    active
+                                                        ? 'bg-blue-500/10 text-blue-400'
+                                                        : 'text-slate-300',
+                                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                                ]"
+                                            >
+                                                <UserIcon
+                                                    class="mr-2 h-5 w-5 text-blue-400"
+                                                />
+                                                Dashboard
+                                            </Link>
                                         </MenuItem>
                                     </div>
                                     <div class="px-1 py-1">
                                         <MenuItem v-slot="{ active }">
-                                        <Link :href="route('logout')" method="post" as="button"
-                                            :class="[active ? 'bg-red-50 text-red-700' : 'text-slate-700', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
-                                            <ArrowRightOnRectangleIcon class="mr-2 h-5 w-5 text-red-400" />
-                                            Log Out
-                                        </Link>
+                                            <Link
+                                                :href="route('logout')"
+                                                method="post"
+                                                as="button"
+                                                :class="[
+                                                    active
+                                                        ? 'bg-red-500/10 text-red-400'
+                                                        : 'text-slate-300',
+                                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                                ]"
+                                            >
+                                                <ArrowRightOnRectangleIcon
+                                                    class="mr-2 h-5 w-5 text-red-400"
+                                                />
+                                                Log Out
+                                            </Link>
                                         </MenuItem>
                                     </div>
                                 </MenuItems>
@@ -201,76 +386,181 @@ const isActive = (name) => route().current(name);
                 </div>
 
                 <div class="flex items-center lg:hidden">
-                    <button @click="isMobileMenuOpen = true" class="p-2 rounded-md transition-colors"
-                        :class="isTransparentOnDark ? 'text-white hover:bg-white/10' : 'text-slate-600 hover:bg-slate-100'">
+                    <button
+                        @click="isMobileMenuOpen = true"
+                        class="p-2 rounded-md transition-colors text-white hover:bg-slate-800/50"
+                    >
                         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
             </div>
         </nav>
 
-        <Dialog as="div" class="lg:hidden" @close="isMobileMenuOpen = false" :open="isMobileMenuOpen">
-            <div class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm" />
+        <Dialog
+            as="div"
+            class="lg:hidden"
+            @close="isMobileMenuOpen = false"
+            :open="isMobileMenuOpen"
+        >
+            <div class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm" />
             <DialogPanel
-                class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm shadow-2xl transition-all duration-300">
+                class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-slate-900 px-6 py-6 sm:max-w-sm shadow-2xl transition-all duration-300 border-l border-slate-800"
+            >
                 <div class="flex items-center justify-between mb-8">
-                    <Link :href="route('home')" class="-m-1.5 p-1.5 flex items-center gap-2">
-                        <img class="h-8 w-auto" :src="assets.logoSmallUrl" alt="" />
-                        <span class="font-display font-bold text-lg text-slate-900">Key<span
-                                class="text-violet-600">Person</span></span>
+                    <Link
+                        :href="route('home')"
+                        class="-m-1.5 p-1.5 flex items-center gap-2"
+                    >
+                        <img
+                            class="h-8 w-auto"
+                            :src="assets.logoSmallUrl"
+                            alt=""
+                        />
+                        <span class="font-display font-bold text-lg text-white"
+                            >Key<span class="text-blue-400">Person</span></span
+                        >
                     </Link>
-                    <button type="button" class="-m-2.5 rounded-md p-2.5 text-slate-700 hover:bg-slate-100"
-                        @click="isMobileMenuOpen = false">
+                    <button
+                        type="button"
+                        class="-m-2.5 rounded-md p-2.5 text-slate-300 hover:bg-slate-800"
+                        @click="isMobileMenuOpen = false"
+                    >
                         <span class="sr-only">Close menu</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
 
                 <div class="flow-root">
-                    <div class="-my-6 divide-y divide-slate-100">
+                    <div class="-my-6 divide-y divide-slate-800">
                         <div class="space-y-2 py-6">
-                            <Link v-for="item in ['Home', 'About', 'Support', 'Pricing']" :key="item"
-                                :href="route(item.toLowerCase())"
-                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">
-                                {{ item }}
+                            <Link
+                                :href="route('home')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('home')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                Home
+                            </Link>
+                            <Link
+                                :href="route('about')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('about')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                About
+                            </Link>
+                            <Link
+                                :href="route('services')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('services')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                Services
+                            </Link>
+                            <Link
+                                :href="route('pricing')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('pricing')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                Pricing
+                            </Link>
+                            <Link
+                                :href="route('support')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('support')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                Support
+                            </Link>
+                            <Link
+                                :href="route('contact')"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800 hover:text-blue-400"
+                                :class="
+                                    isActive('contact')
+                                        ? 'bg-slate-800 text-blue-400'
+                                        : ''
+                                "
+                            >
+                                Contact
                             </Link>
                         </div>
 
                         <div class="py-6 space-y-4">
                             <template v-if="user">
                                 <div class="flex items-center gap-3 px-3 mb-2">
-                                    <img class="h-10 w-10 rounded-full object-cover"
-                                        :src="user.profile_photo_url || assets.userPlaceholderUrl" />
+                                    <img
+                                        class="h-10 w-10 rounded-full object-cover"
+                                        :src="
+                                            user.profile_photo_url ||
+                                            assets.userPlaceholderUrl
+                                        "
+                                    />
                                     <div>
-                                        <div class="font-bold text-slate-900">{{ user.name }}</div>
-                                        <div class="text-xs text-slate-500">{{ user.email }}</div>
+                                        <div class="font-bold text-white">
+                                            {{ user.name }}
+                                        </div>
+                                        <div class="text-xs text-slate-400">
+                                            {{ user.email }}
+                                        </div>
                                     </div>
                                 </div>
-                                <Link :href="route('profile')"
-                                    class="block w-full text-center rounded-xl bg-violet-600 px-3 py-2.5 text-base font-semibold text-white shadow-md">
+                                <Link
+                                    :href="route('profile')"
+                                    class="block w-full text-center rounded-xl bg-blue-600 px-3 py-2.5 text-base font-semibold text-white shadow-md hover:bg-blue-700"
+                                >
                                     Go to Dashboard
                                 </Link>
-                                <Link :href="route('logout')" method="post" as="button"
-                                    class="block w-full text-center rounded-xl border border-slate-200 px-3 py-2.5 text-base font-semibold text-slate-700 hover:bg-slate-50">
+                                <Link
+                                    :href="route('logout')"
+                                    method="post"
+                                    as="button"
+                                    class="block w-full text-center rounded-xl border border-slate-700 px-3 py-2.5 text-base font-semibold text-slate-300 hover:bg-slate-800"
+                                >
                                     Sign out
                                 </Link>
                             </template>
 
                             <template v-else>
-                                <Link :href="route('login')"
-                                    class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-slate-900 hover:bg-slate-50">
+                                <Link
+                                    :href="route('login')"
+                                    class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-slate-300 hover:bg-slate-800"
+                                >
                                     Log in
                                 </Link>
                                 <div class="grid grid-cols-2 gap-3 mt-4">
-                                    <Link :href="route('register_client')"
-                                        class="flex flex-col items-center justify-center p-3 rounded-xl bg-violet-50 border border-violet-100 text-violet-700 active:scale-95 transition-transform">
+                                    <Link
+                                        :href="route('register_client')"
+                                        class="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 active:scale-95 transition-transform"
+                                    >
                                         <UserGroupIcon class="h-6 w-6 mb-1" />
-                                        <span class="text-xs font-bold">Client</span>
+                                        <span class="text-xs font-bold"
+                                            >Client</span
+                                        >
                                     </Link>
-                                    <Link :href="route('register_expert')"
-                                        class="flex flex-col items-center justify-center p-3 rounded-xl bg-fuchsia-50 border border-fuchsia-100 text-fuchsia-700 active:scale-95 transition-transform">
+                                    <Link
+                                        :href="route('register_expert')"
+                                        class="flex flex-col items-center justify-center p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 active:scale-95 transition-transform"
+                                    >
                                         <BriefcaseIcon class="h-6 w-6 mb-1" />
-                                        <span class="text-xs font-bold">Expert</span>
+                                        <span class="text-xs font-bold"
+                                            >Expert</span
+                                        >
                                     </Link>
                                 </div>
                             </template>
