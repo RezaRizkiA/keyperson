@@ -37,7 +37,7 @@ const menuSections = [
         items: [
             {
                 label: "Dashboard",
-                route: "dashboard",
+                route: "dashboard.index",
                 icon: LayoutDashboard,
                 show: true,
             },
@@ -48,19 +48,19 @@ const menuSections = [
         items: [
             {
                 label: "Experts",
-                route: "dashboard.expertises.index", // Reusing expertises route for experts management
+                route: "dashboard.expertises.index",
                 icon: Users,
                 show: isAdmin.value,
             },
             {
                 label: "Institutions",
-                route: "dashboard.calendar", // Placeholder - adjust when institutions route exists
+                route: "dashboard.clients.index",
                 icon: Building2,
                 show: isAdmin.value,
             },
             {
                 label: "Users",
-                route: "dashboard.billing", // Placeholder - adjust when users route exists
+                route: "dashboard.users.index",
                 icon: UserCircle,
                 show: isAdmin.value,
             },
@@ -77,7 +77,7 @@ const menuSections = [
             },
             {
                 label: "Google Schedule",
-                route: "dashboard.calendar",
+                route: "dashboard.calendar.index",
                 icon: Calendar,
                 show: true,
             },
@@ -86,6 +86,12 @@ const menuSections = [
                 route: "dashboard.expertises.index",
                 icon: Layers,
                 show: isAdmin.value,
+            },
+            {
+                label: "Transactions",
+                route: "dashboard.transactions.index",
+                icon: CreditCard,
+                show: true,
             },
         ],
     },

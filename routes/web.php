@@ -3,6 +3,7 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPortalController;
 use App\Http\Controllers\ClientRegistrationController;
 use App\Http\Controllers\DashboardController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // =========================================================================
@@ -50,7 +52,7 @@ Route::post('payment/callback', [PaymentController::class, 'callback'])->name('p
 
 Route::middleware('auth')->group(function () {
     Route::prefix('dashboard')->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
         Route::prefix('appointments')->name('dashboard.appointments.')->group(function () {
             Route::get('/', [AppointmentController::class, 'index'])->name('index');
@@ -61,9 +63,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AppointmentController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('/calendar', [CalendarController::class, 'index'])->name('dashboard.calendar');
+        Route::get('/clients', [ClientController::class, 'index'])->name('dashboard.clients.index');
 
-        Route::get('/billing', [TransactionController::class, 'index'])->name('dashboard.billing');
+        Route::get('/users', [UserController::class, 'index'])->name('dashboard.users.index');
+        
+        Route::get('/calendar', [CalendarController::class, 'index'])->name('dashboard.calendar.index');
+
+        Route::get('/transactions', [TransactionController::class, 'index'])->name('dashboard.transactions.index');
 
         Route::prefix('expertises')->name('dashboard.expertises.')->group(function () {
             Route::get('/', [ExpertiseController::class, 'index'])->name('index');
