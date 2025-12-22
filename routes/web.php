@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 // =========================================================================
 Route::get('/', [LandingController::class, 'home'])->name('home');
 Route::get('about', [LandingController::class, 'about'])->name('about');
+Route::get('services', [LandingController::class, 'services'])->name('services');
+Route::get('contact', [LandingController::class, 'contact'])->name('contact');
 Route::get('support', [LandingController::class, 'support'])->name('support');
 Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::get('terms', [LandingController::class, 'terms'])->name('terms');
