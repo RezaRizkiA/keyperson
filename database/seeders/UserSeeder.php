@@ -27,17 +27,17 @@ class UserSeeder extends Seeder
         ]);
 
         // 2. Create 20 Expert Users
-        for ($i = 1; $i <= 20; $i++) {
-            User::create([
-                'name'     => $faker->name,
-                'email'    => 'expert' . $i . '@keyperson.com',
-                'phone'    => $faker->phoneNumber,
-                'address'  => $faker->address,
-                'picture'  => 'https://ui-avatars.com/api/?name=' . urlencode('Expert ' . $i) . '&background=' . substr(md5($i), 0, 6) . '&color=fff',
-                'password' => 'password',
-                'roles'    => ['expert'], // JSON array
-            ]);
-        }
+        // for ($i = 1; $i <= 20; $i++) {
+        //     User::create([
+        //         'name'     => $faker->name,
+        //         'email'    => 'expert' . $i . '@keyperson.com',
+        //         'phone'    => $faker->phoneNumber,
+        //         'address'  => $faker->address,
+        //         'picture'  => 'https://ui-avatars.com/api/?name=' . urlencode('Expert ' . $i) . '&background=' . substr(md5($i), 0, 6) . '&color=fff',
+        //         'password' => 'password',
+        //         'roles'    => ['expert'], // JSON array
+        //     ]);
+        // }
 
         // 3. Create 10 Client Users (Company representatives)
         for ($i = 1; $i <= 10; $i++) {

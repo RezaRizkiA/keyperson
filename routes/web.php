@@ -74,9 +74,23 @@ Route::middleware('auth')->group(function () {
         });
 
 
-        Route::get('/clients', [ClientController::class, 'index'])->name('dashboard.clients.index');
+        Route::prefix('clients')->name('dashboard.clients.')->group(function () {
+            Route::get('/', [ClientController::class, 'index'])->name('index');
+            Route::get('/{id}', [ClientController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [ClientController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [ClientController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ClientController::class, 'destroy'])->name('destroy');
+        });
 
-        Route::get('/users', [UserController::class, 'index'])->name('dashboard.users.index');
+
+        Route::prefix('users')->name('dashboard.users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('/{id}', [UserController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [UserController::class, 'update'])->name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+        });
+
         
         Route::get('/calendar', [CalendarController::class, 'index'])->name('dashboard.calendar.index');
 

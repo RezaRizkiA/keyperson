@@ -14,33 +14,32 @@ import {
     Eye,
     Edit,
     Trash2,
+    Building2,
 } from "lucide-vue-next";
 import { ref, computed } from "vue";
 
 defineOptions({ layout: DashboardLayout });
 
 const props = defineProps({
-    experts: Object,
+    clients: Object,
     stats: Object,
     filters: Object,
 });
 
 // Filter states
 const searchQuery = ref(props.filters?.search || "");
-const selectedSpecialization = ref(props.filters?.specialization || "");
 const selectedStatus = ref(props.filters?.status || "");
 
 // Confirm Dialog state
 const showConfirmDialog = ref(false);
-const expertToDelete = ref(null);
+const clientToDelete = ref(null);
 
 // Apply filters
 const applyFilters = () => {
     router.get(
-        route("dashboard.experts.index"),
+        route("dashboard.clients.index"),
         {
             search: searchQuery.value,
-            specialization: selectedSpecialization.value,
             status: selectedStatus.value,
         },
         {
@@ -50,39 +49,43 @@ const applyFilters = () => {
     );
 };
 
-// Delete expert - show confirmation dialog
-const deleteExpert = (expertId, expertName) => {
-    expertToDelete.value = { id: expertId, name: expertName };
+// Delete client - show confirmation dialog
+const deleteClient = (clientId, clientName, clientCompany) => {
+    clientToDelete.value = {
+        id: clientId,
+        name: clientName,
+        company: clientCompany,
+    };
     showConfirmDialog.value = true;
 };
 
 // Confirm delete action
 const confirmDelete = () => {
-    if (!expertToDelete.value) return;
+    if (!clientToDelete.value) return;
 
-    router.delete(route("dashboard.experts.destroy", expertToDelete.value.id), {
+    router.delete(route("dashboard.clients.destroy", clientToDelete.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             // Backend flash message will be shown by global ToastNotification
-            expertToDelete.value = null;
+            clientToDelete.value = null;
         },
         onError: () => {
             // Backend error will be shown by global ToastNotification
-            expertToDelete.value = null;
+            clientToDelete.value = null;
         },
     });
 };
 
 // Cancel delete
 const cancelDelete = () => {
-    expertToDelete.value = null;
+    clientToDelete.value = null;
 };
 
 // Status badge colors
 const getStatusColor = (status) => {
     const colors = {
         active: "bg-green-500/20 text-green-400 border-green-500/30",
-        pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+        new: "bg-blue-500/20 text-blue-400 border-blue-500/30",
         inactive: "bg-slate-500/20 text-slate-400 border-slate-500/30",
         suspended: "bg-red-500/20 text-red-400 border-red-500/30",
     };
@@ -92,39 +95,39 @@ const getStatusColor = (status) => {
 const getStatusLabel = (status) => {
     const labels = {
         active: "Active",
-        pending: "Pending",
+        new: "New",
         inactive: "Inactive",
         suspended: "Suspended",
     };
     return labels[status] || status;
 };
 
-// Performance bar color
-const getPerformanceColor = (rating) => {
-    if (rating >= 4.5) return "bg-green-500";
-    if (rating >= 4.0) return "bg-blue-500";
-    if (rating >= 3.5) return "bg-yellow-500";
-    return "bg-slate-500";
-};
-
-const getPerformanceWidth = (rating) => {
-    return `${(rating / 5) * 100}%`;
+// Client label color
+const getLabelColor = (label) => {
+    const colors = {
+        VIP: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+        Premium: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+        Regular: "bg-green-500/20 text-green-400 border-green-500/30",
+        Active: "bg-slate-500/20 text-slate-400 border-slate-500/30",
+        New: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    };
+    return colors[label] || colors.New;
 };
 </script>
 
 <template>
-    <Head title="Manage Experts" />
+    <Head title="Manage Clients" />
 
     <!-- Header Section -->
     <div class="mb-8">
         <div class="flex items-center justify-between mb-2">
             <div>
                 <h2 class="text-2xl font-bold text-slate-100">
-                    Manage Experts
+                    Manage Clients
                 </h2>
                 <p class="text-slate-400 mt-1">
-                    Oversee expert profiles, track performance, and manage
-                    account statuses.
+                    Oversee client companies, track activity, and manage account
+                    statuses.
                 </p>
             </div>
             <div class="flex items-center gap-3">
@@ -138,7 +141,7 @@ const getPerformanceWidth = (rating) => {
                     class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
                 >
                     <UserPlus class="w-4 h-4" />
-                    <span class="hidden sm:inline">Add Expert</span>
+                    <span class="hidden sm:inline">Add Client</span>
                 </button>
             </div>
         </div>
@@ -147,29 +150,29 @@ const getPerformanceWidth = (rating) => {
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
-            label="Total Experts"
-            :value="stats.total_experts"
-            :icon="Users"
+            label="Total Clients"
+            :value="stats.total"
+            :icon="Building2"
             iconColor="blue"
         />
 
         <StatCard
-            label="Active Now"
-            :value="stats.active_now"
+            label="Active Clients"
+            :value="stats.active"
             :icon="CheckCircle"
             iconColor="green"
         />
 
         <StatCard
-            label="Pending Approval"
-            :value="stats.pending_approval"
+            label="New This Month"
+            :value="stats.new_this_month"
             :icon="Clock"
             iconColor="orange"
         />
 
         <StatCard
-            label="Suspended"
-            :value="stats.suspended"
+            label="Inactive"
+            :value="stats.inactive"
             :icon="XCircle"
             iconColor="red"
         />
@@ -189,24 +192,10 @@ const getPerformanceWidth = (rating) => {
                     v-model="searchQuery"
                     @keyup.enter="applyFilters"
                     type="text"
-                    placeholder="Search by name, specialization, or email"
+                    placeholder="Search by company name, industry, or email"
                     class="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
                 />
             </div>
-
-            <!-- Specialization Filter -->
-            <select
-                v-model="selectedSpecialization"
-                @change="applyFilters"
-                class="px-4 py-2.5 bg-slate-900/50 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 cursor-pointer"
-            >
-                <option value="">All Specializations</option>
-                <option value="cardiology">Cardiology</option>
-                <option value="blockchain">Blockchain</option>
-                <option value="design">Graphic Design</option>
-                <option value="engineering">Engineering</option>
-                <option value="law">Corporate Law</option>
-            </select>
 
             <!-- Status Filter -->
             <select
@@ -216,14 +205,14 @@ const getPerformanceWidth = (rating) => {
             >
                 <option value="">All Statuses</option>
                 <option value="active">Active</option>
-                <option value="pending">Pending</option>
+                <option value="new">New</option>
                 <option value="inactive">Inactive</option>
                 <option value="suspended">Suspended</option>
             </select>
         </div>
     </div>
 
-    <!-- Experts Table -->
+    <!-- Clients Table -->
     <div
         class="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden"
     >
@@ -234,12 +223,12 @@ const getPerformanceWidth = (rating) => {
                         <th
                             class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
                         >
-                            Expert Profile
+                            Client Profile
                         </th>
                         <th
                             class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
                         >
-                            Specialization
+                            Company Info
                         </th>
                         <th
                             class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
@@ -249,7 +238,7 @@ const getPerformanceWidth = (rating) => {
                         <th
                             class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
                         >
-                            Performance
+                            Activity
                         </th>
                         <th
                             class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
@@ -259,63 +248,60 @@ const getPerformanceWidth = (rating) => {
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-700/30">
-                    <template v-if="experts.data && experts.data.length > 0">
+                    <template v-if="clients.data && clients.data.length > 0">
                         <tr
-                            v-for="expert in experts.data"
-                            :key="expert.id"
+                            v-for="client in clients.data"
+                            :key="client.id"
                             class="hover:bg-slate-900/20 transition-colors"
                         >
-                            <!-- Expert Profile -->
+                            <!-- Client Profile -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
                                     <div class="relative">
                                         <img
                                             :src="
-                                                expert.avatar ||
+                                                client.avatar ||
                                                 'https://ui-avatars.com/api/?name=' +
-                                                    expert.name +
+                                                    client.name +
                                                     '&background=3b82f6&color=fff'
                                             "
-                                            :alt="expert.name"
+                                            :alt="client.name"
                                             class="w-10 h-10 rounded-full object-cover border-2 border-slate-700"
                                         />
                                         <div
-                                            v-if="expert.is_online"
-                                            class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-800 rounded-full"
+                                            v-if="client.is_verified"
+                                            class="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 border-2 border-slate-800 rounded-full"
                                         ></div>
                                     </div>
                                     <div>
                                         <div
                                             class="text-sm font-semibold text-slate-200"
                                         >
-                                            {{ expert.name }}
+                                            {{ client.name }}
                                         </div>
                                         <div class="text-xs text-slate-500">
-                                            ID: {{ expert.expert_id }}
+                                            ID: {{ client.client_id }}
                                         </div>
                                         <div class="text-xs text-slate-500">
-                                            {{ expert.email }}
+                                            {{ client.email }}
                                         </div>
                                     </div>
                                 </div>
                             </td>
 
-                            <!-- Specialization -->
+                            <!-- Company Info -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-slate-200">
-                                    {{ expert.specialization }}
+                                    {{ client.company_name }}
                                 </div>
                                 <div
-                                    v-if="expert.category"
+                                    v-if="client.industry"
                                     class="text-xs text-slate-500 mt-0.5"
                                 >
                                     <span
                                         class="px-2 py-0.5 bg-slate-700/50 rounded text-xs"
-                                        >{{ expert.category }}</span
+                                        >{{ client.industry }}</span
                                     >
-                                </div>
-                                <div class="text-xs text-slate-500 mt-1">
-                                    {{ expert.experience }}
                                 </div>
                             </td>
 
@@ -323,39 +309,29 @@ const getPerformanceWidth = (rating) => {
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
                                     class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border"
-                                    :class="getStatusColor(expert.status)"
+                                    :class="getStatusColor(client.status)"
                                 >
-                                    {{ getStatusLabel(expert.status) }}
+                                    {{ getStatusLabel(client.status) }}
                                 </span>
                             </td>
 
-                            <!-- Performance -->
+                            <!-- Activity -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-slate-200 mb-1">
-                                    {{ expert.performance.appointments }} Appts
-                                    <span class="text-slate-500 ml-2">{{
-                                        expert.performance.label
-                                    }}</span>
+                                    {{ client.performance.appointments }} Appts
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden"
-                                    >
-                                        <div
-                                            class="h-full transition-all duration-300"
-                                            :class="
-                                                getPerformanceColor(
-                                                    expert.performance.rating
-                                                )
-                                            "
-                                            :style="{
-                                                width: getPerformanceWidth(
-                                                    expert.performance.rating
-                                                ),
-                                            }"
-                                        ></div>
-                                    </div>
+                                <div class="text-xs text-slate-400">
+                                    Total Spent: Rp
+                                    {{ client.performance.total_spent }}
                                 </div>
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border mt-1"
+                                    :class="
+                                        getLabelColor(client.performance.label)
+                                    "
+                                >
+                                    {{ client.performance.label }}
+                                </span>
                             </td>
 
                             <!-- Actions -->
@@ -364,8 +340,8 @@ const getPerformanceWidth = (rating) => {
                                     <Link
                                         :href="
                                             route(
-                                                'dashboard.experts.show',
-                                                expert.id
+                                                'dashboard.clients.show',
+                                                client.id
                                             )
                                         "
                                         class="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-700 rounded-lg transition-colors"
@@ -376,8 +352,8 @@ const getPerformanceWidth = (rating) => {
                                     <Link
                                         :href="
                                             route(
-                                                'dashboard.experts.edit',
-                                                expert.id
+                                                'dashboard.clients.edit',
+                                                client.id
                                             )
                                         "
                                         class="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-700 rounded-lg transition-colors"
@@ -387,7 +363,11 @@ const getPerformanceWidth = (rating) => {
                                     </Link>
                                     <button
                                         @click="
-                                            deleteExpert(expert.id, expert.name)
+                                            deleteClient(
+                                                client.id,
+                                                client.name,
+                                                client.company_name
+                                            )
                                         "
                                         class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors"
                                         title="Delete"
@@ -403,7 +383,7 @@ const getPerformanceWidth = (rating) => {
                             colspan="5"
                             class="px-6 py-12 text-center text-slate-500"
                         >
-                            No experts found
+                            No clients found
                         </td>
                     </tr>
                 </tbody>
@@ -412,25 +392,25 @@ const getPerformanceWidth = (rating) => {
 
         <!-- Pagination -->
         <div
-            v-if="experts.data && experts.data.length > 0"
+            v-if="clients.data && clients.data.length > 0"
             class="px-6 py-4 border-t border-slate-700/50 flex items-center justify-between"
         >
             <div class="text-sm text-slate-400">
-                Showing {{ experts.from }} to {{ experts.to }} of
-                {{ experts.total }} experts
+                Showing {{ clients.from }} to {{ clients.to }} of
+                {{ clients.total }} clients
             </div>
 
             <div class="flex items-center gap-2">
                 <Link
-                    v-if="experts.prev_page_url"
-                    :href="experts.prev_page_url"
+                    v-if="clients.prev_page_url"
+                    :href="clients.prev_page_url"
                     class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition-colors"
                     preserve-scroll
                 >
                     Prev
                 </Link>
 
-                <template v-for="link in experts.links" :key="link.label">
+                <template v-for="link in clients.links" :key="link.label">
                     <Link
                         v-if="
                             link.url &&
@@ -451,8 +431,8 @@ const getPerformanceWidth = (rating) => {
                 </template>
 
                 <Link
-                    v-if="experts.next_page_url"
-                    :href="experts.next_page_url"
+                    v-if="clients.next_page_url"
+                    :href="clients.next_page_url"
                     class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm rounded-lg transition-colors"
                     preserve-scroll
                 >
@@ -465,8 +445,8 @@ const getPerformanceWidth = (rating) => {
     <!-- Confirm Delete Dialog -->
     <ConfirmDialog
         :show="showConfirmDialog"
-        title="Delete Expert?"
-        :message="`Are you sure you want to delete ${expertToDelete?.name}? This action cannot be undone and will permanently remove all expert data.`"
+        title="Delete Client?"
+        :message="`Are you sure you want to delete ${clientToDelete?.company}? This action cannot be undone and will permanently remove all client data.`"
         confirm-text="Yes, Delete"
         cancel-text="Cancel"
         :dangerous="true"

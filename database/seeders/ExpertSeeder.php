@@ -57,7 +57,7 @@ class ExpertSeeder extends Seeder
                             'password' => Hash::make('password'), // Password default
                             'gender'   => $faker->randomElement(['L', 'P']),
                             'address'  => $faker->address,
-                            'roles'    => ['user', 'expert'], // Role user + expert
+                            'roles'    => ['expert'], // Role user + expert
                         ]
                     );
 

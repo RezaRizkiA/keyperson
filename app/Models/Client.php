@@ -30,12 +30,19 @@ class Client extends Model
     }
 
     /**
-     * Relationship to Appointments
-     * Client can have many appointments
+     * Relationship to Appointments through User
+     * Client can have many appointments through their user
      */
     public function appointments()
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasManyThrough(
+            Appointment::class,
+            User::class,
+            'id',        // Foreign key on users table
+            'user_id',   // Foreign key on appointments table
+            'user_id',   // Local key on clients table
+            'id'         // Local key on users table
+        );
     }
 
     public function getLogoUrlAttribute()

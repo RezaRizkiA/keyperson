@@ -72,10 +72,15 @@ class ExpertController extends Controller
     public function destroy(int $id)
     {
         try {
+            // Get expert info before deletion for flash message
+            $expert = \App\Models\Expert::with('user')->findOrFail($id);
+            $expertName = $expert->user->name ?? 'Expert';
+            $expertId = '#EXP-' . str_pad($id, 3, '0', STR_PAD_LEFT);
+            
             $this->expertService->deleteExpert($id);
 
             return redirect()->route('dashboard.experts.index')
-                ->with('success', 'Expert deleted successfully.');
+                ->with('success', "The expert {$expertName} ({$expertId}) has been permanently removed from the system.");
         } catch (\Exception $e) {
             Log::error('Failed to delete expert: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
