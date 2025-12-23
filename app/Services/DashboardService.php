@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Expert;
 use App\Repositories\AppointmentRepository;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Models\Appointment;
+use App\Models\Client;
+use Carbon\Carbon;
 
 class DashboardService
 {
@@ -22,26 +25,14 @@ class DashboardService
     public function getAdminStats()
     {
         return [
-            // Hitung Total User di sistem
+            'total_experts' => Expert::count(),
             'total_users' => User::count(),
-
-            // Hitung Total Appointment (Semua)
-            // Menggunakan repo atau query langsung juga boleh untuk count sederhana
+            'total_institutions' => Client::count(),
             'total_appointments' => Appointment::count(),
-
-            // Hitung Total Pendapatan (Status Paid)
             'total_revenue' => Transaction::where('status', 'berhasil')->sum('amount'),
-
-            // Hitung Appointment yang butuh konfirmasi (Pending)
             'pending_appointments' => Appointment::where('status', 'need_confirmation')->count(),
-
-            // Data untuk Chart - Appointment Trends (Last 30 Days)
             'appointment_trends' => $this->getAppointmentTrends(),
-
-            // Data untuk Quick Schedule (Next 5 Appointments)
             'quick_schedule' => $this->getQuickSchedule(),
-
-            // Data untuk Recent Booking Requests (Last 10)
             'recent_bookings' => $this->getRecentBookings(),
         ];
     }

@@ -14,7 +14,7 @@ class RedirectIfAuthenticated
     {
         $guard = $guards[0] ?? null;
         if (Auth::guard($guard)->check()) {
-            return redirect()->route('profile');
+            return redirect()->route('dashboard.index');
         }
 
         return $next($request);

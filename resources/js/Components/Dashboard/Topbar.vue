@@ -89,7 +89,7 @@ const pageSubtitle = computed(() => {
         <div class="flex items-center gap-4">
             <!-- Notification Bell -->
             <button
-                class="relative p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-lg transition-colors"
+                class="relative p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
             >
                 <Bell class="w-5 h-5" />
                 <!-- Notification Badge -->
@@ -101,11 +101,11 @@ const pageSubtitle = computed(() => {
             <!-- User Menu -->
             <Menu as="div" class="relative">
                 <MenuButton
-                    class="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-full hover:bg-slate-700 transition-all border border-transparent hover:border-slate-600"
+                    class="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-full bg-slate-700 transition-all border border-slate-600 cursor-pointer"
                 >
                     <img
                         :src="
-                            user.picture_url ||
+                            user.picture ||
                             'https://ui-avatars.com/api/?name=' +
                                 user.name +
                                 '&background=3b82f6&color=fff'

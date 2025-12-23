@@ -45,7 +45,7 @@ class AuthController extends Controller
                 'token_jwt' => $user->id,
             ];
             $request->session()->put('loggedUser', $credentials);
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard.index');
         }
         return redirect()->back()->withErrors([
             'email' => 'Email atau Password Tidak Valid!!',

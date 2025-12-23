@@ -48,7 +48,7 @@ const menuSections = [
         items: [
             {
                 label: "Experts",
-                route: "dashboard.expertises.index",
+                route: "dashboard.experts.index",
                 icon: Users,
                 show: isAdmin.value,
             },
@@ -87,6 +87,11 @@ const menuSections = [
                 icon: Layers,
                 show: isAdmin.value,
             },
+        ],
+    },
+    {
+        title: "FINANCIALS",
+        items: [
             {
                 label: "Transactions",
                 route: "dashboard.transactions.index",

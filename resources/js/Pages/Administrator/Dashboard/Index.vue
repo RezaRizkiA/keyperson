@@ -9,6 +9,7 @@ import {
     Building2,
     Plus,
     UserPlus,
+    UserCircle,
 } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import ApexCharts from "apexcharts";
@@ -208,10 +209,10 @@ const totalBookings = computed(() => {
     </div>
 
     <!-- Stats Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <StatCard
             label="Total Experts"
-            :value="stats.total_users"
+            :value="stats.total_experts"
             :icon="Users"
             iconColor="blue"
             trend="+12%"
@@ -219,28 +220,37 @@ const totalBookings = computed(() => {
         />
 
         <StatCard
-            label="Active Appointments"
-            :value="stats.total_appointments"
-            :icon="Calendar"
+            label="Total Users"
+            :value="stats.total_users"
+            :icon="UserCircle"
             iconColor="violet"
-            trend="+5%"
-            to="dashboard.appointments.index"
+            trend="+8%"
+            to="dashboard.users.index"
         />
 
         <StatCard
-            label="New Institutions"
-            :value="56"
+            label="Total Institutions"
+            :value="stats.total_institutions"
             :icon="Building2"
             iconColor="green"
-            trend="+2%"
+            trend="+5%"
             to="dashboard.clients.index"
+        />
+
+        <StatCard
+            label="Active Appointments"
+            :value="stats.total_appointments"
+            :icon="Calendar"
+            iconColor="orange"
+            trend="+5%"
+            to="dashboard.appointments.index"
         />
 
         <StatCard
             label="Monthly Revenue"
             :value="formatCurrency(stats.total_revenue)"
             :icon="DollarSign"
-            iconColor="orange"
+            iconColor="blue"
             trend="+8%"
             variant="gradient"
         />

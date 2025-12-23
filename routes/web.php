@@ -64,7 +64,15 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AppointmentController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('/experts', [ExpertController::class, 'index'])->name('dashboard.experts.index');
+
+        Route::prefix('experts')->name('dashboard.experts.')->group(function () {
+            Route::get('/', [ExpertController::class, 'index'])->name('index');
+            Route::get('/{id}', [ExpertController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [ExpertController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [ExpertController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ExpertController::class, 'destroy'])->name('destroy');
+        });
+
 
         Route::get('/clients', [ClientController::class, 'index'])->name('dashboard.clients.index');
 

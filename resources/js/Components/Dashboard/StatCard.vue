@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-vue-next";
 const props = defineProps({
     label: String,
     value: [String, Number],
-    icon: Object,
+    icon: [Object, Function],
     iconColor: {
         type: String,
         default: "blue",
@@ -71,7 +71,7 @@ const isClickable = computed(() => props.to !== null);
     >
         <!-- Hover Overlay Effect -->
         <div
-            class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-violet-500/0 group-hover:from-blue-500/5 group-hover:to-violet-500/5 transition-all duration-300"
+            class="absolute inset-0 bg-linear-to-br from-blue-500/0 to-violet-500/0 group-hover:from-blue-500/5 group-hover:to-violet-500/5 transition-all duration-300"
         ></div>
 
         <!-- Content -->
