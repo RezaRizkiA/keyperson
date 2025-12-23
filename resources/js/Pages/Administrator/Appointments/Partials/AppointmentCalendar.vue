@@ -129,32 +129,227 @@
                         <span class="day-label text-sm font-medium mb-1">{{
                             day.day
                         }}</span>
-                        <div class="flex-1 space-y-1 overflow-y-auto max-h-24">
+                        <div class="flex-1 space-y-1">
+                            <!-- Show only first appointment -->
                             <div
-                                v-for="attr in attributes"
-                                :key="attr.key"
-                                @click="handleAppointmentClick(attr.customData)"
+                                v-if="attributes && attributes.length > 0"
+                                @click="
+                                    handleAppointmentClick(
+                                        attributes[0].customData
+                                    )
+                                "
                                 class="text-xs p-1.5 rounded cursor-pointer hover:opacity-80 transition-opacity"
                                 :class="
-                                    getStatusClasses(attr.customData.status)
+                                    getStatusClasses(
+                                        attributes[0].customData.status
+                                    )
                                 "
-                                :title="`${attr.customData.client} - ${attr.customData.expert}`"
+                                :title="`${attributes[0].customData.client} - ${attributes[0].customData.expert}`"
                             >
                                 <div class="font-semibold truncate">
-                                    {{ attr.customData.time }}
-                                </div>
-                                <div class="truncate">
-                                    {{ attr.customData.client }}
+                                    {{ attributes[0].customData.time }}
+                                    {{ attributes[0].customData.client }}
                                 </div>
                             </div>
+
+                            <!-- +N more button -->
+                            <button
+                                v-if="attributes && attributes.length > 1"
+                                @click.stop="openDayModal(day.date, attributes)"
+                                class="text-xs text-cyan-400 hover:text-cyan-300 font-medium cursor-pointer transition-colors"
+                            >
+                                +{{ attributes.length - 1 }} more
+                            </button>
                         </div>
                     </div>
                 </template>
             </Calendar>
 
+            <!-- Day Appointments Modal -->
+            <Teleport to="body">
+                <div
+                    v-if="showDayModal && selectedDayData"
+                    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    @click="closeDayModal"
+                >
+                    <div
+                        class="bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-slate-700/50 max-w-2xl w-full shadow-2xl"
+                        @click.stop
+                    >
+                        <!-- Modal Header -->
+                        <div class="p-6 border-b border-slate-700/50">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="flex items-center gap-3">
+                                        <h3
+                                            class="text-xl font-bold text-slate-100"
+                                        >
+                                            Appointments for
+                                            {{
+                                                formatDayModalDate(
+                                                    selectedDayData.date
+                                                )
+                                            }}
+                                        </h3>
+                                        <span
+                                            class="px-2.5 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full border border-blue-500/30"
+                                        >
+                                            {{
+                                                selectedDayData.appointments
+                                                    .length
+                                            }}
+                                            Scheduled
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-slate-400 mt-1">
+                                        Manage today's schedule for all experts.
+                                    </p>
+                                </div>
+                                <button
+                                    @click="closeDayModal"
+                                    class="text-slate-400 hover:text-slate-200 transition-colors p-1"
+                                >
+                                    <X class="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal Body - Appointments List -->
+                        <div
+                            class="p-6 max-h-[500px] overflow-y-auto space-y-4"
+                        >
+                            <div
+                                v-for="(
+                                    apt, index
+                                ) in selectedDayData.appointments"
+                                :key="apt.id || index"
+                                class="bg-slate-800/50 rounded-xl border border-slate-700/50 p-4"
+                            >
+                                <div class="flex items-start gap-4">
+                                    <!-- Time Column -->
+                                    <div class="w-20 shrink-0">
+                                        <div
+                                            class="text-lg font-bold text-slate-100"
+                                        >
+                                            {{
+                                                formatDateTime(apt.date_time)
+                                                    .time
+                                            }}
+                                        </div>
+                                        <div class="text-xs text-slate-500">
+                                            {{
+                                                apt.hours ? apt.hours * 60 : 60
+                                            }}
+                                            min
+                                        </div>
+                                    </div>
+
+                                    <!-- Details Column -->
+                                    <div class="flex-1 min-w-0">
+                                        <!-- Status Badge -->
+                                        <div
+                                            class="flex items-center gap-2 mb-2"
+                                        >
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                                                :class="
+                                                    getStatusClasses(apt.status)
+                                                "
+                                            >
+                                                <span
+                                                    class="w-1.5 h-1.5 rounded-full mr-1.5"
+                                                    :class="
+                                                        getStatusDotClass(
+                                                            apt.status
+                                                        )
+                                                    "
+                                                ></span>
+                                                {{ formatStatus(apt.status) }}
+                                            </span>
+                                            <span class="text-slate-500 text-xs"
+                                                >•
+                                                {{
+                                                    apt.service_type ||
+                                                    "Consultation"
+                                                }}</span
+                                            >
+                                        </div>
+
+                                        <!-- Expert -->
+                                        <div
+                                            class="flex items-center gap-2 mb-1"
+                                        >
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0"
+                                            >
+                                                {{
+                                                    apt.expert_name
+                                                        ? apt.expert_name
+                                                              .charAt(0)
+                                                              .toUpperCase()
+                                                        : "E"
+                                                }}
+                                            </div>
+                                            <span class="text-slate-400 text-sm"
+                                                >Expert:</span
+                                            >
+                                            <span
+                                                class="text-slate-200 text-sm font-medium truncate"
+                                                >{{
+                                                    apt.expert_name || "Unknown"
+                                                }}</span
+                                            >
+                                        </div>
+
+                                        <!-- Client -->
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0"
+                                            >
+                                                {{
+                                                    apt.client_name
+                                                        ? apt.client_name
+                                                              .charAt(0)
+                                                              .toUpperCase()
+                                                        : "C"
+                                                }}
+                                            </div>
+                                            <span class="text-slate-400 text-sm"
+                                                >Client:</span
+                                            >
+                                            <span
+                                                class="text-slate-200 text-sm font-medium truncate"
+                                                >{{
+                                                    apt.client_name || "Unknown"
+                                                }}</span
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Button -->
+                                    <div class="shrink-0">
+                                        <button
+                                            @click="viewAppointmentDetails(apt)"
+                                            class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                                        >
+                                            {{
+                                                apt.status === "progress"
+                                                    ? "Join"
+                                                    : "View"
+                                            }}
+                                            <ArrowRight class="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Teleport>
+
             <!-- Month View - Loading/Empty State -->
             <div
-                v-else-if="localViewMode === 'month' && !isReady"
+                v-if="localViewMode === 'month' && !isReady"
                 class="flex items-center justify-center py-20"
             >
                 <div class="text-center">
@@ -169,7 +364,7 @@
 
             <!-- Week View -->
             <div
-                v-else-if="localViewMode === 'week'"
+                v-if="localViewMode === 'week'"
                 class="week-view overflow-x-auto"
             >
                 <div class="min-w-[800px]">
@@ -259,7 +454,7 @@
             </div>
 
             <!-- Day View -->
-            <div v-else-if="localViewMode === 'day'" class="day-view">
+            <div v-if="localViewMode === 'day'" class="day-view">
                 <!-- Day Header -->
                 <div
                     class="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50 mb-4"
@@ -374,7 +569,7 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { Calendar } from "v-calendar";
-import { CalendarIcon } from "lucide-vue-next";
+import { CalendarIcon, X, ArrowRight } from "lucide-vue-next";
 import { formatDateTime } from "@/Utils/dateUtils";
 import { getCalendarStatusColor } from "@/Utils/appointmentUtils";
 
@@ -410,6 +605,62 @@ const emit = defineEmits([
 // Local state for two-way binding
 const localCurrentDate = ref(new Date(props.currentDate));
 const localViewMode = ref(props.viewMode);
+
+// Day Modal state
+const showDayModal = ref(false);
+const selectedDayData = ref(null);
+
+// Open day modal with appointments for that day
+const openDayModal = (date, attributes) => {
+    selectedDayData.value = {
+        date: date,
+        appointments: attributes.map((attr) => attr.customData),
+    };
+    showDayModal.value = true;
+};
+
+// Close day modal
+const closeDayModal = () => {
+    showDayModal.value = false;
+    selectedDayData.value = null;
+};
+
+// Format date for modal header
+const formatDayModalDate = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    return d.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
+};
+
+// Format status for display
+const formatStatus = (status) => {
+    if (!status) return "Pending";
+    return status.charAt(0).toUpperCase() + status.slice(1).replace("_", " ");
+};
+
+// Get status dot class for badge
+const getStatusDotClass = (status) => {
+    const dots = {
+        confirmed: "bg-green-400",
+        completed: "bg-emerald-400",
+        progress: "bg-cyan-400",
+        scheduled: "bg-blue-400",
+        pending: "bg-yellow-400",
+        cancelled: "bg-red-400",
+        declined: "bg-red-400",
+    };
+    return dots[status] || "bg-gray-400";
+};
+
+// View appointment details (emit to parent to show modal)
+const viewAppointmentDetails = (appointment) => {
+    closeDayModal();
+    emit("appointment-click", appointment);
+};
 
 // Watch for prop changes from parent
 watch(

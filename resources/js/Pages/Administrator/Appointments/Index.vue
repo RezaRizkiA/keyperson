@@ -92,6 +92,10 @@ const applyFilters = () => {
                 page: 1,
                 search: filters.value.search,
                 status: filters.value.status,
+                // Clear calendar params
+                view_mode: undefined,
+                start_date: undefined,
+                end_date: undefined,
             },
             {
                 preserveState: false,
@@ -108,12 +112,17 @@ watch(
         if (newMode === "calendar") {
             fetchCalendarData();
         } else {
+            // Switching to list view - explicitly clear calendar params
             router.get(
                 route("dashboard.appointments.index"),
                 {
                     page: 1,
                     search: filters.value.search,
                     status: filters.value.status,
+                    // Explicitly set to null/undefined to clear from URL
+                    view_mode: undefined,
+                    start_date: undefined,
+                    end_date: undefined,
                 },
                 {
                     preserveState: false,
@@ -144,6 +153,7 @@ const showAppointmentDetail = (appointment) => {
 </script>
 
 <template>
+  <Head title="Manage Appointments"/>
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex items-center justify-between mb-2">

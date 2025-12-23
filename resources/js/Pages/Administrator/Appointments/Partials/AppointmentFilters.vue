@@ -39,7 +39,7 @@
                 class="flex items-center gap-1 bg-slate-900/50 border border-slate-700 rounded-lg p-1"
             >
                 <button
-                    @click="localFilters.viewMode = 'list'"
+                    @click="setViewMode('list')"
                     :class="[
                         'p-2 rounded-md transition-colors',
                         localFilters.viewMode === 'list'
@@ -51,7 +51,7 @@
                     <List class="w-4 h-4" />
                 </button>
                 <button
-                    @click="localFilters.viewMode = 'calendar'"
+                    @click="setViewMode('calendar')"
                     :class="[
                         'p-2 rounded-md transition-colors',
                         localFilters.viewMode === 'calendar'
@@ -115,4 +115,12 @@ watch(
     },
     { deep: true }
 );
+
+// Set view mode and trigger filter apply
+const setViewMode = (mode) => {
+    if (localFilters.value.viewMode !== mode) {
+        localFilters.value.viewMode = mode;
+        emit("apply-filters");
+    }
+};
 </script>
