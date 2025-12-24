@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Expert;
+use App\Models\Category;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ExpertRepository
@@ -163,5 +164,18 @@ class ExpertRepository
     public function syncSkills(Expert $expert, array $skillIds): void
     {
         $expert->skills()->sync($skillIds);
+    }
+
+    /**
+     * Get all categories with subcategories and skills for expert registration
+     *
+     * @return array
+     */
+    public function getCategoriesWithSkills(): array
+    {
+        return Category::with(['subCategories.skills'])
+            ->orderBy('name')
+            ->get()
+            ->toArray();
     }
 }
