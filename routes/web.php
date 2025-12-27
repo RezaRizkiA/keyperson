@@ -34,7 +34,8 @@ Route::prefix('portal')->group(function () {
     Route::get('/{client:slug}/category/{expertise:slug}', [ClientPortalController::class, 'experts'])
         ->name('client.experts');
 });
-Route::get('/experts/{expert}', [ClientPortalController::class, 'show'])
+
+Route::get('/experts/{slug}', [ClientPortalController::class, 'show'])
         ->name('experts.show');
 
 // Choose Path Page

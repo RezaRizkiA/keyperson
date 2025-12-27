@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Client;
+use App\Models\Expert;
 use App\Models\Skill;
 use App\Models\User;
 
@@ -42,19 +43,17 @@ class ClientPortalService
             ->with('subCategory.category')
             ->firstOrFail();
 
-        // Get experts (users with expert relationship) who have this skill
-        $experts = User::whereHas('expert', function ($query) use ($skill) {
-            $query->whereHas('skills', function ($q) use ($skill) {
+        // Get experts who have this skill
+        $experts = Expert::whereHas('skills', function ($q) use ($skill) {
                 $q->where('skills.id', $skill->id);
-            });
-        })
-        ->with([
-            'expert:id,user_id,title,about,price,rating,total_reviews,total_sessions',
-            'expert.skills' => function ($query) use ($skill) {
-                $query->where('skills.id', $skill->id);
-            }
-        ])
-        ->get();
+            })
+            ->with([
+                'user:id,name,email,picture',
+                'skills' => function ($query) use ($skill) {
+                    $query->where('skills.id', $skill->id);
+                }
+            ])
+            ->get();
 
         return [
             'skill' => $skill,
@@ -66,24 +65,26 @@ class ClientPortalService
     /**
      * Get expert detail with all relationships
      * 
-     * @param int $expertId
+     * @param string $slug Expert slug
      * @return array
      */
-    public function getExpertDetail(int $expertId): array
+    public function getExpertDetail(string $slug): array
     {
-        $expert = User::whereHas('expert')->with([
-            'expert:id,user_id,title,about,price,type,experiences,licenses,gallerys,socials,background,rating,total_reviews,total_sessions',
-            'expert.skills.subCategory.category',
-            'expert.reviews' => function ($query) {
-                $query->with(['user.client:id,user_id,company_name', 'skill:id,name'])
-                    ->latest()
-                    ->limit(5);
-            }
-        ])->findOrFail($expertId);
+        $expert = Expert::where('slug', $slug)
+            ->with([
+                'user:id,name,email,picture,phone,address',
+                'skills.subCategory.category',
+                'reviews' => function ($query) {
+                    $query->with(['user.client:id,user_id,company_name', 'skill:id,name'])
+                        ->latest()
+                        ->limit(5);
+                }
+            ])
+            ->firstOrFail();
 
         return [
             'expert' => $expert,
-            'reviewsCount' => $expert->expert->reviews()->count(),
+            'reviewsCount' => $expert->reviews()->count(),
         ];
     }
 }

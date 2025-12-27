@@ -9,7 +9,6 @@ use Faker\Factory as Faker;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class ExpertSeeder extends Seeder
 {
@@ -17,127 +16,118 @@ class ExpertSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
+        // Get all users with 'expert' role created by UserSeeder
+        $expertUsers = User::whereJsonContains('roles', 'expert')->get();
+
+        if ($expertUsers->isEmpty()) {
+            $this->command->warn('No users with expert role found. Please run UserSeeder first.');
+            return;
+        }
+
         // Data Dummy untuk Variasi
         $positions      = ['Software Engineer', 'Backend Developer', 'Frontend Developer', 'System Analyst', 'DevOps Engineer', 'Data Analyst', 'IT Consultant', 'Project Manager', 'Product Manager', 'UX Researcher'];
         $companies      = ['Tokopedia', 'Gojek', 'Bukalapak', 'Traveloka', 'Shopee', 'OVO', 'Ruangguru', 'Zenius', 'Telkom Indonesia', 'Bank Mandiri', 'BRI', 'BCA'];
         $certifications = ['AWS Certified Developer', 'Google Cloud Engineer', 'Laravel Professional', 'Scrum Master', 'Microsoft Azure Associate', 'PMP', 'ITIL 4 Foundation', 'Cisco CCNA'];
-
-        // Tipe Expert (Controlled Vocabulary)
         $types          = ['Counselor', 'Psychologist', 'Coach', 'Trainer', 'Consultant', 'Mentor', 'Advisor'];
 
-        // Ambil semua Skill (Level 3 - Skill Konkret)
-        $allSkills = Skill::all();
+        // Get all skill IDs
+        $allSkillIds = Skill::pluck('id')->toArray();
 
-        DB::transaction(function () use ($allSkills, $faker, $positions, $companies, $certifications, $types) {
+        DB::transaction(function () use ($faker, $expertUsers, $positions, $companies, $certifications, $types, $allSkillIds) {
+            
+            foreach ($expertUsers as $user) {
+                // Generate professional title
+                $selectedPosition = $faker->randomElement($positions);
+                $selectedCompany  = $faker->randomElement($companies);
+                $professionalTitle = "Senior " . $selectedPosition . " at " . $selectedCompany;
 
-            foreach ($allSkills as $skill) {
-                // Target: Minimal 1-2 Expert per Skill agar pencarian tidak kosong
-                $targetPerSkill = 2;
+                // Generate slug from user name
+                $slug = Str::slug($user->name) . '-' . Str::lower(Str::random(6));
 
-                // Cek jumlah expert yang sudah punya skill ini (via Pivot Table)
-                $existingCount = Expert::whereHas('skills', function ($q) use ($skill) {
-                    $q->where('id', $skill->id);
-                })->count();
+                // Create or update Expert Profile
+                $expert = Expert::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        // Slug (unique identifier for URL)
+                        'slug'        => $slug,
+                        
+                        // Title (Headline)
+                        'title'       => $professionalTitle,
 
-                $need = max(0, $targetPerSkill - $existingCount);
-                if ($need === 0) continue;
+                        // About
+                        'about'       => '<p>' . $faker->paragraph(3) . '</p><p>' . $faker->paragraph(2) . '</p>',
 
-                for ($i = 0; $i < $need; $i++) {
-                    // Email unik berbasis skill agar mudah didebug
-                    $email = Str::slug($skill->name) . "-{$skill->id}-" . Str::random(5) . '@seed.local';
-                    $name  = $faker->name();
-
-                    // 1. Buat User
-                    $user = User::firstOrCreate(
-                        ['email' => $email],
-                        [
-                            'name'     => $name,
-                            'phone'    => '628' . $faker->numerify('##########'),
-                            'slug'     => Str::slug($name) . '-' . Str::lower(Str::random(6)),
-                            'password' => Hash::make('password'), // Password default
-                            'gender'   => $faker->randomElement(['L', 'P']),
-                            'address'  => $faker->address,
-                            'roles'    => ['expert'], // Role user + expert
-                        ]
-                    );
-
-                    // 2. Tentukan Data Expert
-                    $selectedPosition = $faker->randomElement($positions);
-                    $selectedCompany  = $faker->randomElement($companies);
-
-                    // Title Profesional (Headline)
-                    // Contoh: "Senior Backend Developer at Gojek"
-                    $professionalTitle = "Senior " . $selectedPosition . " at " . $selectedCompany;
-
-                    // 3. Buat/Update Expert Profile
-                    $expert = Expert::updateOrCreate(
-                        ['user_id' => $user->id],
-                        [
-                            // Kolom Baru: Title (Headline)
-                            'title'       => $professionalTitle,
-
-                            // Kolom Baru: About (Rename dari biography)
-                            'about'       => '<p>' . $faker->paragraph(3) . '</p><p>' . $faker->paragraph(2) . '</p>',
-
-                            // JSON: Experiences
-                            'experiences' => [
-                                [
-                                    'position'    => $selectedPosition,
-                                    'company'     => $selectedCompany,
-                                    'years'       => (string) $faker->numberBetween(2018, 2024) . ' - Present',
-                                    'description' => $faker->paragraph(2),
-                                ],
-                                [
-                                    'position'    => 'Junior ' . $selectedPosition,
-                                    'company'     => $faker->randomElement($companies), // Perusahaan sebelumnya
-                                    'years'       => (string) $faker->numberBetween(2015, 2018) . ' - ' . $faker->numberBetween(2018, 2020),
-                                    'description' => $faker->sentence(10),
-                                ],
+                        // JSON: Experiences
+                        'experiences' => [
+                            [
+                                'position'    => $selectedPosition,
+                                'company'     => $selectedCompany,
+                                'years'       => (string) $faker->numberBetween(2018, 2024) . ' - Present',
+                                'description' => $faker->paragraph(2),
                             ],
-
-                            // JSON: Licenses (Gunakan key 'file' bukan 'attachment' agar konsisten dengan refactor Vue)
-                            'licenses'    => [
-                                [
-                                    'certification' => $faker->randomElement($certifications),
-                                    'file'          => null, // Di seeder biarkan null dulu
-                                ],
+                            [
+                                'position'    => 'Junior ' . $selectedPosition,
+                                'company'     => $faker->randomElement($companies),
+                                'years'       => (string) $faker->numberBetween(2015, 2018) . ' - ' . $faker->numberBetween(2018, 2020),
+                                'description' => $faker->sentence(10),
                             ],
+                        ],
 
-                            // JSON: Gallerys (Dummy images)
-                            'gallerys' => [], // Kosongkan dulu atau isi dummy URL jika mau
-
-                            // JSON: Socials
-                            'socials' => [
-                                ['key' => 'linkedin', 'value' => 'linkedin.com/in/' . Str::slug($name)],
-                                ['key' => 'website', 'value' => 'www.' . Str::slug($name) . '.com'],
+                        // JSON: Licenses
+                        'licenses'    => [
+                            [
+                                'certification' => $faker->randomElement($certifications),
+                                'file'          => null,
                             ],
+                        ],
 
-                            'price'       => $faker->numberBetween(10, 50) * 10000, // 100k - 500k
+                        // JSON: Gallerys
+                        'gallerys' => [],
 
-                            // Rating data (dummy for testing)
-                            'rating'           => $faker->randomFloat(2, 3.5, 5.0), // 3.50 - 5.00
-                            'total_reviews'    => $faker->numberBetween(5, 100),
-                            'total_sessions'   => $faker->numberBetween(10, 200),
+                        // JSON: Socials
+                        'socials' => [
+                            ['key' => 'linkedin', 'value' => 'linkedin.com/in/' . Str::slug($user->name)],
+                            ['key' => 'website', 'value' => 'www.' . Str::slug($user->name) . '.com'],
+                        ],
 
-                            // JSON: Type (Multi-select)
-                            'type'        => $faker->randomElements($types, $faker->numberBetween(1, 2)),
-                        ]
-                    );
+                        'price'          => $faker->numberBetween(10, 50) * 10000,
+                        'rating'         => $faker->randomFloat(2, 3.5, 5.0),
+                        'total_reviews'  => $faker->numberBetween(5, 100),
+                        'total_sessions' => $faker->numberBetween(10, 200),
 
-                    // 4. ISI PIVOT TABLE (expert_skill)
-                    // Wajib punya skill yang sedang di-loop ($skill->id)
-                    // Tambahan 1-3 skill random lain agar profil terlihat kaya
-                    $randomExtraSkills = Skill::where('id', '!=', $skill->id)
-                        ->inRandomOrder()
-                        ->limit(rand(1, 3))
-                        ->pluck('id')
-                        ->toArray();
+                        // JSON: Type (Multi-select)
+                        'type'        => $faker->randomElements($types, $faker->numberBetween(1, 2)),
+                    ]
+                );
 
-                    $skillIdsToAttach = array_unique(array_merge([$skill->id], $randomExtraSkills));
-
-                    $expert->skills()->syncWithoutDetaching($skillIdsToAttach);
+                // Attach random skills (2-5 skills per expert)
+                if (!empty($allSkillIds)) {
+                    $selectedSkills = $this->pickRandomIds($allSkillIds, rand(2, 5));
+                    $expert->skills()->sync($selectedSkills);
                 }
+
+                $this->command->info("Created expert: {$professionalTitle} for user: {$user->email}");
             }
         });
+
+        $this->command->info('ExpertSeeder completed successfully! Created ' . $expertUsers->count() . ' experts.');
+    }
+
+    /**
+     * Helper to pick N random unique IDs from array
+     */
+    private function pickRandomIds(array $source, int $n): array
+    {
+        if (empty($source)) return [];
+        $n = min($n, count($source));
+        if ($n === 0) return [];
+
+        $keys = array_rand($source, $n);
+
+        if (!is_array($keys)) {
+            return [$source[$keys]];
+        }
+
+        return array_map(fn($k) => $source[$k], $keys);
     }
 }

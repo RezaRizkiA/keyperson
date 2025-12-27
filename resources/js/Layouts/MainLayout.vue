@@ -28,7 +28,9 @@ const componentName = computed(() => page.component);
 
         <main class="grow">
             <Transition name="page" mode="out-in" appear>
-                <slot :key="componentName" />
+                <div :key="componentName">
+                    <slot />
+                </div>
             </Transition>
         </main>
 

@@ -65,16 +65,16 @@ const props = defineProps({
                                 class="w-28 h-28 rounded-full overflow-hidden border-4 border-slate-800 bg-slate-800"
                             >
                                 <img
-                                    v-if="expert.profile_photo_url"
-                                    :src="expert.profile_photo_url"
-                                    :alt="expert.name"
+                                    v-if="expert.user?.picture"
+                                    :src="expert.user.picture"
+                                    :alt="expert.user?.name"
                                     class="w-full h-full object-cover"
                                 />
                                 <div
                                     v-else
                                     class="w-full h-full flex items-center justify-center text-3xl font-bold text-blue-400"
                                 >
-                                    {{ expert.name?.charAt(0) }}
+                                    {{ expert.user?.name?.charAt(0) }}
                                 </div>
                             </div>
                             <!-- Verified Badge -->
@@ -99,13 +99,13 @@ const props = defineProps({
                     <!-- Expert Info -->
                     <div class="text-center mb-6">
                         <h3 class="text-2xl font-bold text-white mb-2">
-                            {{ expert.name }}
+                            {{ expert.user?.name }}
                         </h3>
                         <p
-                            v-if="expert.expert?.title"
+                            v-if="expert.title"
                             class="text-blue-400 font-medium mb-4"
                         >
-                            {{ expert.expert.title }}
+                            {{ expert.title }}
                         </p>
 
                         <!-- Rating & Sessions -->
@@ -114,7 +114,7 @@ const props = defineProps({
                         >
                             <!-- Rating Badge -->
                             <div
-                                v-if="expert.expert?.rating"
+                                v-if="expert.rating"
                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg"
                             >
                                 <svg
@@ -127,21 +127,18 @@ const props = defineProps({
                                     />
                                 </svg>
                                 <span class="text-white font-bold text-sm">{{
-                                    expert.expert.rating
+                                    expert.rating
                                 }}</span>
                                 <span
-                                    v-if="expert.expert.total_reviews"
+                                    v-if="expert.total_reviews"
                                     class="text-slate-400 text-xs"
-                                    >({{ expert.expert.total_reviews }})</span
+                                    >({{ expert.total_reviews }})</span
                                 >
                             </div>
 
                             <!-- Sessions Badge -->
                             <div
-                                v-if="
-                                    expert.expert &&
-                                    expert.expert.total_sessions !== undefined
-                                "
+                                v-if="expert.total_sessions !== undefined"
                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg"
                             >
                                 <svg
@@ -158,7 +155,7 @@ const props = defineProps({
                                     />
                                 </svg>
                                 <span class="text-white font-medium text-sm"
-                                    >{{ expert.expert.total_sessions }}+</span
+                                    >{{ expert.total_sessions }}+</span
                                 >
                                 <span class="text-slate-400 text-xs"
                                     >Sessions</span
@@ -167,10 +164,10 @@ const props = defineProps({
                         </div>
                         <!-- Bio -->
                         <p
-                            v-if="expert.expert?.about"
+                            v-if="expert.about"
                             class="text-slate-300 text-sm leading-relaxed line-clamp-3"
                         >
-                            {{ expert.expert.about }}
+                            {{ expert.about }}
                         </p>
                     </div>
 
@@ -181,10 +178,9 @@ const props = defineProps({
                                 >Hourly Rate</span
                             >
                             <span
-                                v-if="expert.expert?.price"
+                                v-if="expert.price"
                                 class="text-2xl font-bold text-white"
-                                >Rp{{
-                                    expert.expert.price.toLocaleString("id-ID")
+                                >Rp{{ expert.price.toLocaleString("id-ID")
                                 }}<span class="text-sm text-slate-400"
                                     >/hr</span
                                 ></span
@@ -211,7 +207,7 @@ const props = defineProps({
                                 </svg>
                             </button>
                             <Link
-                                :href="route('experts.show', expert.id)"
+                                :href="route('experts.show', expert.slug)"
                                 class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all text-center flex items-center justify-center gap-2"
                             >
                                 <span>View Profile</span>

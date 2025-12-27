@@ -34,7 +34,7 @@ const lastUpdated = "January 15, 2025";
         />
 
         <!-- Content Section -->
-        <section class="relative py-24 px-6 bg-slate-900">
+        <section class="relative py-24 px-6 bg-slate-50 dark:bg-slate-900">
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
                     <!-- Sidebar TOC -->
@@ -44,28 +44,34 @@ const lastUpdated = "January 15, 2025";
 
                     <!-- Main Content -->
                     <article
-                        class="lg:col-span-3 prose prose-invert prose-slate max-w-none"
+                        class="lg:col-span-3 prose prose-slate dark:prose-invert max-w-none"
                     >
                         <!-- Last Updated -->
                         <div
-                            class="text-sm text-slate-400 mb-8 pb-8 border-b border-slate-800"
+                            class="text-sm text-slate-600 dark:text-slate-400 mb-8 pb-8 border-b border-slate-200 dark:border-slate-800"
                         >
                             <strong>Last Updated:</strong> {{ lastUpdated }}
                         </div>
 
                         <!-- Section 1 -->
                         <section id="introduction" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 1. Introduction
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 keyPerson, Inc. ("we," "us," or "our") is
                                 committed to protecting your privacy. This
                                 Privacy Policy explains how we collect, use,
                                 disclose, and safeguard your information when
                                 you use our platform.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 By using keyPerson, you consent to the practices
                                 described in this Privacy Policy. If you do not
                                 agree with this policy, please do not use our
@@ -78,15 +84,19 @@ const lastUpdated = "January 15, 2025";
                             id="information-collect"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 2. Information We Collect
                             </h2>
 
-                            <h3 class="text-xl font-bold text-white mb-3 mt-6">
+                            <h3
+                                class="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-6"
+                            >
                                 2.1 Information You Provide
                             </h3>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     <strong>Account Information:</strong> Name,
@@ -112,11 +122,13 @@ const lastUpdated = "January 15, 2025";
                                 </li>
                             </ul>
 
-                            <h3 class="text-xl font-bold text-white mb-3 mt-6">
+                            <h3
+                                class="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-6"
+                            >
                                 2.2 Information Collected Automatically
                             </h3>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     <strong>Usage Data:</strong> Pages visited,
@@ -140,14 +152,18 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 3 -->
                         <section id="how-use" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 3. How We Use Your Information
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We use your information to:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>
                                     Provide, operate, and maintain the Service
@@ -177,34 +193,46 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 4 -->
                         <section id="sharing" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 4. Information Sharing
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We do not sell your personal information. We may
                                 share information in the following
                                 circumstances:
                             </p>
 
-                            <h3 class="text-xl font-bold text-white mb-3 mt-6">
+                            <h3
+                                class="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-6"
+                            >
                                 4.1 With Other Users
                             </h3>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 Your profile information is visible to other
                                 users to facilitate connections. Clients can see
                                 Expert profiles; Experts can see Client booking
                                 details.
                             </p>
 
-                            <h3 class="text-xl font-bold text-white mb-3 mt-6">
+                            <h3
+                                class="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-6"
+                            >
                                 4.2 Service Providers
                             </h3>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We share information with third-party service
                                 providers who help us operate the platform:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     <strong>Payment Processing:</strong> Stripe
@@ -228,10 +256,14 @@ const lastUpdated = "January 15, 2025";
                                 </li>
                             </ul>
 
-                            <h3 class="text-xl font-bold text-white mb-3 mt-6">
+                            <h3
+                                class="text-xl font-bold text-slate-900 dark:text-white mb-3 mt-6"
+                            >
                                 4.3 Legal Requirements
                             </h3>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 We may disclose information if required by law,
                                 court order, or to protect our rights, property,
                                 or safety.
@@ -240,15 +272,19 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 5 -->
                         <section id="data-security" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 5. Data Security
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We implement industry-standard security measures
                                 to protect your information:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     TLS/SSL encryption for data transmission
@@ -267,7 +303,9 @@ const lastUpdated = "January 15, 2025";
                                     practices
                                 </li>
                             </ul>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 However, no method of transmission over the
                                 internet is 100% secure. We cannot guarantee
                                 absolute security.
@@ -276,14 +314,18 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 6 -->
                         <section id="cookies" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 6. Cookies & Tracking Technologies
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We use cookies and similar technologies to:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     <strong>Essential Cookies:</strong> Required
@@ -300,7 +342,9 @@ const lastUpdated = "January 15, 2025";
                                     Remember your settings and preferences
                                 </li>
                             </ul>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 You can control cookie settings through your
                                 browser. Note that disabling cookies may affect
                                 platform functionality.
@@ -309,15 +353,19 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 7 -->
                         <section id="your-rights" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 7. Your Rights
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 Depending on your location, you may have the
                                 following rights:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>
                                     <strong>Access:</strong> Request a copy of
@@ -348,7 +396,9 @@ const lastUpdated = "January 15, 2025";
                                     consent for optional data processing
                                 </li>
                             </ul>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 To exercise these rights, contact us at
                                 privacy@keyperson.id.
                             </p>
@@ -356,16 +406,20 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 8 -->
                         <section id="retention" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 8. Data Retention
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We retain your information for as long as
                                 necessary to provide the Service and fulfill
                                 legal obligations:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>
                                     <strong>Active Accounts:</strong> Retained
@@ -391,10 +445,14 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 9 -->
                         <section id="children" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 9. Children's Privacy
                             </h2>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 The Service is not intended for individuals
                                 under 18 years of age. We do not knowingly
                                 collect personal information from children. If
@@ -405,17 +463,21 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 10 -->
                         <section id="international" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 10. International Data Transfers
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 Your information may be transferred to and
                                 processed in countries other than your country
                                 of residence. We ensure appropriate safeguards
                                 are in place, including:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>
                                     Standard Contractual Clauses (SCCs) approved
@@ -434,10 +496,14 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 11 -->
                         <section id="changes" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 11. Changes to This Privacy Policy
                             </h2>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 We may update this Privacy Policy from time to
                                 time. We will notify you of material changes by
                                 email or through a prominent notice on the
@@ -449,29 +515,39 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 12 -->
                         <section id="contact" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 12. Contact Us
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 If you have questions or concerns about this
                                 Privacy Policy or our data practices, please
                                 contact us:
                             </p>
                             <div
-                                class="bg-slate-800/50 border border-slate-700 rounded-xl p-6"
+                                class="bg-white/80 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6"
                             >
-                                <p class="text-slate-300 mb-2">
+                                <p
+                                    class="text-slate-700 dark:text-slate-300 mb-2"
+                                >
                                     <strong>Email:</strong> privacy@keyperson.id
                                 </p>
-                                <p class="text-slate-300 mb-2">
+                                <p
+                                    class="text-slate-700 dark:text-slate-300 mb-2"
+                                >
                                     <strong>Data Protection Officer:</strong>
                                     dpo@keyperson.id
                                 </p>
-                                <p class="text-slate-300 mb-2">
+                                <p
+                                    class="text-slate-700 dark:text-slate-300 mb-2"
+                                >
                                     <strong>Address:</strong> 100 Innovation
                                     Blvd, Tech District, San Francisco, CA 94102
                                 </p>
-                                <p class="text-slate-300">
+                                <p class="text-slate-700 dark:text-slate-300">
                                     <strong>Phone:</strong> +1 (650) 555-0606
                                 </p>
                             </div>
@@ -484,12 +560,20 @@ const lastUpdated = "January 15, 2025";
 </template>
 
 <style scoped>
-/* Custom prose styles for dark theme */
+/* Custom prose styles for light/dark theme */
 :deep(.prose) {
-    --tw-prose-body: theme("colors.slate.300");
-    --tw-prose-headings: theme("colors.white");
-    --tw-prose-links: theme("colors.blue.400");
-    --tw-prose-bold: theme("colors.white");
-    --tw-prose-bullets: theme("colors.blue.400");
+    --tw-prose-body: #334155;
+    --tw-prose-headings: #0f172a;
+    --tw-prose-links: #2563eb;
+    --tw-prose-bold: #0f172a;
+    --tw-prose-bullets: #2563eb;
+}
+
+:deep(.dark .prose) {
+    --tw-prose-body: #cbd5e1;
+    --tw-prose-headings: #ffffff;
+    --tw-prose-links: #60a5fa;
+    --tw-prose-bold: #ffffff;
+    --tw-prose-bullets: #60a5fa;
 }
 </style>

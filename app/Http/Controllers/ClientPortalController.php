@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\ClientPortalService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 /**
  * ClientPortalController
- * 
+ *
  * Handles HTTP for client portal
  * Delegates business logic to ClientPortalService (Dependency Inversion)
  */
@@ -23,8 +22,8 @@ class ClientPortalController extends Controller
 
     /**
      * Display client profile with skills
-     * 
-     * @param string $slug
+     *
+     * @param  string  $slug
      * @return \Inertia\Response
      */
     public function index($slug)
@@ -38,9 +37,9 @@ class ClientPortalController extends Controller
 
     /**
      * Display experts for a specific skill
-     * 
-     * @param string $slug Client slug
-     * @param string $skillSlug Skill name
+     *
+     * @param  string  $slug  Client slug
+     * @param  string  $skillSlug  Skill name
      * @return \Inertia\Response
      */
     public function experts($slug, $skillSlug)
@@ -58,11 +57,14 @@ class ClientPortalController extends Controller
 
     /**
      * Show expert detail
+     *
+     * @param  string  $slug  Expert slug
+     * @return \Inertia\Response
      */
-    public function show($expertId)
+    public function show(string $slug)
     {
-        $data = $this->portalService->getExpertDetail($expertId);
-        
+        $data = $this->portalService->getExpertDetail($slug);
+
         return Inertia::render('Client/Portal/ExpertDetail', $data);
     }
 }

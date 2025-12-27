@@ -19,7 +19,7 @@ return new class extends Migration
             
             $table->string('roles');
             $table->string('name')->nullable();
-            $table->string('slug')->unique()->nullable();
+
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->string('gender')->nullable();

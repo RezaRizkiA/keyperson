@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import { ref, computed } from "vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
@@ -41,7 +41,7 @@ const activeTab = ref("overview");
 // Parse JSON fields safely
 const experiences = computed(() => {
     try {
-        const exp = props.expert.expert?.experiences;
+        const exp = props.expert.experiences;
         if (typeof exp === "string") return JSON.parse(exp);
         if (Array.isArray(exp)) return exp;
         return [];
@@ -52,7 +52,7 @@ const experiences = computed(() => {
 
 const licenses = computed(() => {
     try {
-        const lic = props.expert.expert?.licenses;
+        const lic = props.expert.licenses;
         if (typeof lic === "string") return JSON.parse(lic);
         if (Array.isArray(lic)) return lic;
         return [];
@@ -63,7 +63,7 @@ const licenses = computed(() => {
 
 const socials = computed(() => {
     try {
-        const soc = props.expert.expert?.socials;
+        const soc = props.expert.socials;
         let parsed = [];
 
         if (typeof soc === "string") {
@@ -88,7 +88,7 @@ const socials = computed(() => {
 
 const expertTypes = computed(() => {
     try {
-        const types = props.expert.expert?.type;
+        const types = props.expert.type;
         if (typeof types === "string") return JSON.parse(types);
         if (Array.isArray(types)) return types;
         return [];
@@ -118,22 +118,31 @@ const navigateToReviews = () => {
 const navigateToSkills = () => {
     switchTab("skills");
 };
+
+// Back navigation with fallback to home
+const goBack = () => {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        router.visit(route("home"));
+    }
+};
 </script>
 
 <template>
-    <Head :title="`${expert.name} - Expert Profile`" />
+    <Head :title="`${expert.user?.name} - Expert Profile`" />
 
     <MainLayout>
         <div class="min-h-screen bg-slate-950 text-white pt-20">
             <!-- Back Navigation -->
             <div class="max-w-7xl mx-auto px-6 py-4 mt-5">
-                <Link
-                    :href="route('home')"
+                <button
+                    @click="goBack"
                     class="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
                 >
                     <ChevronLeft class="w-5 h-5" />
-                    <span>Back to Experts</span>
-                </Link>
+                    <span>Back</span>
+                </button>
             </div>
 
             <!-- Cover/Hero Section -->
@@ -143,12 +152,9 @@ const navigateToSkills = () => {
                     <div
                         class="h-64 md:h-80 relative bg-linear-to-br from-blue-900 via-slate-900 to-cyan-900 overflow-hidden"
                     >
-                        <div
-                            v-if="expert.expert?.background"
-                            class="absolute inset-0"
-                        >
+                        <div v-if="expert.background" class="absolute inset-0">
                             <img
-                                :src="expert.expert.background"
+                                :src="expert.background"
                                 alt="Background"
                                 class="w-full h-full object-cover opacity-30"
                             />
@@ -198,16 +204,16 @@ const navigateToSkills = () => {
                                     class="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-slate-800 border-4 border-slate-900 overflow-hidden shadow-xl"
                                 >
                                     <img
-                                        v-if="expert.picture"
-                                        :src="expert.picture"
-                                        :alt="expert.name"
+                                        v-if="expert.user?.picture"
+                                        :src="expert.user.picture"
+                                        :alt="expert.user?.name"
                                         class="w-full h-full object-cover"
                                     />
                                     <div
                                         v-else
                                         class="w-full h-full flex items-center justify-center text-5xl font-bold text-blue-400 bg-slate-800"
                                     >
-                                        {{ expert.name?.charAt(0) }}
+                                        {{ expert.user?.name?.charAt(0) }}
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +224,7 @@ const navigateToSkills = () => {
                                     <h1
                                         class="text-3xl md:text-4xl font-bold text-white"
                                     >
-                                        {{ expert.name }}
+                                        {{ expert.user?.name }}
                                     </h1>
                                     <CheckCircle
                                         class="w-6 h-6 text-blue-500 shrink-0"
@@ -226,10 +232,10 @@ const navigateToSkills = () => {
                                 </div>
 
                                 <p
-                                    v-if="expert.expert?.title"
+                                    v-if="expert.title"
                                     class="text-xl text-blue-400 font-medium mb-3"
                                 >
-                                    {{ expert.expert.title }}
+                                    {{ expert.title }}
                                 </p>
 
                                 <!-- Expert Types -->
@@ -252,18 +258,18 @@ const navigateToSkills = () => {
                                 >
                                     <!-- Rating -->
                                     <div
-                                        v-if="expert.expert?.rating"
+                                        v-if="expert.rating"
                                         class="flex items-center gap-2"
                                     >
                                         <Star
                                             class="w-5 h-5 text-yellow-400 fill-yellow-400"
                                         />
                                         <span class="font-bold text-white">{{
-                                            expert.expert.rating
+                                            expert.rating
                                         }}</span>
                                         <span
                                             >({{
-                                                expert.expert.total_reviews
+                                                expert.total_reviews
                                             }}
                                             reviews)</span
                                         >
@@ -272,9 +278,7 @@ const navigateToSkills = () => {
                                     <!-- Sessions -->
                                     <div
                                         v-if="
-                                            expert.expert &&
-                                            expert.expert.total_sessions !==
-                                                undefined
+                                            expert.total_sessions !== undefined
                                         "
                                         class="flex items-center gap-1.5"
                                     >
@@ -292,36 +296,36 @@ const navigateToSkills = () => {
                                             />
                                         </svg>
                                         <span
-                                            >{{ expert.expert.total_sessions }}+
+                                            >{{ expert.total_sessions }}+
                                             sessions</span
                                         >
                                     </div>
 
                                     <!-- Email -->
                                     <div
-                                        v-if="expert.email"
+                                        v-if="expert.user?.email"
                                         class="flex items-center gap-1.5"
                                     >
                                         <Mail class="w-4 h-4" />
-                                        <span>{{ expert.email }}</span>
+                                        <span>{{ expert.user.email }}</span>
                                     </div>
 
                                     <!-- Phone -->
                                     <div
-                                        v-if="expert.phone"
+                                        v-if="expert.user?.phone"
                                         class="flex items-center gap-1.5"
                                     >
                                         <Phone class="w-4 h-4" />
-                                        <span>{{ expert.phone }}</span>
+                                        <span>{{ expert.user.phone }}</span>
                                     </div>
 
                                     <!-- Location -->
                                     <div
-                                        v-if="expert.address"
+                                        v-if="expert.user?.address"
                                         class="flex items-center gap-1.5"
                                     >
                                         <MapPin class="w-4 h-4" />
-                                        <span>{{ expert.address }}</span>
+                                        <span>{{ expert.user.address }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -338,9 +342,9 @@ const navigateToSkills = () => {
                                     class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all"
                                 >
                                     Book · Rp{{
-                                        (
-                                            expert.expert?.price || 0
-                                        ).toLocaleString("id-ID")
+                                        (expert.price || 0).toLocaleString(
+                                            "id-ID"
+                                        )
                                     }}/hr
                                 </button>
                             </div>
@@ -473,7 +477,7 @@ const navigateToSkills = () => {
                 <ExpertOverview
                     v-if="activeTab === 'overview'"
                     :expert="expert"
-                    :about="expert.expert?.about || ''"
+                    :about="expert.about || ''"
                     :experiences="experiences"
                     :licenses="licenses"
                     @navigate-to-about="navigateToAbout"
@@ -484,20 +488,20 @@ const navigateToSkills = () => {
                 <!-- About Tab -->
                 <ExpertAbout
                     v-if="activeTab === 'about'"
-                    :about="expert.expert?.about || ''"
+                    :about="expert.about || ''"
                 />
 
                 <!-- Skills Tab -->
                 <ExpertSkills
                     v-if="activeTab === 'skills'"
-                    :skills="expert.expert?.skills || []"
+                    :skills="expert.skills || []"
                 />
 
                 <!-- Reviews Tab -->
                 <ExpertReviews
                     v-if="activeTab === 'reviews'"
                     :expert="expert"
-                    :reviews="expert.expert?.reviews || []"
+                    :reviews="expert.reviews || []"
                     :reviewsCount="reviewsCount"
                 />
 
@@ -544,7 +548,8 @@ const navigateToSkills = () => {
                                     Ready to accelerate your growth?
                                 </h3>
                                 <p class="text-lg text-slate-300">
-                                    Book a session with {{ expert.name }} today.
+                                    Book a session with
+                                    {{ expert.user?.name }} today.
                                 </p>
                             </div>
                             <button

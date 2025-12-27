@@ -37,7 +37,7 @@ const lastUpdated = "January 15, 2025";
         />
 
         <!-- Content Section -->
-        <section class="relative py-24 px-6 bg-slate-900">
+        <section class="relative py-24 px-6 bg-slate-50 dark:bg-slate-900">
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
                     <!-- Sidebar TOC -->
@@ -47,27 +47,33 @@ const lastUpdated = "January 15, 2025";
 
                     <!-- Main Content -->
                     <article
-                        class="lg:col-span-3 prose prose-invert prose-slate max-w-none"
+                        class="lg:col-span-3 prose prose-slate dark:prose-invert max-w-none"
                     >
                         <!-- Last Updated -->
                         <div
-                            class="text-sm text-slate-400 mb-8 pb-8 border-b border-slate-800"
+                            class="text-sm text-slate-600 dark:text-slate-400 mb-8 pb-8 border-b border-slate-200 dark:border-slate-800"
                         >
                             <strong>Last Updated:</strong> {{ lastUpdated }}
                         </div>
 
                         <!-- Section 1 -->
                         <section id="acceptance" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 1. Acceptance of Terms
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 By accessing or using the keyPerson platform
                                 ("Service"), you agree to be bound by these
                                 Terms of Service ("Terms"). If you do not agree
                                 to these Terms, you may not use the Service.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 These Terms apply to all users of the Service,
                                 including without limitation users who are
                                 Clients, Experts, or browsers.
@@ -76,10 +82,14 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 2 -->
                         <section id="services" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 2. Description of Services
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 keyPerson is a marketplace platform that
                                 connects Clients seeking professional guidance
                                 with Experts offering mentorship, coaching,
@@ -87,7 +97,7 @@ const lastUpdated = "January 15, 2025";
                                 platform facilitates:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>Profile creation and discovery</li>
                                 <li>Calendar synchronization and scheduling</li>
@@ -98,7 +108,9 @@ const lastUpdated = "January 15, 2025";
                                     consent)
                                 </li>
                             </ul>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 keyPerson is a facilitator and not a party to
                                 the actual service relationship between Clients
                                 and Experts.
@@ -107,24 +119,32 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 3 -->
                         <section id="accounts" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 3. User Accounts
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>Registration:</strong> You must create
                                 an account to use certain features of the
                                 Service. You agree to provide accurate, current,
                                 and complete information during registration and
                                 to update such information as necessary.
                             </p>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>Account Security:</strong> You are
                                 responsible for maintaining the confidentiality
                                 of your account credentials and for all
                                 activities that occur under your account. Notify
                                 us immediately of any unauthorized access.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 <strong>Age Requirement:</strong> You must be at
                                 least 18 years old to use the Service.
                             </p>
@@ -135,14 +155,18 @@ const lastUpdated = "January 15, 2025";
                             id="expert-obligations"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 4. Expert Obligations
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 Experts agree to:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>
                                     Provide services in a professional and
@@ -176,14 +200,18 @@ const lastUpdated = "January 15, 2025";
                             id="client-obligations"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 5. Client Obligations
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 Clients agree to:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>
                                     Attend scheduled sessions or cancel with
@@ -209,25 +237,35 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 6 -->
                         <section id="payments" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 6. Payments & Refunds
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>Pricing:</strong> Experts set their own
                                 rates. All prices are displayed in USD and are
                                 subject to platform fees and applicable taxes.
                             </p>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>Escrow:</strong> Client payments are
                                 held in escrow and released to Experts upon
                                 successful completion of the session.
                             </p>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>Platform Fees:</strong> keyPerson
                                 charges a service fee on each transaction (15%
                                 for Experts, included in Client pricing).
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 <strong>Refunds:</strong> Refunds are processed
                                 according to our Cancellation Policy.
                             </p>
@@ -235,14 +273,18 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 7 -->
                         <section id="cancellation" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 7. Cancellation Policy
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>By Clients:</strong>
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2 mb-4"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2 mb-4"
                             >
                                 <li>24+ hours before session: Full refund</li>
                                 <li>
@@ -251,7 +293,9 @@ const lastUpdated = "January 15, 2025";
                                 </li>
                                 <li>No-show: No refund</li>
                             </ul>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 <strong>By Experts:</strong> Experts may cancel
                                 at any time with full refund to Client. Repeated
                                 cancellations may result in account suspension.
@@ -263,16 +307,22 @@ const lastUpdated = "January 15, 2025";
                             id="intellectual-property"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 8. Intellectual Property
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 The Service and its original content, features,
                                 and functionality are owned by keyPerson and are
                                 protected by international copyright, trademark,
                                 and other intellectual property laws.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 Content created by Experts during sessions
                                 remains their property unless otherwise agreed
                                 with Clients.
@@ -284,14 +334,18 @@ const lastUpdated = "January 15, 2025";
                             id="prohibited-conduct"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 9. Prohibited Conduct
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 You may not:
                             </p>
                             <ul
-                                class="list-disc list-inside text-slate-300 space-y-2"
+                                class="list-disc list-inside text-slate-700 dark:text-slate-300 space-y-2"
                             >
                                 <li>Violate any laws or regulations</li>
                                 <li>
@@ -315,16 +369,22 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 10 -->
                         <section id="termination" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 10. Termination
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 We reserve the right to suspend or terminate
                                 your account at any time for violation of these
                                 Terms or for any other reason at our sole
                                 discretion.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 You may terminate your account at any time
                                 through your account settings. Termination does
                                 not relieve you of obligations for completed
@@ -334,15 +394,21 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 11 -->
                         <section id="disclaimers" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 11. Disclaimers
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 THE SERVICE IS PROVIDED "AS IS" WITHOUT
                                 WARRANTIES OF ANY KIND. WE DO NOT WARRANT THAT
                                 THE SERVICE WILL BE UNINTERRUPTED OR ERROR-FREE.
                             </p>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 keyPerson is not responsible for the quality,
                                 accuracy, or outcomes of services provided by
                                 Experts. We do not endorse or guarantee any
@@ -355,10 +421,14 @@ const lastUpdated = "January 15, 2025";
                             id="limitation-liability"
                             class="mb-12 scroll-mt-32"
                         >
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 12. Limitation of Liability
                             </h2>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 TO THE FULLEST EXTENT PERMITTED BY LAW,
                                 KEYPERSON SHALL NOT BE LIABLE FOR ANY INDIRECT,
                                 INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES
@@ -370,10 +440,14 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 13 -->
                         <section id="governing-law" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 13. Governing Law
                             </h2>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 These Terms shall be governed by and construed
                                 in accordance with the laws of the State of
                                 California, USA, without regard to its conflict
@@ -383,10 +457,14 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 14 -->
                         <section id="changes" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 14. Changes to Terms
                             </h2>
-                            <p class="text-slate-300 leading-relaxed">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed"
+                            >
                                 We reserve the right to modify these Terms at
                                 any time. We will notify users of material
                                 changes via email or through the Service.
@@ -397,24 +475,32 @@ const lastUpdated = "January 15, 2025";
 
                         <!-- Section 15 -->
                         <section id="contact" class="mb-12 scroll-mt-32">
-                            <h2 class="text-2xl font-bold text-white mb-4">
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white mb-4"
+                            >
                                 15. Contact Information
                             </h2>
-                            <p class="text-slate-300 leading-relaxed mb-4">
+                            <p
+                                class="text-slate-700 dark:text-slate-300 leading-relaxed mb-4"
+                            >
                                 If you have questions about these Terms, please
                                 contact us:
                             </p>
                             <div
-                                class="bg-slate-800/50 border border-slate-700 rounded-xl p-6"
+                                class="bg-white/80 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-6"
                             >
-                                <p class="text-slate-300 mb-2">
+                                <p
+                                    class="text-slate-700 dark:text-slate-300 mb-2"
+                                >
                                     <strong>Email:</strong> legal@keyperson.id
                                 </p>
-                                <p class="text-slate-300 mb-2">
+                                <p
+                                    class="text-slate-700 dark:text-slate-300 mb-2"
+                                >
                                     <strong>Address:</strong> 100 Innovation
                                     Blvd, Tech District, San Francisco, CA 94102
                                 </p>
-                                <p class="text-slate-300">
+                                <p class="text-slate-700 dark:text-slate-300">
                                     <strong>Phone:</strong> +1 (650) 555-0606
                                 </p>
                             </div>
@@ -427,12 +513,20 @@ const lastUpdated = "January 15, 2025";
 </template>
 
 <style scoped>
-/* Custom prose styles for dark theme */
+/* Custom prose styles for light/dark theme */
 :deep(.prose) {
-    --tw-prose-body: theme("colors.slate.300");
-    --tw-prose-headings: theme("colors.white");
-    --tw-prose-links: theme("colors.blue.400");
-    --tw-prose-bold: theme("colors.white");
-    --tw-prose-bullets: theme("colors.blue.400");
+    --tw-prose-body: #334155;
+    --tw-prose-headings: #0f172a;
+    --tw-prose-links: #2563eb;
+    --tw-prose-bold: #0f172a;
+    --tw-prose-bullets: #2563eb;
+}
+
+:deep(.dark .prose) {
+    --tw-prose-body: #cbd5e1;
+    --tw-prose-headings: #ffffff;
+    --tw-prose-links: #60a5fa;
+    --tw-prose-bold: #ffffff;
+    --tw-prose-bullets: #60a5fa;
 }
 </style>

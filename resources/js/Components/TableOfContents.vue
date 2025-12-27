@@ -49,10 +49,10 @@ const scrollToSection = (id) => {
 <template>
     <div class="sticky top-32">
         <div
-            class="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
+            class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-2xl p-6"
         >
             <h3
-                class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4"
+                class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4"
             >
                 Table of Contents
             </h3>
@@ -64,8 +64,8 @@ const scrollToSection = (id) => {
                     class="block w-full text-left px-4 py-2 rounded-lg transition-all text-sm"
                     :class="
                         activeSection === section.id
-                            ? 'bg-blue-500/20 text-blue-400 font-bold border-l-2 border-blue-500'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                            ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold border-l-2 border-blue-500'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/50'
                     "
                 >
                     {{ section.title }}
