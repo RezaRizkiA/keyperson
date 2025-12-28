@@ -207,7 +207,10 @@ const props = defineProps({
                                 </svg>
                             </button>
                             <Link
-                                :href="route('experts.show', expert.slug)"
+                                :href="`${route(
+                                    'experts.show',
+                                    expert.slug
+                                )}?skill_id=${skill.id}`"
                                 class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all text-center flex items-center justify-center gap-2"
                             >
                                 <span>View Profile</span>

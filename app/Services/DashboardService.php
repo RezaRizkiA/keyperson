@@ -2,13 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Expert;
-use App\Repositories\AppointmentRepository;
-use App\Models\User;
-use App\Models\Transaction;
 use App\Models\Appointment;
 use App\Models\Client;
-use Carbon\Carbon;
+use App\Models\Expert;
+use App\Models\Transaction;
+use App\Models\User;
+use App\Repositories\AppointmentRepository;
 
 class DashboardService
 {
@@ -44,7 +43,7 @@ class DashboardService
     protected function getAppointmentTrends()
     {
         $thirtyDaysAgo = now()->subDays(30)->startOfDay();
-        
+
         $bookings = Appointment::where('created_at', '>=', $thirtyDaysAgo)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
@@ -116,7 +115,8 @@ class DashboardService
 
     /**
      * Mengambil statistik dashboard khusus Expert
-     * @param int $expertId
+     *
+     * @param  int  $expertId
      */
     public function getExpertStats($expertId)
     {
@@ -148,7 +148,10 @@ class DashboardService
 
     public function getUserStats($userId)
     {
-        return [
+        $user = User::with('company.quota')->find($userId);
+        $isCorporate = $user && $user->isCorporateMember();
+
+        $stats = [
             // 1. Total Booking (History)
             'total_bookings' => Appointment::where('user_id', $userId)->count(),
 
@@ -160,16 +163,96 @@ class DashboardService
 
             // 3. Menunggu Pembayaran (Action Needed)
             'pending_payments' => Appointment::where('user_id', $userId)
-                ->where('payment_status', 'pending') // Asumsi kolom payment_status
+                ->where('payment_status', 'pending')
                 ->count(),
 
             // 4. Total Pengeluaran (Total Spent)
-            // Mengambil dari transaksi sukses yang terkait user ini
-            'total_spent' => Transaction::whereHas('appointment', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
-            })
-                ->where('status', 'paid') // Atau 'settlement' / 'success' sesuai midtrans
-                ->sum('amount'),
+            'total_spent' => Appointment::where('user_id', $userId)
+                ->where('payment_status', 'paid')
+                ->sum('price'),
+
+            // B2B: Corporate member info
+            'is_corporate' => $isCorporate,
+            'company_name' => $isCorporate ? $user->company->company_name : null,
+            'company_role' => $user->company_role,
+        ];
+
+        return $stats;
+    }
+
+    /**
+     * B2B: Statistics untuk HRD/Client Dashboard
+     *
+     * @param  int  $clientId  ID dari tabel clients
+     */
+    public function getClientStats($clientId)
+    {
+        $client = Client::with(['quota', 'employees'])->find($clientId);
+        if (! $client) {
+            return null;
+        }
+
+        // Get all users belonging to this company (employees + owner)
+        $employeeIds = $client->employees->pluck('id')->toArray();
+
+        return [
+            // Company Info
+            'company_name' => $client->company_name,
+            // Use column from clients table for category (Mikro/Menengah/Large)
+            'employee_count_category' => $client->employee_count ?? '-',
+            // Actual registered users
+            'registered_employees' => count($employeeIds),
+
+            // Quota Info
+            'quota_balance' => $client->quota?->balance ?? 0,
+
+            // Booking Stats (dari semua karyawan)
+            'total_bookings' => Appointment::whereIn('user_id', $employeeIds)->count(),
+            'total_spent' => Appointment::whereIn('user_id', $employeeIds)
+                ->where('payment_status', 'paid')
+                ->sum('price'),
+
+            'upcoming_bookings' => Appointment::whereIn('user_id', $employeeIds)
+                ->whereIn('status', ['confirmed', 'progress'])
+                ->where('date_time', '>=', now())
+                ->count(),
+
+            'completed_bookings' => Appointment::whereIn('user_id', $employeeIds)
+                ->where('status', 'completed')
+                ->count(),
+
+            // Recent Employee Bookings
+            'recent_bookings' => Appointment::with(['user', 'expert.user'])
+                ->whereIn('user_id', $employeeIds)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(fn ($a) => [
+                    'id' => $a->id,
+                    'employee_name' => $a->user->name,
+                    'expert_name' => $a->expert?->user?->name ?? 'Unknown',
+                    'date_time' => $a->date_time,
+                    'price' => $a->price,
+                    'status' => $a->status,
+                    'payment_status' => $a->payment_status,
+                ]),
+
+            // Ledger Summary (last 10 transactions)
+            'recent_ledger' => \App\Models\QuotaLedger::where('client_id', $clientId)
+                ->with('user')
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(fn ($l) => [
+                    'id' => $l->id,
+                    'type' => $l->type,
+                    'amount' => $l->amount,
+                    'balance_after' => $l->balance_after,
+                    'reference_type' => $l->reference_type,
+                    'description' => $l->description,
+                    'user_name' => $l->user?->name ?? 'System',
+                    'created_at' => $l->created_at,
+                ]),
         ];
     }
 }

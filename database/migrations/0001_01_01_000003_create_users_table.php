@@ -16,9 +16,11 @@ return new class extends Migration
             $table->timestamp('google_token_expires_at')->nullable();
             $table->json('google_scopes')->nullable();
             $table->boolean('calendar_connected')->default(false);
-            
+
             $table->string('roles');
             $table->string('name')->nullable();
+            $table->unsignedBigInteger('client_id')->nullable();
+            $table->string('company_role')->nullable();
 
             $table->string('email')->unique();
             $table->string('phone')->nullable();

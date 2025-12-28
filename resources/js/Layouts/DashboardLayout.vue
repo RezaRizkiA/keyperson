@@ -13,7 +13,10 @@ const toggleSidebar = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-950 font-sans flex">
+    <!-- Updated: bg-background untuk responsive light/dark -->
+    <div
+        class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans flex transition-colors duration-300"
+    >
         <Sidebar
             :is-sidebar-expanded="isSidebarExpanded"
             :is-mobile-menu-open="isMobileMenuOpen"

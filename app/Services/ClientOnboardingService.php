@@ -81,6 +81,20 @@ class ClientOnboardingService
       // 7. Role Assignment
       $this->clientRepo->assignClientRole($user);
 
+      // === B2B SETUP ===
+      // 8. Set client_id pada user HRD agar terhubung sebagai karyawan juga
+      $user->update([
+        'client_id' => $savedClient->id,
+        'company_role' => 'hrd'
+      ]);
+
+      // 9. Buat ClientQuota jika belum ada (saldo 0)
+      \App\Models\ClientQuota::firstOrCreate(
+        ['client_id' => $savedClient->id],
+        ['balance' => 0]
+      );
+      // === END B2B SETUP ===
+
       DB::commit();
       return $savedClient;
     } catch (Exception $e) {

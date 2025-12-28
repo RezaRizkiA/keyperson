@@ -10,6 +10,7 @@ import {
     LogOut,
 } from "lucide-vue-next";
 import { Link, usePage } from "@inertiajs/vue3";
+import ThemeToggle from "@/Components/ThemeToggle.vue";
 
 const emit = defineEmits(["openMobileMenu"]);
 
@@ -34,6 +35,7 @@ const userRoleLabel = computed(() => {
 
     if (roleNames.includes("administrator")) return "Admin";
     if (roleNames.includes("expert")) return "Expert";
+    if (roleNames.includes("client")) return "HRD";
 
     return "Client";
 });
@@ -63,12 +65,12 @@ const pageSubtitle = computed(() => {
 
 <template>
     <header
-        class="h-20 bg-slate-800/50 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between"
+        class="h-20 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between transition-colors duration-300 bg-white/80 dark:bg-slate-800/50 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700/50"
     >
         <div class="flex items-center gap-4">
             <button
                 @click="$emit('openMobileMenu')"
-                class="lg:hidden p-2 text-slate-400 hover:bg-slate-700 rounded-lg transition-colors"
+                class="lg:hidden p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
                 <MenuIcon class="w-6 h-6" />
             </button>
@@ -81,15 +83,18 @@ const pageSubtitle = computed(() => {
                 <input
                     type="text"
                     placeholder="Search experts, clients..."
-                    class="w-80 pl-10 pr-4 py-2 bg-slate-900/50 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                    class="w-80 pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-colors"
                 />
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
+            <!-- Theme Toggle -->
+            <ThemeToggle />
+
             <!-- Notification Bell -->
             <button
-                class="relative p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                class="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
             >
                 <Bell class="w-5 h-5" />
                 <!-- Notification Badge -->
@@ -101,7 +106,7 @@ const pageSubtitle = computed(() => {
             <!-- User Menu -->
             <Menu as="div" class="relative">
                 <MenuButton
-                    class="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-full bg-slate-700 transition-all border border-slate-600 cursor-pointer"
+                    class="flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-700 transition-all border border-slate-200 dark:border-slate-600 cursor-pointer"
                 >
                     <img
                         :src="
@@ -110,17 +115,17 @@ const pageSubtitle = computed(() => {
                                 user.name +
                                 '&background=3b82f6&color=fff'
                         "
-                        class="w-9 h-9 rounded-full object-cover border-2 border-slate-600 shadow-sm"
+                        class="w-9 h-9 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600 shadow-sm"
                         alt="User"
                     />
                     <div class="text-right hidden md:block">
                         <p
-                            class="text-sm font-bold text-slate-100 leading-none"
+                            class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-none"
                         >
                             {{ user?.name }}
                         </p>
                         <p
-                            class="text-[10px] text-slate-400 uppercase font-bold mt-0.5 tracking-wider"
+                            class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold mt-0.5 tracking-wider"
                         >
                             {{ userRoleLabel }}
                         </p>
@@ -136,15 +141,17 @@ const pageSubtitle = computed(() => {
                     leave-to-class="transform scale-95 opacity-0"
                 >
                     <MenuItems
-                        class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-700 rounded-xl bg-slate-800 shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden border border-slate-700"
+                        class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-slate-100 dark:divide-slate-700 rounded-xl bg-white dark:bg-slate-800 shadow-lg ring-1 ring-black/5 focus:outline-none overflow-hidden border border-slate-200 dark:border-slate-700"
                     >
-                        <div class="px-4 py-3 bg-slate-900/50">
+                        <div class="px-4 py-3 bg-slate-50 dark:bg-slate-900/50">
                             <p
-                                class="text-sm font-medium text-slate-200 truncate"
+                                class="text-sm font-medium text-slate-700 dark:text-slate-200 truncate"
                             >
                                 Signed in as
                             </p>
-                            <p class="text-xs text-slate-400 truncate mt-0.5">
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5"
+                            >
                                 {{ user.email }}
                             </p>
                         </div>
@@ -154,19 +161,21 @@ const pageSubtitle = computed(() => {
                                     :href="route('profile.edit')"
                                     :class="[
                                         active
-                                            ? 'bg-blue-500/10 text-blue-400'
-                                            : 'text-slate-300',
+                                            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                                            : 'text-slate-700 dark:text-slate-300',
                                         'group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium',
                                     ]"
                                 >
                                     <Settings
-                                        class="mr-3 h-4 w-4 text-slate-400 group-hover:text-blue-400"
+                                        class="mr-3 h-4 w-4 text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400"
                                     />
                                     Settings
                                 </Link>
                             </MenuItem>
                         </div>
-                        <div class="p-1 border-t border-slate-700">
+                        <div
+                            class="p-1 border-t border-slate-100 dark:border-slate-700"
+                        >
                             <MenuItem v-slot="{ active }">
                                 <Link
                                     :href="route('logout')"
@@ -174,13 +183,13 @@ const pageSubtitle = computed(() => {
                                     as="button"
                                     :class="[
                                         active
-                                            ? 'bg-red-500/10 text-red-400'
-                                            : 'text-slate-300',
+                                            ? 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400'
+                                            : 'text-slate-700 dark:text-slate-300',
                                         'group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium',
                                     ]"
                                 >
                                     <LogOut
-                                        class="mr-3 h-4 w-4 text-slate-400 group-hover:text-red-400"
+                                        class="mr-3 h-4 w-4 text-slate-400 group-hover:text-red-500 dark:group-hover:text-red-400"
                                     />
                                     Logout
                                 </Link>

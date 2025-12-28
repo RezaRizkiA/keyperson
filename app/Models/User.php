@@ -54,6 +54,23 @@ class User extends Authenticatable
         return $this->hasOne(Client::class, 'user_id');
     }
 
+    /**
+     * Relasi ke Client via client_id (user adalah karyawan perusahaan ini)
+     * Berbeda dengan client() yang untuk pemilik/HRD yang mendaftarkan perusahaan
+     */
+    public function company()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * Cek apakah user adalah member dari sebuah perusahaan (B2B)
+     */
+    public function isCorporateMember(): bool
+    {
+        return !is_null($this->client_id);
+    }
+
     public function expert()
     {
         return $this->hasOne(Expert::class, 'user_id');

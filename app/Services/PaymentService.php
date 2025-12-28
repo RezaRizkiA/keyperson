@@ -79,4 +79,58 @@ class PaymentService
     // 4. Simpan via Repo
     return $this->repo->create($transactionData);
   }
+
+  /**
+   * B2B: Process top-up payment
+   * 
+   * @param \App\Models\Transaction $transaction Pre-created transaction record
+   * @param array $paymentData Payment method data
+   * @return \App\Models\Transaction Updated transaction with iPaymu data
+   */
+  public function processTopUpPayment($transaction, $paymentData)
+  {
+    $user = Auth::user();
+
+    // 1. Siapkan Data untuk Helper iPaymu
+    $ipaymuBody = [
+      'name'           => $user->name,
+      'email'          => $user->email,
+      'phone'          => $user->phone ?? '',
+      'amount'         => $transaction->amount,
+      'notifyUrl'      => route('payment.notify'), // Webhook URL sama
+      'referenceId'    => (string) $transaction->id,
+      'paymentMethod'  => $paymentData['payment_method'],
+      'paymentChannel' => $paymentData['payment_channel'] ?? $paymentData['payment_method'],
+      'description'    => $transaction->trx_desc,
+      'expired'        => 24, // 24 Jam
+      'feeDirection'   => 'BUYER',
+    ];
+
+    // 2. Panggil Helper iPaymu
+    $response = directPaymentIpaymu($ipaymuBody);
+
+    // Validasi Response Helper
+    if (!$response || !isset($response['SessionId'])) {
+      Log::error('iPaymu TopUp Error', ['body' => $ipaymuBody, 'response' => $response]);
+      throw new \Exception('Gagal menghubungi gateway pembayaran.');
+    }
+
+    // 3. Update transaction dengan data iPaymu
+    $transaction->update([
+      'sessionID'      => $response['SessionId'],
+      'transactionId'  => $response['TransactionId'],
+      'referenceId'    => $response['ReferenceId'],
+      'via'            => $response['Via'],
+      'channel'        => $response['Channel'],
+      'paymentNo'      => $response['PaymentNo'],
+      'paymentName'    => $response['PaymentName'],
+      'total'          => $response['Total'],
+      'trx_fee'        => $response['Fee'],
+      'url'            => $response['Url'] ?? null,
+      'expired_date'   => Carbon::now()->addHours(24),
+      'sid'            => randomCode(),
+    ]);
+
+    return $transaction->fresh();
+  }
 }

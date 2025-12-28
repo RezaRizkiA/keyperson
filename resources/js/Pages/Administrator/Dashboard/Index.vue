@@ -11,7 +11,7 @@ import {
     UserPlus,
     UserCircle,
 } from "lucide-vue-next";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import ApexCharts from "apexcharts";
 
 // Menggunakan Persistent Layout
@@ -43,18 +43,23 @@ const formatDateTime = (dateStr) => {
     };
 };
 
-// Status badge colors
+// Status badge colors - responsive untuk light/dark
 const getStatusColor = (status) => {
     const colors = {
         need_confirmation:
-            "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-        confirmed: "bg-green-500/20 text-green-400 border-green-500/30",
-        progress: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-        completed: "bg-violet-500/20 text-violet-400 border-violet-500/30",
-        cancelled: "bg-red-500/20 text-red-400 border-red-500/30",
+            "bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-500/30",
+        confirmed:
+            "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/30",
+        progress:
+            "bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/30",
+        completed:
+            "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-500/30",
+        cancelled:
+            "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/30",
     };
     return (
-        colors[status] || "bg-slate-500/20 text-slate-400 border-slate-500/30"
+        colors[status] ||
+        "bg-slate-100 dark:bg-slate-500/20 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-500/30"
     );
 };
 
@@ -71,101 +76,120 @@ const getStatusLabel = (status) => {
 
 // Appointment Trends Chart
 const chartRef = ref(null);
+let chart = null;
 
-onMounted(() => {
-    if (chartRef.value && props.stats.appointment_trends) {
-        const dates = props.stats.appointment_trends.map((item) => {
+const isDarkMode = () => document.documentElement.classList.contains("dark");
+
+const getChartOptions = () => {
+    const dark = isDarkMode();
+    const dates =
+        props.stats.appointment_trends?.map((item) => {
             const date = new Date(item.date);
             return date.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
             });
-        });
-        const counts = props.stats.appointment_trends.map((item) => item.count);
+        }) || [];
+    const counts =
+        props.stats.appointment_trends?.map((item) => item.count) || [];
 
-        const options = {
-            series: [
-                {
-                    name: "Total Bookings",
-                    data: counts,
-                },
-            ],
-            chart: {
-                type: "area",
-                height: 320,
-                background: "transparent",
-                toolbar: {
-                    show: false,
-                },
-                zoom: {
-                    enabled: false,
-                },
+    return {
+        series: [
+            {
+                name: "Total Bookings",
+                data: counts,
             },
-            theme: {
-                mode: "dark",
+        ],
+        chart: {
+            type: "area",
+            height: 320,
+            background: "transparent",
+            toolbar: {
+                show: false,
             },
-            dataLabels: {
+            zoom: {
                 enabled: false,
             },
-            stroke: {
-                curve: "smooth",
-                width: 3,
-                colors: ["#3b82f6"],
+        },
+        theme: {
+            mode: dark ? "dark" : "light",
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            curve: "smooth",
+            width: 3,
+            colors: ["#3b82f6"],
+        },
+        fill: {
+            type: "gradient",
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.4,
+                opacityTo: 0.1,
+                stops: [0, 90, 100],
             },
-            fill: {
-                type: "gradient",
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.4,
-                    opacityTo: 0.1,
-                    stops: [0, 90, 100],
+            colors: ["#3b82f6"],
+        },
+        xaxis: {
+            categories: dates,
+            labels: {
+                style: {
+                    colors: dark ? "#94a3b8" : "#64748b",
+                    fontSize: "11px",
                 },
-                colors: ["#3b82f6"],
             },
+            axisBorder: {
+                show: false,
+            },
+            axisTicks: {
+                show: false,
+            },
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: dark ? "#94a3b8" : "#64748b",
+                    fontSize: "11px",
+                },
+            },
+        },
+        grid: {
+            borderColor: dark ? "#334155" : "#e2e8f0",
+            strokeDashArray: 4,
             xaxis: {
-                categories: dates,
-                labels: {
-                    style: {
-                        colors: "#94a3b8",
-                        fontSize: "11px",
-                    },
-                },
-                axisBorder: {
-                    show: false,
-                },
-                axisTicks: {
+                lines: {
                     show: false,
                 },
             },
-            yaxis: {
-                labels: {
-                    style: {
-                        colors: "#94a3b8",
-                        fontSize: "11px",
-                    },
+        },
+        tooltip: {
+            theme: dark ? "dark" : "light",
+            y: {
+                formatter: function (val) {
+                    return val + " bookings";
                 },
             },
-            grid: {
-                borderColor: "#334155",
-                strokeDashArray: 4,
-                xaxis: {
-                    lines: {
-                        show: false,
-                    },
-                },
-            },
-            tooltip: {
-                theme: "dark",
-                y: {
-                    formatter: function (val) {
-                        return val + " bookings";
-                    },
-                },
-            },
-        };
+        },
+    };
+};
 
-        const chart = new ApexCharts(chartRef.value, options);
+onMounted(() => {
+    if (chartRef.value && props.stats.appointment_trends) {
+        chart = new ApexCharts(chartRef.value, getChartOptions());
         chart.render();
+
+        // Watch for theme changes
+        const observer = new MutationObserver(() => {
+            if (chart) {
+                chart.updateOptions(getChartOptions());
+            }
+        });
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class"],
+        });
     }
 });
 
@@ -185,16 +209,16 @@ const totalBookings = computed(() => {
     <!-- Header with Action Buttons -->
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-slate-100">
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 Dashboard Overview
             </h2>
-            <p class="text-slate-400 mt-1">
+            <p class="text-slate-500 dark:text-slate-400 mt-1">
                 Welcome back, Administrator. Here's what's happening today.
             </p>
         </div>
         <div class="flex items-center gap-3">
             <button
-                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg border border-slate-700 transition-colors flex items-center gap-2"
+                class="px-4 py-2 font-medium rounded-lg border transition-colors flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
             >
                 <Plus class="w-4 h-4" />
                 <span class="hidden sm:inline">New Booking</span>
@@ -260,39 +284,50 @@ const totalBookings = computed(() => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Appointment Trends Chart -->
         <div
-            class="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+            class="lg:col-span-2 backdrop-blur-sm rounded-xl border p-6 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50"
         >
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-100">
+                    <h3
+                        class="text-lg font-bold text-slate-900 dark:text-slate-100"
+                    >
                         Appointment Trends
                     </h3>
-                    <p class="text-sm text-slate-400 mt-1">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                         Booking volume over last 30 days
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-sm text-slate-400">Last 30 Days</span>
+                    <span class="text-sm text-slate-500 dark:text-slate-400"
+                        >Last 30 Days</span
+                    >
                 </div>
             </div>
             <div class="mb-4 flex items-baseline gap-2">
-                <span class="text-3xl font-bold text-slate-100">{{
-                    totalBookings
-                }}</span>
-                <span class="text-sm text-slate-400">Total Bookings</span>
+                <span
+                    class="text-3xl font-bold text-slate-900 dark:text-slate-100"
+                    >{{ totalBookings }}</span
+                >
+                <span class="text-sm text-slate-500 dark:text-slate-400"
+                    >Total Bookings</span
+                >
             </div>
             <div ref="chartRef"></div>
         </div>
 
         <!-- Quick Schedule Sidebar -->
         <div
-            class="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6"
+            class="backdrop-blur-sm rounded-xl border p-6 bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50"
         >
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-slate-100">Quick Schedule</h3>
+                <h3
+                    class="text-lg font-bold text-slate-900 dark:text-slate-100"
+                >
+                    Quick Schedule
+                </h3>
                 <a
                     href="#"
-                    class="text-sm text-blue-400 hover:text-blue-300 font-medium"
+                    class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                     >View Calendar</a
                 >
             </div>
@@ -306,31 +341,38 @@ const totalBookings = computed(() => {
                     <div
                         v-for="appointment in stats.quick_schedule"
                         :key="appointment.id"
-                        class="flex items-start gap-3 pb-4 border-b border-slate-700/50 last:border-0 last:pb-0"
+                        class="flex items-start gap-3 pb-4 border-b border-slate-100 dark:border-slate-700/50 last:border-0 last:pb-0"
                     >
                         <div
-                            class="flex flex-col items-center bg-slate-900/50 rounded-lg p-2 min-w-[48px]"
+                            class="flex flex-col items-center rounded-lg p-2 min-w-[48px] bg-slate-100 dark:bg-slate-900/50"
                         >
                             <span
-                                class="text-xs font-bold text-slate-400 uppercase"
+                                class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase"
                                 >{{
                                     formatDateTime(appointment.date_time).month
                                 }}</span
                             >
-                            <span class="text-xl font-bold text-slate-100">{{
-                                formatDateTime(appointment.date_time).day
-                            }}</span>
+                            <span
+                                class="text-xl font-bold text-slate-900 dark:text-slate-100"
+                                >{{
+                                    formatDateTime(appointment.date_time).day
+                                }}</span
+                            >
                         </div>
                         <div class="flex-1 min-w-0">
                             <h4
-                                class="text-sm font-semibold text-slate-200 truncate"
+                                class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate"
                             >
                                 {{ appointment.title }}
                             </h4>
-                            <p class="text-xs text-slate-400 mt-0.5">
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+                            >
                                 {{ appointment.type }}
                             </p>
-                            <p class="text-xs text-slate-500 mt-1">
+                            <p
+                                class="text-xs text-slate-400 dark:text-slate-500 mt-1"
+                            >
                                 {{ formatDateTime(appointment.date_time).time }}
                             </p>
                         </div>
@@ -339,12 +381,15 @@ const totalBookings = computed(() => {
                         ></div>
                     </div>
                 </template>
-                <div v-else class="text-center py-8 text-slate-500 text-sm">
+                <div
+                    v-else
+                    class="text-center py-8 text-slate-500 dark:text-slate-400 text-sm"
+                >
                     No upcoming appointments
                 </div>
 
                 <button
-                    class="w-full mt-4 px-4 py-2 bg-slate-900/50 hover:bg-slate-900 text-slate-300 hover:text-slate-100 font-medium text-sm rounded-lg border border-slate-700 transition-colors flex items-center justify-center gap-2"
+                    class="w-full mt-4 px-4 py-2 font-medium text-sm rounded-lg border transition-colors flex items-center justify-center gap-2 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 border-slate-200 dark:border-slate-700"
                 >
                     <Calendar class="w-4 h-4" />
                     Connect Google Calendar
@@ -355,22 +400,24 @@ const totalBookings = computed(() => {
 
     <!-- Recent Booking Requests Table -->
     <div
-        class="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden"
+        class="backdrop-blur-sm rounded-xl border overflow-hidden bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50"
     >
         <div
-            class="p-6 border-b border-slate-700/50 flex items-center justify-between"
+            class="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between"
         >
             <div>
-                <h3 class="text-lg font-bold text-slate-100">
+                <h3
+                    class="text-lg font-bold text-slate-900 dark:text-slate-100"
+                >
                     Recent Booking Requests
                 </h3>
-                <p class="text-sm text-slate-400 mt-1">
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     Latest appointment requests from clients
                 </p>
             </div>
             <div class="flex items-center gap-2">
                 <button
-                    class="px-3 py-1.5 bg-slate-900/50 text-slate-300 text-sm font-medium rounded-lg border border-slate-700 hover:bg-slate-900 transition-colors flex items-center gap-2"
+                    class="px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900"
                 >
                     All Status
                     <svg
@@ -392,36 +439,38 @@ const totalBookings = computed(() => {
 
         <div class="overflow-x-auto">
             <table class="w-full">
-                <thead class="bg-slate-900/30">
+                <thead class="bg-slate-50 dark:bg-slate-900/30">
                     <tr>
                         <th
-                            class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
+                            class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
                         >
                             Expert
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
+                            class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
                         >
                             Client Institution
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
+                            class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
                         >
                             Date & Time
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
+                            class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
                         >
                             Status
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
+                            class="px-6 py-3 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
                         >
                             Actions
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700/30">
+                <tbody
+                    class="divide-y divide-slate-100 dark:divide-slate-700/30"
+                >
                     <template
                         v-if="
                             stats.recent_bookings &&
@@ -431,7 +480,7 @@ const totalBookings = computed(() => {
                         <tr
                             v-for="booking in stats.recent_bookings"
                             :key="booking.id"
-                            class="hover:bg-slate-900/20 transition-colors"
+                            class="hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"
                         >
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
@@ -446,18 +495,21 @@ const totalBookings = computed(() => {
                                         :alt="booking.expert.name"
                                     />
                                     <span
-                                        class="text-sm font-medium text-slate-200"
+                                        class="text-sm font-medium text-slate-700 dark:text-slate-200"
                                         >{{ booking.expert.name }}</span
                                     >
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm text-slate-300">{{
-                                    booking.client.institution
-                                }}</span>
+                                <span
+                                    class="text-sm text-slate-600 dark:text-slate-300"
+                                    >{{ booking.client.institution }}</span
+                                >
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-slate-300">
+                                <div
+                                    class="text-sm text-slate-600 dark:text-slate-300"
+                                >
                                     {{
                                         new Date(
                                             booking.date_time
@@ -468,7 +520,9 @@ const totalBookings = computed(() => {
                                         })
                                     }}
                                 </div>
-                                <div class="text-xs text-slate-500">
+                                <div
+                                    class="text-xs text-slate-400 dark:text-slate-500"
+                                >
                                     {{
                                         new Date(
                                             booking.date_time
@@ -489,7 +543,7 @@ const totalBookings = computed(() => {
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <button
-                                    class="text-blue-400 hover:text-blue-300 font-medium"
+                                    class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                                 >
                                     Review
                                 </button>
@@ -499,7 +553,7 @@ const totalBookings = computed(() => {
                     <tr v-else>
                         <td
                             colspan="5"
-                            class="px-6 py-12 text-center text-slate-500"
+                            class="px-6 py-12 text-center text-slate-500 dark:text-slate-400"
                         >
                             No recent bookings
                         </td>

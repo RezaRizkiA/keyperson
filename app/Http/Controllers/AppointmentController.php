@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
-use App\Mail\AppointmentConfirmed;
 use App\Mail\AppointmentLinkUpdated;
 use App\Mail\AppointmentRescheduled;
-use App\Mail\AppointmentStatusChanged;
 use App\Models\Appointment;
 use App\Models\Expert;
 use App\Services\AppointmentService;
@@ -37,12 +35,12 @@ class AppointmentController extends Controller
         if (in_array('administrator', $roles)) {
             try {
                 $filters = $request->only(['search', 'status', 'expert', 'view_mode', 'start_date', 'end_date']);
-                
+
                 // Check if calendar view mode
                 if (isset($filters['view_mode']) && $filters['view_mode'] === 'calendar') {
                     // Calendar view: no pagination, get all appointments for date range
                     $appointments = $this->service->getAppointmentsForCalendar($filters);
-                    
+
                     // Transform without pagination wrapper
                     $transformedAppointments = $appointments->map(function ($appointment) {
                         return [
@@ -60,7 +58,7 @@ class AppointmentController extends Controller
                 } else {
                     // List view: paginated as before
                     $appointments = $this->service->getPaginatedAppointments($filters);
-                    
+
                     // Transform with pagination
                     $transformedAppointments = $appointments->through(function ($appointment) {
                         return [
@@ -76,18 +74,18 @@ class AppointmentController extends Controller
                         ];
                     });
                 }
-                
+
                 // Get stats
                 $stats = $this->service->getAppointmentStats();
-                
+
                 return Inertia::render('Administrator/Appointments/Index', [
                     'appointments' => $transformedAppointments,
                     'stats' => $stats,
-                    'filters' => $filters
+                    'filters' => $filters,
                 ]);
             } catch (\Exception $e) {
-                Log::error('Failed to load appointments: ' . $e->getMessage(), [
-                    'trace' => $e->getTraceAsString()
+                Log::error('Failed to load appointments: '.$e->getMessage(), [
+                    'trace' => $e->getTraceAsString(),
                 ]);
 
                 return redirect()->route('dashboard.index')
@@ -99,14 +97,14 @@ class AppointmentController extends Controller
         if (in_array('expert', $roles)) {
             $expert = $user->expert;
 
-            if (!$expert) {
+            if (! $expert) {
                 return redirect()->route('dashboard.index')->with('error', 'Profile expert belum aktif.');
             }
 
             $appointments = $this->service->getAllForExpert($expert->id);
 
             return Inertia::render('Expert/Appointments/Index', [
-                'appointments' => $appointments
+                'appointments' => $appointments,
             ]);
         }
 
@@ -114,7 +112,7 @@ class AppointmentController extends Controller
         $appointments = $this->service->getAllForUser($user->id);
 
         return Inertia::render('User/Appointments/Index', [
-            'appointments' => $appointments
+            'appointments' => $appointments,
         ]);
     }
 
@@ -127,34 +125,39 @@ class AppointmentController extends Controller
 
         if (in_array('administrator', $roles)) {
             return Inertia::render('Administrator/Appointments/Show', [
-                'appointment' => $appointment
+                'appointment' => $appointment,
             ]);
         }
 
         // B. Expert View
         if (in_array('expert', $roles)) {
             return Inertia::render('Expert/Appointments/Show', [
-                'appointment' => $appointment
+                'appointment' => $appointment,
             ]);
         }
 
         // C. User View (Default fallback)
         return Inertia::render('User/Appointments/Show', [
-            'appointment' => $appointment
+            'appointment' => $appointment,
         ]);
     }
 
-    public function create($expert_id)
+    public function create($slug)
     {
-        $expert = Expert::with('user')->findOrFail($expert_id);
+        // Load expert with user AND skills for skill selection
+        $expert = Expert::with(['user', 'skills'])->where('slug', $slug)->firstOrFail();
 
         // Ambil slot sibuk dari Service
-        $bookedSlots = $this->service->getBusySlots($expert_id);
+        $bookedSlots = $this->service->getBusySlots($expert->id);
+
+        // Get skill_id from query param (passed from portal flow)
+        $skillId = request('skill_id');
 
         return Inertia::render('User/Appointments/Booking', [
             'expert' => $expert,
             'bookedSlots' => $bookedSlots,
-            'backUrl' => request('back'),
+            'backUrl' => route('experts.show', $expert->slug),
+            'skillId' => $skillId ? (int) $skillId : null,
         ]);
     }
 
@@ -162,14 +165,19 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request)
     {
         try {
-            // Validasi sudah ditangani StoreAppointmentRequest
-            // Kita gabungkan input date & time agar mudah diolah service
             $data = $request->validated();
 
             // Panggil Service
             $appointment = $this->service->createAppointment($data, Auth::id());
 
-            // Redirect ke Payment
+            // === B2B CHECK: Skip payment if already paid via corporate quota ===
+            if ($appointment->payment_status === 'paid') {
+                return redirect()->route('dashboard.appointments.show', $appointment->id)
+                    ->with('success', 'Booking berhasil! Kuota perusahaan telah dipotong.');
+            }
+            // === END B2B CHECK ===
+
+            // Redirect ke Payment (untuk retail user)
             return redirect()->route('payment.create', $appointment->id)
                 ->with('success', 'Booking berhasil dibuat! Silakan lakukan pembayaran.');
         } catch (\Exception $e) {
@@ -188,6 +196,7 @@ class AppointmentController extends Controller
         try {
             // 2. Panggil Service
             $this->service->updateStatus($id, $request->status);
+
             return redirect()->back()->with('success', 'Appointment status updated successfully.');
         } catch (\Exception $e) {
             if ($e->getCode() === 403) {
@@ -198,7 +207,6 @@ class AppointmentController extends Controller
         }
     }
 
-
     public function reschedule(Request $request, $id, GoogleCalendarService $calendarService)
     {
         $request->validate([
@@ -207,7 +215,7 @@ class AppointmentController extends Controller
 
         $appointment = Appointment::with(['user', 'expert.user'])->findOrFail($id);
 
-        // 3. Otorisasi: Hapus pengecekan Expert ID. 
+        // 3. Otorisasi: Hapus pengecekan Expert ID.
         // Kita asumsikan Middleware 'role:admin' di route sudah menangani keamanan.
 
         try {
@@ -221,22 +229,22 @@ class AppointmentController extends Controller
                     // Pastikan $calendarService bisa handle update by Admin
                     $event = $calendarService->getEvent($appointment->user, $appointment->google_calendar_event_id);
 
-                    $startTime = new EventDateTime();
+                    $startTime = new EventDateTime;
                     $startTime->setDateTime($newDateTime->toRfc3339String());
                     $event->setStart($startTime);
 
-                    $endTime = new EventDateTime();
+                    $endTime = new EventDateTime;
                     // Asumsi durasi default 1 jam jika kolom hours tidak ada/null
                     $hours = $appointment->hours ?? 1;
                     $endTime->setDateTime($newDateTime->copy()->addHours($hours)->toRfc3339String());
                     $event->setEnd($endTime);
 
-                    $event->setSummary('Appointment with ' . $appointment->expert->user->name . ' (Rescheduled by Admin)');
+                    $event->setSummary('Appointment with '.$appointment->expert->user->name.' (Rescheduled by Admin)');
 
                     $calendarService->updateEvent($appointment->user, $appointment->google_calendar_event_id, $event);
                 } catch (\Exception $calEx) {
                     // Log error kalender tapi lanjut update database
-                    Log::error("GCal update failed: " . $calEx->getMessage());
+                    Log::error('GCal update failed: '.$calEx->getMessage());
                 }
             }
 
@@ -256,7 +264,7 @@ class AppointmentController extends Controller
                 Mail::to($appointment->user->email)->send(new AppointmentRescheduled($appointment));
             }
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update schedule: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to update schedule: '.$e->getMessage()]);
         }
 
         return back()->with('success', 'Appointment schedule has been updated successfully.');
@@ -283,7 +291,7 @@ class AppointmentController extends Controller
                 Mail::to($appointment->user->email)->send(new AppointmentLinkUpdated($appointment));
             } catch (\Exception $e) {
                 // Log error jika email gagal kirim, tapi jangan gagalkan proses simpan
-                Log::error('Gagal kirim email update link: ' . $e->getMessage());
+                Log::error('Gagal kirim email update link: '.$e->getMessage());
             }
         }
 

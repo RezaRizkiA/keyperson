@@ -33,6 +33,23 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    backUrl: {
+        type: String,
+        default: null,
+    },
+    skillId: {
+        type: Number,
+        default: null,
+    },
+});
+
+// Booking URL with skill_id query param
+const bookingUrl = computed(() => {
+    const baseUrl = route("booking.create", props.expert.slug);
+    if (props.skillId) {
+        return `${baseUrl}?skill_id=${props.skillId}`;
+    }
+    return baseUrl;
 });
 
 // Active tab state
@@ -119,10 +136,10 @@ const navigateToSkills = () => {
     switchTab("skills");
 };
 
-// Back navigation with fallback to home
+// Back navigation - use backUrl prop from backend
 const goBack = () => {
-    if (window.history.length > 1) {
-        window.history.back();
+    if (props.backUrl) {
+        router.visit(props.backUrl);
     } else {
         router.visit(route("home"));
     }
@@ -338,7 +355,8 @@ const goBack = () => {
                                     <MessageCircle class="w-5 h-5" />
                                     Message
                                 </button>
-                                <button
+                                <Link
+                                    :href="bookingUrl"
                                     class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all"
                                 >
                                     Book · Rp{{
@@ -346,7 +364,7 @@ const goBack = () => {
                                             "id-ID"
                                         )
                                     }}/hr
-                                </button>
+                                </Link>
                             </div>
                         </div>
 
@@ -552,11 +570,12 @@ const goBack = () => {
                                     {{ expert.user?.name }} today.
                                 </p>
                             </div>
-                            <button
+                            <Link
+                                :href="bookingUrl"
                                 class="px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-base transition-all shadow-xl hover:shadow-2xl hover:shadow-blue-500/50 shrink-0"
                             >
                                 Book Now
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </section>

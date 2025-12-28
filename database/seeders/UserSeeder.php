@@ -3,12 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// Added
 use Faker\Factory as Faker;
-use Illuminate\Database\Seeder; // Added
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-
-// Added
 
 class UserSeeder extends Seeder
 {
@@ -41,8 +38,9 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 3. Create 10 Client Users (Company representatives)
-        for ($i = 1; $i <= 10; $i++) {
+        // 3. Create 5 Client Users (HRD/Company Representatives)
+        // These users will be linked to Client companies in ClientSeeder
+        for ($i = 1; $i <= 5; $i++) {
             User::create([
                 'name' => $faker->name,
                 'email' => 'client'.$i.'@keyperson.com',
@@ -54,8 +52,8 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 4. Create 20 Regular Users (who can book appointments)
-        for ($i = 1; $i <= 20; $i++) {
+        // 4. Create 20 Regular/Retail Users (who can book appointments without company)
+        for ($i = 1; $i <= 10; $i++) {
             User::create([
                 'name' => $faker->name,
                 'email' => 'user'.$i.'@keyperson.com',

@@ -30,6 +30,31 @@ class Client extends Model
     }
 
     /**
+     * B2B: Relasi ke Users via client_id (karyawan perusahaan)
+     * User dengan client_id = this.id adalah karyawan dari perusahaan ini
+     */
+    public function employees()
+    {
+        return $this->hasMany(User::class, 'client_id');
+    }
+
+    /**
+     * B2B: Relasi ke ClientQuota (saldo deposit perusahaan)
+     */
+    public function quota()
+    {
+        return $this->hasOne(ClientQuota::class);
+    }
+
+    /**
+     * B2B: Relasi ke QuotaLedger (history transaksi quota)
+     */
+    public function ledgers()
+    {
+        return $this->hasMany(QuotaLedger::class);
+    }
+
+    /**
      * Relationship to Appointments through User
      * Client can have many appointments through their user
      */

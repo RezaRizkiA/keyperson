@@ -59,6 +59,25 @@ class DashboardController extends Controller
             ]);
         }
 
+        // --- 3. LOGIKA UNTUK CLIENT/HRD (B2B) ---
+        if (in_array('client', $roles)) {
+            // Ambil client yang terhubung dengan user ini
+            $client = $user->client; // User yang mendaftarkan perusahaan (owner)
+
+            if (!$client) {
+                // Jika belum ada client, redirect ke onboarding
+                return redirect()->route('client_onboarding.create')
+                    ->with('info', 'Silakan lengkapi profil perusahaan Anda terlebih dahulu.');
+            }
+
+            $stats = $this->dashboardService->getClientStats($client->id);
+
+            return Inertia::render('Client/Dashboard/Index', [
+                'stats' => $stats,
+            ]);
+        }
+
+        // --- 4. DEFAULT: LOGIKA UNTUK USER BIASA ---
         $stats = $this->dashboardService->getUserStats($user->id);
 
         return Inertia::render('User/Dashboard/Index', [

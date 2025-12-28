@@ -12,6 +12,7 @@ use App\Http\Controllers\ExpertRegistrationController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TopUpController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +37,7 @@ Route::prefix('portal')->group(function () {
 });
 
 Route::get('/experts/{slug}', [ClientPortalController::class, 'show'])
-        ->name('experts.show');
+    ->name('experts.show');
 
 // Choose Path Page
 Route::get('/choose-path', [AuthController::class, 'choosePath'])->name('choose_path');
@@ -52,8 +53,6 @@ Route::get('/auth/google/calendar-connect', [AuthController::class, 'google_cale
 // Callback iPaymu (Luar auth group & csrf protected biasanya, tapi biarkan sesuai setup Anda)
 Route::post('payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
-
-
 Route::middleware('auth')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
@@ -67,7 +66,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AppointmentController::class, 'destroy'])->name('destroy');
         });
 
-
         Route::prefix('experts')->name('dashboard.experts.')->group(function () {
             Route::get('/', [ExpertController::class, 'index'])->name('index');
             Route::get('/{id}', [ExpertController::class, 'show'])->name('show');
@@ -75,7 +73,6 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}', [ExpertController::class, 'update'])->name('update');
             Route::delete('/{id}', [ExpertController::class, 'destroy'])->name('destroy');
         });
-
 
         Route::prefix('clients')->name('dashboard.clients.')->group(function () {
             Route::get('/', [ClientController::class, 'index'])->name('index');
@@ -85,7 +82,6 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [ClientController::class, 'destroy'])->name('destroy');
         });
 
-
         Route::prefix('users')->name('dashboard.users.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->name('index');
             Route::get('/{id}', [UserController::class, 'show'])->name('show');
@@ -94,81 +90,87 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
         });
 
-        
-
         Route::get('/transactions', [TransactionController::class, 'index'])->name('dashboard.transactions.index');
 
         Route::prefix('expertises')->name('dashboard.expertises.')->group(function () {
             Route::get('/', [ExpertiseController::class, 'index'])
-                  ->name('index');
+                ->name('index');
             Route::post('/categories', [ExpertiseController::class, 'storeCategory'])
-                  ->name('categories.store');
+                ->name('categories.store');
             Route::put('/categories/{id}', [ExpertiseController::class, 'updateCategory'])
-                  ->name('categories.update');
+                ->name('categories.update');
             Route::delete('/categories/{id}', [ExpertiseController::class, 'destroyCategory'])
-                  ->name('categories.destroy');
+                ->name('categories.destroy');
             Route::post('/sub-categories', [ExpertiseController::class, 'storeSubCategory'])
-                  ->name('sub-categories.store');
+                ->name('sub-categories.store');
             Route::put('/sub-categories/{id}', [ExpertiseController::class, 'updateSubCategory'])
-                  ->name('sub-categories.update');
+                ->name('sub-categories.update');
             Route::delete('/sub-categories/{id}', [ExpertiseController::class, 'destroySubCategory'])
-                  ->name('sub-categories.destroy');
+                ->name('sub-categories.destroy');
             Route::post('/skills', [ExpertiseController::class, 'storeSkill'])
-                  ->name('skills.store');
+                ->name('skills.store');
             Route::put('/skills/{id}', [ExpertiseController::class, 'updateSkill'])
-                  ->name('skills.update');
+                ->name('skills.update');
             Route::delete('/skills/{id}', [ExpertiseController::class, 'destroySkill'])
-                  ->name('skills.destroy');
+                ->name('skills.destroy');
         });
 
         Route::get('/settings', [ProfileController::class, 'edit'])
-              ->name('profile.edit');
+            ->name('profile.edit');
     });
 
-    Route::get('/booking/{expert}', [AppointmentController::class, 'create'])
-          ->name('booking.create');
+    Route::get('/booking/{slug}', [AppointmentController::class, 'create'])
+        ->name('booking.create');
     Route::post('/booking', [AppointmentController::class, 'store'])
-          ->name('booking.store');
+        ->name('booking.store');
 
     Route::get('/payment/{appointment}/checkout', [PaymentController::class, 'create'])
-          ->name('payment.create');
+        ->name('payment.create');
     Route::post('/payment/{appointment}/checkout', [PaymentController::class, 'store'])
-          ->name('payment.store');
+        ->name('payment.store');
     Route::get('/payment/transaction/{sid}', [PaymentController::class, 'transaction'])
-          ->name('payment.transaction');
+        ->name('payment.transaction');
     Route::post('/payment/notify', [PaymentController::class, 'notify'])
-          ->name('payment.notify');
+        ->name('payment.notify');
 
     Route::prefix('expert-onboarding')->group(function () {
         // Halaman Form Registrasi
         Route::get('/', [ExpertRegistrationController::class, 'create'])
-              ->name('expert_onboarding.create');
+            ->name('expert_onboarding.create');
 
         // Proses Simpan Data
         Route::post('/', [ExpertRegistrationController::class, 'store'])
-              ->name('expert_onboarding.store');
+            ->name('expert_onboarding.store');
     });
 
     Route::prefix('client-onboarding')->group(function () {
         // 1. Halaman Form Registrasi Client
         Route::get('/', [ClientRegistrationController::class, 'create'])
-              ->name('client_onboarding.create');
+            ->name('client_onboarding.create');
 
         // 2. Proses Simpan Data Client
         Route::post('/', [ClientRegistrationController::class, 'store'])
-              ->name('client_onboarding.store');
+            ->name('client_onboarding.store');
     });
 
+    // === B2B TOP-UP ROUTES ===
+    Route::prefix('topup')->name('topup.')->group(function () {
+        Route::get('/', [TopUpController::class, 'create'])->name('create');
+        Route::post('/', [TopUpController::class, 'store'])->name('store');
+        Route::get('/success', [TopUpController::class, 'success'])->name('success');
+        Route::get('/history', [TopUpController::class, 'history'])->name('history');
+    });
+    // === END B2B TOP-UP ===
 
     // Route ini bentrok secara konsep dengan 'profile.edit' di atas, tapi URL-nya beda jadi aman.
     Route::get('update-profile', [AuthController::class, 'settings'])
-          ->name('update_profile');
+        ->name('update_profile');
     Route::post('renew-picture', [AuthController::class, 'renew_picture'])
-          ->name('renew_picture');
+        ->name('renew_picture');
     Route::post('renew-password', [AuthController::class, 'renew_password'])
-          ->name('renew_password');
+        ->name('renew_password');
     Route::post('renew-profile', [AuthController::class, 'renew_profile'])
-          ->name('renew_profile');
+        ->name('renew_profile');
 
     // Route Dashboard LAMA (Controller LAMA)
     // Masih bisa diakses via URL /profile jika ada link lama yang mengarah ke sini

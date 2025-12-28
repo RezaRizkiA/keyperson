@@ -64,6 +64,23 @@ class ClientPortalController extends Controller
     public function show(string $slug)
     {
         $data = $this->portalService->getExpertDetail($slug);
+        
+        // Build back URL based on authenticated user's client
+        $user = auth()->user();
+        $backUrl = route('home'); // Default fallback
+        
+        if ($user && $user->client_id) {
+            // Get client slug for portal URL
+            $client = $user->company;
+            if ($client && $client->slug) {
+                $backUrl = route('client.home', $client->slug);
+            }
+        }
+        
+        $data['backUrl'] = $backUrl;
+        
+        // Capture skill_id from query param (passed from SkillExperts page)
+        $data['skillId'] = request('skill_id') ? (int) request('skill_id') : null;
 
         return Inertia::render('Client/Portal/ExpertDetail', $data);
     }

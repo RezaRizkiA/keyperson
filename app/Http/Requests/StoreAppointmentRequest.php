@@ -23,6 +23,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'expert_id' => 'required|exists:experts,id',
+            'skill_id'  => 'nullable|exists:skills,id', // Nullable for flexibility, but should be validated per flow
             'date_time' => 'required|date|after:now',
             'hours'     => 'required|integer|min:1|max:8',
             'topic'     => 'nullable|string|max:500',
@@ -39,6 +40,7 @@ class StoreAppointmentRequest extends FormRequest
     public function messages()
     {
         return [
+            'skill_id.exists' => 'Selected skill is not valid.',
             'guests.max' => 'You can only invite up to 5 colleagues.',
             'guests.*.email' => 'Please provide valid email addresses for your guests.',
         ];

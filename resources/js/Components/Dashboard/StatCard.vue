@@ -27,36 +27,38 @@ const props = defineProps({
 
 const iconBgColor = computed(() => {
     const colors = {
-        blue: "bg-blue-500/10",
-        violet: "bg-violet-500/10",
-        green: "bg-green-500/10",
-        orange: "bg-orange-500/10",
-        red: "bg-red-500/10",
+        blue: "bg-blue-50 dark:bg-blue-500/10",
+        violet: "bg-violet-50 dark:bg-violet-500/10",
+        green: "bg-emerald-50 dark:bg-green-500/10",
+        orange: "bg-orange-50 dark:bg-orange-500/10",
+        red: "bg-red-50 dark:bg-red-500/10",
     };
     return colors[props.iconColor] || colors.blue;
 });
 
 const iconTextColor = computed(() => {
     const colors = {
-        blue: "text-blue-400",
-        violet: "text-violet-400",
-        green: "text-green-400",
-        orange: "text-orange-400",
-        red: "text-red-400",
+        blue: "text-blue-600 dark:text-blue-400",
+        violet: "text-violet-600 dark:text-violet-400",
+        green: "text-emerald-600 dark:text-green-400",
+        orange: "text-orange-600 dark:text-orange-400",
+        red: "text-red-600 dark:text-red-400",
     };
     return colors[props.iconColor] || colors.blue;
 });
 
 const trendColor = computed(() => {
     if (!props.trend) return "";
-    return props.trend.startsWith("+") ? "text-green-400" : "text-red-400";
+    return props.trend.startsWith("+")
+        ? "text-green-500 dark:text-green-400"
+        : "text-red-500 dark:text-red-400";
 });
 
 const cardClasses = computed(() => {
     if (props.variant === "gradient") {
         return "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-blue-400/30";
     }
-    return "bg-slate-800/50 border-slate-700/50 hover:border-slate-600/50";
+    return "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600/50";
 });
 
 const isClickable = computed(() => props.to !== null);
@@ -83,7 +85,7 @@ const isClickable = computed(() => props.to !== null);
                     :class="
                         variant === 'gradient'
                             ? 'text-blue-100'
-                            : 'text-slate-400'
+                            : 'text-slate-500 dark:text-slate-400'
                     "
                 >
                     {{ label }}
@@ -112,7 +114,9 @@ const isClickable = computed(() => props.to !== null);
                 <h3
                     class="text-3xl font-bold leading-none"
                     :class="
-                        variant === 'gradient' ? 'text-white' : 'text-slate-100'
+                        variant === 'gradient'
+                            ? 'text-white'
+                            : 'text-slate-900 dark:text-slate-100'
                     "
                 >
                     {{ value }}
@@ -155,7 +159,7 @@ const isClickable = computed(() => props.to !== null);
                     :class="
                         variant === 'gradient'
                             ? 'text-blue-100'
-                            : 'text-slate-400'
+                            : 'text-slate-500 dark:text-slate-400'
                     "
                 >
                     {{ label }}
@@ -184,7 +188,9 @@ const isClickable = computed(() => props.to !== null);
                 <h3
                     class="text-3xl font-bold leading-none"
                     :class="
-                        variant === 'gradient' ? 'text-white' : 'text-slate-100'
+                        variant === 'gradient'
+                            ? 'text-white'
+                            : 'text-slate-900 dark:text-slate-100'
                     "
                 >
                     {{ value }}

@@ -2,28 +2,33 @@
 
 namespace App\Services;
 
-use App\Repositories\AppointmentRepository;
-use App\Services\GoogleCalendarService;
 use App\Mail\AppointmentConfirmed;
 use App\Mail\AppointmentStatusChanged;
 use App\Models\Expert;
+use App\Models\User;
+use App\Repositories\AppointmentRepository;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class AppointmentService
 {
     protected $repo;
+
     protected $calendarService;
+
+    protected $quotaService;
 
     public function __construct(
         AppointmentRepository $repo,
-        GoogleCalendarService $calendarService
+        GoogleCalendarService $calendarService,
+        QuotaService $quotaService
     ) {
         $this->repo = $repo;
         $this->calendarService = $calendarService;
+        $this->quotaService = $quotaService;
     }
 
     public function getAllForAdmin($perPage = 10)
@@ -44,7 +49,6 @@ class AppointmentService
     /**
      * Get appointments for calendar view without pagination
      *
-     * @param array $filters
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAppointmentsForCalendar(array $filters = [])
@@ -52,7 +56,7 @@ class AppointmentService
         // Use provided date range or default to current month
         $startDate = $filters['start_date'] ?? Carbon::now()->startOfMonth();
         $endDate = $filters['end_date'] ?? Carbon::now()->endOfMonth();
-        
+
         return $this->repo->getAppointmentsForDateRange(
             $startDate,
             $endDate,
@@ -82,7 +86,7 @@ class AppointmentService
         // role admin
         if (in_array('administrator', $userRoles)) {
             return $appointment;
-        };
+        }
 
         // role expert
         if ($appointment->expert && $appointment->expert->user_id === $user->id) {
@@ -118,7 +122,7 @@ class AppointmentService
                 $dateKey = $current->format('Y-m-d');
                 $timeKey = $current->format('H:i');
 
-                if (!isset($bookedSlots[$dateKey])) {
+                if (! isset($bookedSlots[$dateKey])) {
                     $bookedSlots[$dateKey] = [];
                 }
                 $bookedSlots[$dateKey][] = $timeKey;
@@ -137,8 +141,8 @@ class AppointmentService
             // Kita lock row expert ini agar tidak ada proses lain yang booking di detik yang sama
             $expert = Expert::lockForUpdate()->findOrFail($data['expert_id']);
 
-            // B. Hitung Start & End Time
-            $startDateTime = Carbon::createFromFormat('Y-m-d H:i', "{$data['date']} {$data['time']}");
+            // B. Hitung Start & End Time (date_time is combined: "YYYY-MM-DD HH:mm:ss")
+            $startDateTime = Carbon::parse($data['date_time']);
             $endDateTime = $startDateTime->copy()->addHours($data['hours']);
 
             // C. Cek Bentrok via Repository
@@ -146,29 +150,69 @@ class AppointmentService
                 throw new Exception('Maaf, slot waktu ini baru saja diambil orang lain.');
             }
 
-            // D. Hitung Harga (Security)
-            $totalPrice = $expert->price * $data['hours'];
+            // D. Hitung Harga (Per-Pax untuk Group Booking)
+            // Logic: totalPrice = expert.price * hours * (1 + jumlah_guests)
+            $bookingType = $data['type'] ?? 'individual';
+            $guests = ($bookingType === 'group' && ! empty($data['guests'])) ? $data['guests'] : [];
+            $guestsCount = is_array($guests) ? count($guests) : 0;
+
+            // Total participants = 1 (user yang booking) + guests
+            $totalPax = 1 + $guestsCount;
+            $totalPrice = $expert->price * $data['hours'] * $totalPax;
 
             // E. Siapkan Data Final
             $finalData = [
-                'user_id'       => $userId,
-                'expert_id'     => $expert->id,
-                'skill_id'      => $data['skill_id'] ?? null, // Opsional jika dari halaman skill
-                'date_time'     => $startDateTime,
-                'hours'         => $data['hours'],
-                'price'         => $totalPrice,
-                'topic'         => $data['topic'], // Dulu 'appointment', sekarang 'topic'
-                'type'          => $data['type'],  // Inputan baru (Individual/Group)
-                'guests'        => ($data['type'] === 'group') ? $data['guests'] : null,
-                'status'        => 'pending', // Atau 'need_confirmation'
+                'user_id' => $userId,
+                'expert_id' => $expert->id,
+                'skill_id' => $data['skill_id'] ?? null,
+                'date_time' => $startDateTime,
+                'hours' => $data['hours'],
+                'price' => $totalPrice,
+                'topic' => $data['topic'],
+                'type' => $bookingType,
+                'guests' => ($bookingType === 'group' && ! empty($guests)) ? $guests : null,
+                'status' => 'pending',
                 'payment_status' => 'pending',
             ];
+
+            // === B2B QUOTA CHECK ===
+            $user = User::with('company.quota')->findOrFail($userId);
+
+            // Cek apakah user adalah karyawan perusahaan (B2B)
+            $isCorporateBooking = $user->isCorporateMember() &&
+                                  $user->company &&
+                                  $user->company->quota;
+
+            if ($isCorporateBooking) {
+                // Simpan appointment dulu untuk mendapatkan ID
+                $appointment = $this->repo->create($finalData);
+
+                // Potong quota menggunakan QuotaService (dengan ledger logging)
+                $success = $this->quotaService->deductQuota(
+                    $user->company,
+                    $totalPrice,
+                    $appointment,
+                    $user
+                );
+
+                if (! $success) {
+                    throw new Exception('Kuota perusahaan tidak mencukupi. Silakan hubungi HRD.');
+                }
+
+                // Update status langsung confirmed (bypass payment)
+                $appointment->update([
+                    'status' => 'confirmed',
+                    'payment_status' => 'paid', // via corporate quota
+                ]);
+
+                return $appointment;
+            }
+            // === END B2B LOGIC ===
 
             // F. Simpan
             return $this->repo->create($finalData);
         });
     }
-
 
     /**
      * Handle Update Status Appointment
@@ -183,9 +227,9 @@ class AppointmentService
         // Kita butuh tau siapa yang melakukan aksi ini untuk kirim email ke "lawan bicara"
         $isExpert = optional($appointment->expert)->user_id === $user->id;
         $isClient = $appointment->user_id === $user->id;
-        $isAdmin  = $user->hasRole('administrator'); // Asumsi ada logic role check
+        $isAdmin = $user->hasRole('administrator'); // Asumsi ada logic role check
 
-        if (!$isExpert && !$isClient && !$isAdmin) {
+        if (! $isExpert && ! $isClient && ! $isAdmin) {
             throw new Exception('You are not authorized to update this appointment.', 403);
         }
 
@@ -205,7 +249,7 @@ class AppointmentService
     private function handlePostUpdateActions($appointment, $status, $isActorExpert)
     {
         // Jika tidak ada event ID, skip calendar sync
-        if (!$appointment->google_calendar_event_id) {
+        if (! $appointment->google_calendar_event_id) {
             return;
         }
 
@@ -227,6 +271,17 @@ class AppointmentService
                     break;
 
                 case 'declined': // Cancelled
+                    // === B2B REFUND: Kembalikan quota jika booking menggunakan quota perusahaan ===
+                    if ($appointment->payment_status === 'paid' && $clientUser->isCorporateMember()) {
+                        $this->quotaService->refundQuota(
+                            $clientUser->company,
+                            $appointment->price,
+                            $appointment,
+                            Auth::user() // User yang membatalkan
+                        );
+                    }
+                    // === END B2B REFUND ===
+
                     // Hapus dari Calendar
                     $this->calendarService->deleteEvent($clientUser, $appointment->google_calendar_event_id);
 
@@ -248,7 +303,7 @@ class AppointmentService
         } catch (Exception $e) {
             // Log error tapi jangan gagalkan proses update status utama
             // Atau throw exception jika ingin controller tau ada error calendar
-            throw new Exception('Status updated, but Google Calendar sync failed: ' . $e->getMessage());
+            throw new Exception('Status updated, but Google Calendar sync failed: '.$e->getMessage());
         }
     }
 }

@@ -1,55 +1,129 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { DatePicker } from 'v-calendar';
-import 'v-calendar/style.css';
-import { 
-    User, Users, ArrowRight, ArrowLeft, 
-    Calendar as IconCalendar, Clock, Plus, Trash2,
-    CheckCircle2, AlertCircle
-} from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { Head, useForm, Link, usePage } from "@inertiajs/vue3";
+import { DatePicker } from "v-calendar";
+import "v-calendar/style.css";
+import {
+    User,
+    Users,
+    ArrowRight,
+    ArrowLeft,
+    Calendar as CalendarIcon,
+    Clock,
+    Plus,
+    Minus,
+    Trash2,
+    CheckCircle2,
+    AlertCircle,
+    CreditCard,
+    MessageSquare,
+    Info,
+} from "lucide-vue-next";
 
-defineOptions({ layout: DashboardLayout });
+const page = usePage();
+const assets = computed(() => page.props.assets);
 
 const props = defineProps({
     expert: Object,
-    bookedSlots: Object, // Data slot sibuk dari backend
+    bookedSlots: Object,
     backUrl: String,
+    skillId: {
+        type: Number,
+        default: null,
+    },
 });
 
 // --- STATE MANAGEMENT ---
-const step = ref(1); // 1 = Selection, 2 = Booking Form
-const selectedDate = ref(null);
+// Step: 0 = Skill Selection (if needed), 1 = Type Selection, 2 = Schedule
+const needsSkillSelection = computed(
+    () => !props.skillId && props.expert.skills?.length > 1
+);
+const step = ref(needsSkillSelection.value ? 0 : 1);
 
-// Form Utama (Inertia)
-const form = useForm({
-    expert_id: props.expert.id,
-    type: 'individual', // 'individual' or 'group'
-    date: '',
-    time: '',
-    hours: 1,
-    topic: '',
-    guests: [], // Array email untuk group
+const dateModel = ref(null);
+const isDark = ref(true); // Always dark for this page
+
+// Min date = H+1 (tomorrow)
+const minDate = computed(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    return tomorrow;
 });
 
-// --- LOGIC STEP 1: SELECTION ---
-const selectType = (type) => {
-    form.type = type;
-    // Reset guests jika pindah ke individual
-    if (type === 'individual') {
-        form.guests = [];
-    } else {
-        // Jika group, minimal sediakan 1 input kosong
-        if (form.guests.length === 0) addGuest(); 
-    }
-    step.value = 2; // Lanjut ke step 2
+// Selected skill for display
+const selectedSkill = ref(
+    props.skillId
+        ? props.expert.skills?.find((s) => s.id === props.skillId) || null
+        : props.expert.skills?.length === 1
+        ? props.expert.skills[0]
+        : null
+);
+
+// Form Utama (Inertia) - uses date_time (combined) for backend validation
+const form = useForm({
+    expert_id: props.expert.id,
+    skill_id:
+        props.skillId ||
+        (props.expert.skills?.length === 1 ? props.expert.skills[0].id : null),
+    type: "individual",
+    date_time: "", // Combined datetime string: "YYYY-MM-DD HH:mm"
+    hours: 1,
+    topic: "",
+    guests: [],
+});
+
+// UI state for separate date/time selection
+const selectedDate = ref("");
+const selectedTime = ref("");
+
+// --- PRICE CALCULATION ---
+const pricePerHour = computed(() => props.expert.price || 0);
+
+const totalParticipants = computed(() => {
+    return (
+        1 +
+        (form.type === "group"
+            ? form.guests.filter((g) => g.trim() !== "").length
+            : 0)
+    );
+});
+
+const totalPrice = computed(() => {
+    return pricePerHour.value * form.hours * totalParticipants.value;
+});
+
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(amount || 0);
 };
 
-// --- LOGIC STEP 2: GUEST MANAGEMENT (Dynamic Input) ---
+// --- LOGIC STEP 0: SKILL SELECTION ---
+const selectSkill = (skill) => {
+    form.skill_id = skill.id;
+    selectedSkill.value = skill;
+    step.value = 1; // Go to type selection
+};
+
+// --- LOGIC STEP 1: TYPE SELECTION ---
+const selectType = (type) => {
+    form.type = type;
+    if (type === "individual") {
+        form.guests = [];
+    } else {
+        if (form.guests.length === 0) addGuest();
+    }
+    step.value = 2;
+};
+
+// --- LOGIC STEP 2: GUEST MANAGEMENT ---
 const addGuest = () => {
     if (form.guests.length < 5) {
-        form.guests.push(''); // Push string kosong untuk email
+        form.guests.push("");
     }
 };
 
@@ -58,225 +132,750 @@ const removeGuest = (index) => {
 };
 
 // --- LOGIC CALENDAR & TIME SLOTS ---
-// Format Date ke YYYY-MM-DD untuk form
-watch(selectedDate, (val) => {
+
+// Helper to combine date + time into date_time string
+const updateDateTime = () => {
+    if (selectedDate.value && selectedTime.value) {
+        form.date_time = `${selectedDate.value} ${selectedTime.value}:00`;
+    }
+};
+
+watch(dateModel, (val) => {
     if (val) {
         const year = val.getFullYear();
-        const month = String(val.getMonth() + 1).padStart(2, '0');
-        const day = String(val.getDate()).padStart(2, '0');
-        form.date = `${year}-${month}-${day}`;
-        form.time = ''; // Reset jam jika ganti tanggal
+        const month = String(val.getMonth() + 1).padStart(2, "0");
+        const day = String(val.getDate()).padStart(2, "0");
+        selectedDate.value = `${year}-${month}-${day}`;
+        selectedTime.value = ""; // Reset time when date changes
+        form.date_time = ""; // Clear combined datetime
     }
 });
 
-// Generate Time Slots (09:00 - 17:00)
-const timeSlots = computed(() => {
+// Available Time Slots with busy check
+const availableTimeSlots = computed(() => {
     const slots = [];
-    if (!form.date) return slots;
+    if (!selectedDate.value) return slots;
 
-    // Cek slot yang sudah dibooking dari props backend
-    const busyTimes = props.bookedSlots[form.date] || [];
+    const busyTimes = props.bookedSlots[selectedDate.value] || [];
 
     for (let i = 9; i < 17; i++) {
-        const hour = String(i).padStart(2, '0');
+        const hour = String(i).padStart(2, "0");
         const time = `${hour}:00`;
-        
-        // Cek ketersediaan
-        // Logic sederhana: jika jam X ada di busyTimes, disable.
-        // (Logic detail durasi 2 jam dst sudah dihandle backend conflict check,
-        // di sini kita visualisasi slot awal saja)
-        const isBusy = busyTimes.includes(time);
-        
-        slots.push({ time, isBusy });
+        const isAvailable = !busyTimes.includes(time);
+        slots.push({ time, isAvailable });
     }
     return slots;
 });
 
+const selectTime = (slot) => {
+    if (slot.isAvailable) {
+        selectedTime.value = slot.time;
+        updateDateTime();
+    }
+};
+
+const updateHours = (delta) => {
+    const newVal = form.hours + delta;
+    if (newVal >= 1 && newVal <= 8) {
+        form.hours = newVal;
+    }
+};
+
 // --- SUBMIT ---
 const submit = () => {
-    form.post(route('booking.store'), {
+    form.post(route("booking.store"), {
         preserveScroll: true,
-        onError: () => {
-            // Jika ada error validasi backend, user tetap di step 2
-        }
+        onError: (errors) => {
+            console.error("Form errors:", errors);
+        },
     });
 };
+
+const currentYear = new Date().getFullYear();
 </script>
 
 <template>
-    <Head title="Book Appointment" />
+    <Head :title="`Book ${expert.user?.name}`" />
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        
-        <div class="flex items-center gap-4 mb-8">
-            <button v-if="step === 2" @click="step = 1" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <ArrowLeft class="w-6 h-6 text-slate-500" />
-            </button>
-            <Link v-else :href="backUrl" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                <ArrowLeft class="w-6 h-6 text-slate-500" />
+    <div
+        class="min-h-screen bg-page-gradient text-foreground font-sans flex flex-col"
+    >
+        <!-- Navbar -->
+        <nav class="w-full px-6 py-4 flex items-center justify-between">
+            <Link :href="route('home')" class="flex items-center gap-2 group">
+                <img
+                    :src="assets?.logoSmallUrl"
+                    class="h-9 w-auto transition-transform group-hover:scale-105"
+                    alt="Logo"
+                />
+                <span
+                    class="font-display font-bold text-xl tracking-tight text-white"
+                >
+                    Key<span class="text-blue-400">Person</span>
+                </span>
             </Link>
-            
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900">
-                    {{ step === 1 ? 'Select Session Type' : 'Finalize Booking' }}
-                </h1>
-                <p class="text-slate-500 text-sm">Booking with <span class="font-bold text-violet-600">{{ expert.user.name }}</span></p>
-            </div>
-        </div>
 
-        <div v-if="step === 1" class="grid md:grid-cols-2 gap-6">
-            
-            <button @click="selectType('individual')" 
-                class="group relative overflow-hidden bg-white p-8 rounded-3xl border-2 border-slate-100 hover:border-violet-500 hover:shadow-xl transition-all duration-300 text-left">
-                <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <User class="w-32 h-32 text-violet-600" />
+            <Link
+                :href="route('dashboard.index')"
+                class="px-5 py-2.5 rounded-lg bg-slate-800/50 border border-slate-700 text-sm font-medium text-white hover:bg-slate-700/50 hover:border-blue-500/50 transition-all"
+            >
+                Dashboard
+            </Link>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 px-6 py-8">
+            <div class="max-w-6xl mx-auto">
+                <!-- Back Link (Step 0 and 1 only) -->
+                <div v-if="step === 0 || step === 1" class="mb-8">
+                    <Link
+                        :href="backUrl || route('experts.show', expert.slug)"
+                        class="inline-flex items-center text-sm font-bold text-slate-400 hover:text-violet-400 transition-colors"
+                    >
+                        <ArrowLeft class="w-4 h-4 mr-2" /> Back to Expert
+                    </Link>
                 </div>
-                
-                <div class="relative z-10">
-                    <div class="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <User class="w-7 h-7 text-violet-600" />
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Personal Session</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        One-on-one consultation focused on your personal growth, career path, or specific technical skills.
+
+                <!-- Step 0: Skill Selection (when skill_id not provided) -->
+                <div v-if="step === 0" class="text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                        <span class="italic">Select a</span> skill
+                    </h1>
+                    <p class="text-slate-400 text-lg mb-12 max-w-xl mx-auto">
+                        Choose the expertise area you want to consult with
+                        <span class="text-violet-400 font-bold">{{
+                            expert.user?.name
+                        }}</span>
                     </p>
-                    <span class="inline-flex items-center gap-2 text-sm font-bold text-violet-600 group-hover:translate-x-1 transition-transform">
-                        Select Personal <ArrowRight class="w-4 h-4" />
-                    </span>
-                </div>
-            </button>
 
-            <button @click="selectType('group')" 
-                class="group relative overflow-hidden bg-white p-8 rounded-3xl border-2 border-slate-100 hover:border-blue-500 hover:shadow-xl transition-all duration-300 text-left">
-                <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Users class="w-32 h-32 text-blue-600" />
-                </div>
-                
-                <div class="relative z-10">
-                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <Users class="w-7 h-7 text-blue-600" />
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-2">Team Session</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed mb-6">
-                        Invite up to 5 colleagues. Perfect for team conflict resolution, brainstorming, or group training.
-                    </p>
-                    <span class="inline-flex items-center gap-2 text-sm font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
-                        Select Team <ArrowRight class="w-4 h-4" />
-                    </span>
-                </div>
-            </button>
-        </div>
-
-        <div v-if="step === 2" class="grid lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">1. Pick a Date</label>
-                    <div class="flex justify-center">
-                        <DatePicker 
-                            v-model="selectedDate" 
-                            mode="date" 
-                            :min-date="new Date()"
-                            color="violet"
-                            borderless
-                            transparent
-                            class="w-full"
-                        />
-                    </div>
-                </div>
-
-                <div v-if="form.date" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">2. Pick a Time</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button v-for="slot in timeSlots" :key="slot.time"
-                            @click="!slot.isBusy && (form.time = slot.time)"
-                            :disabled="slot.isBusy"
-                            :class="[
-                                'py-2 px-3 rounded-xl text-sm font-bold border transition-all',
-                                slot.isBusy 
-                                    ? 'bg-slate-50 text-slate-300 border-transparent cursor-not-allowed line-through' 
-                                    : form.time === slot.time
-                                        ? 'bg-violet-600 text-white border-violet-600 shadow-md'
-                                        : 'bg-white text-slate-700 border-slate-200 hover:border-violet-300 hover:bg-violet-50'
-                            ]"
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto"
+                    >
+                        <button
+                            v-for="skill in expert.skills"
+                            :key="skill.id"
+                            @click="selectSkill(skill)"
+                            class="group relative rounded-2xl overflow-hidden bg-slate-900/30 border border-slate-700/50 hover:border-cyan-500/50 transition-all duration-300 text-left p-6"
                         >
-                            {{ slot.time }}
+                            <div
+                                class="w-12 h-12 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center mb-4"
+                            >
+                                <span class="text-2xl">🎯</span>
+                            </div>
+                            <h3
+                                class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors"
+                            >
+                                {{ skill.name }}
+                            </h3>
+                            <span
+                                class="inline-flex items-center gap-2 text-sm font-bold text-slate-400 group-hover:text-cyan-400 transition-colors"
+                            >
+                                Select <ArrowRight class="w-4 h-4" />
+                            </span>
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="lg:col-span-2">
-                <form @submit.prevent="submit" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                    
-                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="p-2 bg-white rounded-lg shadow-sm">
-                            <User v-if="form.type === 'individual'" class="w-5 h-5 text-violet-600" />
-                            <Users v-else class="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase">Session Type</p>
-                            <p class="text-sm font-bold text-slate-900 capitalize">{{ form.type }} Session</p>
-                        </div>
-                        <button type="button" @click="step = 1" class="ml-auto text-xs text-violet-600 font-bold hover:underline">Change</button>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Topic / Discussion Focus</label>
-                        <textarea v-model="form.topic" rows="3" class="w-full rounded-xl border-slate-200 focus:ring-violet-500 focus:border-violet-500 text-sm" placeholder="What would you like to discuss?"></textarea>
-                        <p v-if="form.errors.topic" class="text-red-500 text-xs mt-1">{{ form.errors.topic }}</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">Duration (Hours)</label>
-                        <select v-model="form.hours" class="w-full rounded-xl border-slate-200 focus:ring-violet-500 focus:border-violet-500 text-sm">
-                            <option :value="1">1 Hour</option>
-                            <option :value="2">2 Hours</option>
-                            <option :value="3">3 Hours</option>
-                        </select>
-                    </div>
-
-                    <div v-if="form.type === 'group'" class="space-y-3 pt-4 border-t border-slate-100">
-                        <div class="flex justify-between items-center">
-                            <label class="block text-sm font-bold text-slate-700">Invite Colleagues</label>
-                            <span class="text-xs text-slate-400">{{ form.guests.length }}/5 Guests</span>
-                        </div>
-                        
-                        <div v-for="(guest, index) in form.guests" :key="index" class="flex gap-2">
-                            <input type="email" v-model="form.guests[index]" placeholder="colleague@company.com" 
-                                class="flex-1 rounded-xl border-slate-200 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                            <button type="button" @click="removeGuest(index)" class="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                                <Trash2 class="w-5 h-5" />
+                <!-- Step 1: Type Selection -->
+                <div v-if="step === 1" class="text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+                        <span class="italic">Select session</span> type
+                    </h1>
+                    <p class="text-slate-400 text-lg mb-4 max-w-xl mx-auto">
+                        Book with
+                        <span class="text-violet-400 font-bold">{{
+                            expert.user?.name
+                        }}</span>
+                        · {{ formatCurrency(pricePerHour) }}/hour
+                    </p>
+                    <!-- Show selected skill badge -->
+                    <div v-if="selectedSkill" class="mb-12">
+                        <span
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-sm text-cyan-400"
+                        >
+                            🎯 {{ selectedSkill.name }}
+                            <button
+                                v-if="needsSkillSelection"
+                                @click="step = 0"
+                                class="ml-1 hover:text-white"
+                            >
+                                ✕
                             </button>
-                        </div>
+                        </span>
+                    </div>
 
-                        <button v-if="form.guests.length < 5" type="button" @click="addGuest" 
-                            class="text-sm font-bold text-blue-600 flex items-center gap-2 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors">
-                            <Plus class="w-4 h-4" /> Add Another Guest
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto"
+                    >
+                        <!-- Personal Session Card -->
+                        <button
+                            @click="selectType('individual')"
+                            class="group relative rounded-2xl overflow-hidden bg-slate-900/30 border border-slate-700/50 hover:border-violet-500/50 transition-all duration-300 text-left p-8"
+                        >
+                            <div
+                                class="w-14 h-14 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center mb-6"
+                            >
+                                <User class="w-7 h-7 text-violet-400" />
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">
+                                Personal Session
+                            </h3>
+                            <p
+                                class="text-slate-400 text-sm leading-relaxed mb-6"
+                            >
+                                One-on-one consultation for personal growth,
+                                career advice, or skill development.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-violet-400"
+                                    >{{
+                                        formatCurrency(pricePerHour)
+                                    }}/jam</span
+                                >
+                                <span
+                                    class="inline-flex items-center gap-2 text-sm font-bold text-slate-400 group-hover:text-violet-400 transition-colors"
+                                >
+                                    Select
+                                    <ArrowRight class="w-4 h-4" />
+                                </span>
+                            </div>
                         </button>
-                        
-                        <div class="flex gap-2 mt-2 p-3 bg-blue-50 text-blue-700 text-xs rounded-xl">
-                            <AlertCircle class="w-4 h-4 shrink-0" />
-                            <p>Guests will receive an email invitation and Google Calendar event.</p>
-                        </div>
-                        
-                        <div v-if="form.errors.guests" class="text-red-500 text-xs">{{ form.errors.guests }}</div>
-                        <div v-for="(error, key) in form.errors" :key="key">
-                            <p v-if="key.includes('guests.')" class="text-red-500 text-xs">{{ error }}</p>
+
+                        <!-- Team Session Card -->
+                        <button
+                            @click="selectType('group')"
+                            class="group relative rounded-2xl overflow-hidden bg-slate-900/30 border border-slate-700/50 hover:border-blue-500/50 transition-all duration-300 text-left p-8"
+                        >
+                            <div
+                                class="w-14 h-14 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-6"
+                            >
+                                <Users class="w-7 h-7 text-blue-400" />
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-3">
+                                Team Session
+                            </h3>
+                            <p
+                                class="text-slate-400 text-sm leading-relaxed mb-6"
+                            >
+                                Invite up to 5 colleagues for team training,
+                                workshops, or group consultation.
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-blue-400"
+                                    >{{
+                                        formatCurrency(pricePerHour)
+                                    }}/jam/orang</span
+                                >
+                                <span
+                                    class="inline-flex items-center gap-2 text-sm font-bold text-slate-400 group-hover:text-blue-400 transition-colors"
+                                >
+                                    Select
+                                    <ArrowRight class="w-4 h-4" />
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Schedule Selection -->
+                <div
+                    v-if="step === 2"
+                    class="grid lg:grid-cols-12 gap-8 items-start"
+                >
+                    <div class="lg:col-span-7">
+                        <div
+                            class="bg-slate-900/50 backdrop-blur-sm rounded-[2rem] p-6 md:p-8 border border-slate-700/50"
+                        >
+                            <!-- Header with back button -->
+                            <div class="flex items-center gap-4 mb-8">
+                                <button
+                                    @click="step = 1"
+                                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                                >
+                                    <ArrowLeft class="w-5 h-5" />
+                                </button>
+                                <h2
+                                    class="font-display text-2xl font-bold text-white flex items-center gap-3"
+                                >
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400"
+                                    >
+                                        <CalendarIcon class="w-5 h-5" />
+                                    </div>
+                                    Select Schedule
+                                </h2>
+                            </div>
+
+                            <form
+                                @submit.prevent="submit"
+                                id="appointmentForm"
+                                class="space-y-8"
+                            >
+                                <div class="grid md:grid-cols-2 gap-8">
+                                    <!-- Date Picker -->
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1"
+                                            >1. Pick a Date</label
+                                        >
+                                        <div
+                                            class="border border-slate-700 rounded-2xl overflow-hidden p-4 bg-slate-800/50 flex justify-center"
+                                        >
+                                            <DatePicker
+                                                v-model="dateModel"
+                                                mode="date"
+                                                :min-date="minDate"
+                                                color="purple"
+                                                borderless
+                                                transparent
+                                                :is-dark="isDark"
+                                                class="font-sans w-full"
+                                            />
+                                        </div>
+                                        <p
+                                            v-if="form.errors.date_time"
+                                            class="text-red-400 text-xs mt-1 ml-1"
+                                        >
+                                            {{ form.errors.date_time }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Time Slots -->
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-xs font-bold text-slate-400 uppercase tracking-wider ml-1"
+                                            >2. Pick a Time</label
+                                        >
+
+                                        <div
+                                            v-if="selectedDate"
+                                            class="grid grid-cols-2 gap-3 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar"
+                                        >
+                                            <button
+                                                v-for="slot in availableTimeSlots"
+                                                :key="slot.time"
+                                                type="button"
+                                                @click="selectTime(slot)"
+                                                :disabled="!slot.isAvailable"
+                                                :class="[
+                                                    'py-3 px-4 rounded-xl text-sm font-bold border transition-all duration-200 flex items-center justify-between group',
+                                                    !slot.isAvailable
+                                                        ? 'bg-slate-800 border-transparent text-slate-600 cursor-not-allowed line-through opacity-60'
+                                                        : selectedTime ===
+                                                          slot.time
+                                                        ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-500/30'
+                                                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-violet-500/50 hover:bg-slate-700',
+                                                ]"
+                                            >
+                                                <span>{{ slot.time }}</span>
+                                                <span
+                                                    v-if="!slot.isAvailable"
+                                                    class="text-[10px] uppercase font-normal"
+                                                    >Booked</span
+                                                >
+                                                <CheckCircle2
+                                                    v-else-if="
+                                                        selectedTime ===
+                                                        slot.time
+                                                    "
+                                                    class="w-4 h-4"
+                                                />
+                                            </button>
+                                        </div>
+
+                                        <div
+                                            v-else
+                                            class="h-[320px] flex items-center justify-center border border-dashed border-slate-700 rounded-2xl"
+                                        >
+                                            <p class="text-slate-500 text-sm">
+                                                Select a date first
+                                            </p>
+                                        </div>
+
+                                        <p
+                                            v-if="
+                                                form.errors.date_time &&
+                                                !selectedDate
+                                            "
+                                            class="text-red-400 text-xs mt-1 ml-1"
+                                        >
+                                            Please select a time
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Topic -->
+                                <div>
+                                    <label
+                                        class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1"
+                                        >3. Topic Discussion</label
+                                    >
+                                    <div class="relative">
+                                        <MessageSquare
+                                            class="absolute top-4 left-4 w-5 h-5 text-slate-500"
+                                        />
+                                        <textarea
+                                            v-model="form.topic"
+                                            rows="3"
+                                            required
+                                            placeholder="Briefly describe what you want to discuss..."
+                                            class="block w-full pl-12 py-3.5 bg-slate-800 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:bg-slate-700 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all text-sm resize-none"
+                                        ></textarea>
+                                    </div>
+                                    <p
+                                        v-if="form.errors.topic"
+                                        class="text-red-400 text-xs mt-1 ml-1"
+                                    >
+                                        {{ form.errors.topic }}
+                                    </p>
+                                </div>
+
+                                <!-- Guest Management (Group Only) -->
+                                <div
+                                    v-if="form.type === 'group'"
+                                    class="space-y-4 pt-4 border-t border-slate-700"
+                                >
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                        <label
+                                            class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+                                            >4. Invite Colleagues</label
+                                        >
+                                        <span class="text-xs text-slate-500"
+                                            >{{ form.guests.length }}/5
+                                            Guests</span
+                                        >
+                                    </div>
+
+                                    <div
+                                        v-for="(guest, index) in form.guests"
+                                        :key="index"
+                                        class="flex gap-2"
+                                    >
+                                        <input
+                                            type="email"
+                                            v-model="form.guests[index]"
+                                            placeholder="colleague@company.com"
+                                            class="flex-1 rounded-xl border-slate-700 bg-slate-800 text-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            @click="removeGuest(index)"
+                                            class="p-2.5 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                                        >
+                                            <Trash2 class="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        v-if="form.guests.length < 5"
+                                        type="button"
+                                        @click="addGuest"
+                                        class="text-sm font-bold text-blue-400 flex items-center gap-2 hover:bg-blue-500/10 px-3 py-2 rounded-lg transition-colors"
+                                    >
+                                        <Plus class="w-4 h-4" /> Add Another
+                                        Guest
+                                    </button>
+
+                                    <div
+                                        class="flex gap-2 p-3 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs rounded-xl"
+                                    >
+                                        <AlertCircle class="w-4 h-4 shrink-0" />
+                                        <p>
+                                            Guests will receive email invitation
+                                            and Google Calendar event.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Info Note -->
+                                <div
+                                    class="p-4 bg-slate-800/50 border border-slate-700 rounded-2xl flex gap-3 text-slate-400 text-xs leading-relaxed items-start"
+                                >
+                                    <AlertCircle
+                                        class="w-5 h-5 shrink-0 mt-0.5"
+                                    />
+                                    <span>
+                                        <strong class="text-slate-300"
+                                            >Note:</strong
+                                        >
+                                        Times are displayed in WIB (UTC+7).
+                                        Appointments can only be made H+1
+                                        (tomorrow or later).
+                                    </span>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
-                    <div class="pt-6">
-                        <button type="submit" :disabled="form.processing || !form.date || !form.time" 
-                            class="w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                            :class="form.type === 'individual' ? 'bg-violet-600 hover:bg-violet-700 shadow-violet-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'">
-                            <span v-if="form.processing">Processing...</span>
-                            <span v-else>Confirm {{ form.type === 'individual' ? 'Booking' : 'Team Session' }}</span>
-                        </button>
-                    </div>
+                    <!-- Booking Summary Sidebar -->
+                    <div class="lg:col-span-5 sticky top-28">
+                        <div
+                            class="bg-slate-900/50 backdrop-blur-sm rounded-[2rem] p-8 border border-slate-700/50"
+                        >
+                            <h3
+                                class="font-display text-lg font-bold text-white mb-6"
+                            >
+                                Booking Summary
+                            </h3>
 
-                </form>
+                            <!-- Expert Info -->
+                            <div
+                                class="flex items-center gap-4 mb-6 pb-6 border-b border-slate-700"
+                            >
+                                <div
+                                    class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden"
+                                >
+                                    <img
+                                        v-if="expert.user?.picture"
+                                        :src="expert.user.picture"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <span
+                                        v-else
+                                        class="text-2xl font-bold text-violet-400"
+                                    >
+                                        {{ expert.user?.name?.charAt(0) }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white">
+                                        {{ expert.user?.name }}
+                                    </h4>
+                                    <p
+                                        class="text-xs font-bold text-violet-400 bg-violet-500/10 px-2 py-0.5 rounded inline-block mt-1"
+                                    >
+                                        {{ expert.title }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Session Type Badge -->
+                            <div
+                                class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700 mb-4"
+                            >
+                                <div
+                                    class="w-8 h-8 rounded-full flex items-center justify-center"
+                                    :class="
+                                        form.type === 'individual'
+                                            ? 'bg-violet-500/20 text-violet-400'
+                                            : 'bg-blue-500/20 text-blue-400'
+                                    "
+                                >
+                                    <User
+                                        v-if="form.type === 'individual'"
+                                        class="w-4 h-4"
+                                    />
+                                    <Users v-else class="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-xs text-slate-500 uppercase font-bold"
+                                    >
+                                        Session
+                                    </p>
+                                    <p
+                                        class="text-sm font-bold text-white capitalize"
+                                    >
+                                        {{ form.type }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Date & Time Summary -->
+                            <div class="space-y-3 mb-6">
+                                <div
+                                    class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-slate-700"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-400"
+                                        >
+                                            <CalendarIcon class="w-4 h-4" />
+                                        </div>
+                                        <div class="text-sm">
+                                            <p
+                                                class="text-xs text-slate-500 font-bold uppercase"
+                                            >
+                                                Date
+                                            </p>
+                                            <p class="font-bold text-white">
+                                                {{
+                                                    selectedDate
+                                                        ? new Date(
+                                                              selectedDate
+                                                          ).toLocaleDateString(
+                                                              "id-ID",
+                                                              {
+                                                                  weekday:
+                                                                      "long",
+                                                                  day: "numeric",
+                                                                  month: "long",
+                                                              }
+                                                          )
+                                                        : "-"
+                                                }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-slate-700"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-400"
+                                        >
+                                            <Clock class="w-4 h-4" />
+                                        </div>
+                                        <div class="text-sm">
+                                            <p
+                                                class="text-xs text-slate-500 font-bold uppercase"
+                                            >
+                                                Time
+                                            </p>
+                                            <p class="font-bold text-white">
+                                                {{ selectedTime || "-" }} WIB
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Duration Control -->
+                            <div class="flex items-center justify-between mb-6">
+                                <span class="text-sm font-medium text-slate-400"
+                                    >Duration</span
+                                >
+                                <div
+                                    class="flex items-center bg-slate-800 rounded-xl border border-slate-700 p-1"
+                                >
+                                    <button
+                                        @click="updateHours(-1)"
+                                        :disabled="form.hours <= 1"
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-700 disabled:opacity-50 hover:text-violet-400 text-slate-300 transition-colors"
+                                    >
+                                        <Minus class="w-4 h-4" />
+                                    </button>
+                                    <span
+                                        class="w-10 text-center font-bold text-white text-sm"
+                                        >{{ form.hours }}h</span
+                                    >
+                                    <button
+                                        @click="updateHours(1)"
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-700 hover:text-violet-400 text-slate-300 transition-colors"
+                                    >
+                                        <Plus class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Participants (Group) -->
+                            <div
+                                v-if="form.type === 'group'"
+                                class="flex items-center justify-between mb-6"
+                            >
+                                <span class="text-sm font-medium text-slate-400"
+                                    >Participants</span
+                                >
+                                <span class="font-bold text-white"
+                                    >{{ totalParticipants }} orang</span
+                                >
+                            </div>
+
+                            <!-- Total Price -->
+                            <div
+                                class="flex justify-between items-center mb-8 pt-6 border-t border-dashed border-slate-700"
+                            >
+                                <span class="text-base font-bold text-white"
+                                    >Total Payment</span
+                                >
+                                <span
+                                    class="text-2xl font-display font-bold text-violet-400"
+                                    >{{ formatCurrency(totalPrice) }}</span
+                                >
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button
+                                type="submit"
+                                form="appointmentForm"
+                                :disabled="form.processing || !form.date_time"
+                                class="w-full py-4 bg-violet-600 text-white rounded-xl font-bold text-base hover:bg-violet-500 transition-all shadow-lg shadow-violet-500/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                <span
+                                    v-if="form.processing"
+                                    class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"
+                                ></span>
+                                <CreditCard v-else class="w-5 h-5" />
+                                {{
+                                    form.processing
+                                        ? "Processing..."
+                                        : "Proceed to Payment"
+                                }}
+                            </button>
+
+                            <!-- Cancel Booking Link -->
+                            <Link
+                                :href="
+                                    backUrl ||
+                                    route('experts.show', expert.slug)
+                                "
+                                class="w-full mt-3 py-3 text-center text-sm font-medium text-slate-400 hover:text-red-400 transition-colors block"
+                            >
+                                Cancel Booking
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full px-6 py-6 border-t border-slate-800/50">
+            <div
+                class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"
+            >
+                <p class="text-sm text-slate-500">
+                    © {{ currentYear }} KeyPerson Inc. All rights reserved.
+                </p>
+                <div class="flex items-center gap-6 text-sm text-slate-500">
+                    <Link
+                        :href="route('support')"
+                        class="hover:text-white transition-colors"
+                        >Help Center</Link
+                    >
+                    <Link
+                        :href="route('privacy')"
+                        class="hover:text-white transition-colors"
+                        >Privacy Policy</Link
+                    >
+                    <Link
+                        :href="route('terms')"
+                        class="hover:text-white transition-colors"
+                        >Terms</Link
+                    >
+                </div>
+            </div>
+        </footer>
     </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+</style>
