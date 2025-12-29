@@ -50,9 +50,9 @@
                             <!-- Client Info -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
-                                    <div class="flex-shrink-0">
+                                    <div class="shrink-0">
                                         <div
-                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm"
+                                            class="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm"
                                         >
                                             {{
                                                 appointment.client_name
@@ -74,7 +74,7 @@
                                         </div>
                                         <div class="text-xs text-slate-500">
                                             {{
-                                                appointment.company_name || "-"
+                                                appointment.company_name || "User Retail"
                                             }}
                                         </div>
                                     </div>
@@ -84,9 +84,9 @@
                             <!-- Expert -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center gap-3">
-                                    <div class="flex-shrink-0">
+                                    <div class="shrink-0">
                                         <div
-                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm"
+                                            class="w-10 h-10 rounded-full bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm"
                                         >
                                             {{
                                                 appointment.expert_name

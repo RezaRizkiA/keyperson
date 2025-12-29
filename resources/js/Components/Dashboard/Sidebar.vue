@@ -16,6 +16,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Wallet,
+    UserPlus,
 } from "lucide-vue-next";
 
 const props = defineProps({
@@ -98,6 +99,17 @@ const menuSections = computed(() => [
                 label: "Top Up Quota",
                 route: "topup.create",
                 icon: Wallet,
+                show: isClient.value,
+            },
+        ],
+    },
+    {
+        title: "COMPANY",
+        items: [
+            {
+                label: "Employees",
+                route: "employees.index",
+                icon: UserPlus,
                 show: isClient.value,
             },
         ],

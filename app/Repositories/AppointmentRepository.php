@@ -16,12 +16,12 @@ class AppointmentRepository
                 'expert_id',
                 'status',
                 'payment_status',
-                'created_at'
+                'created_at',
             ])
             ->with([
                 'user:id,name,email',
                 'expert:id,user_id',
-                'expert.user:id,name,email'
+                'expert.user:id,name,email',
             ])
             ->latest()
             ->paginate($perPage, ['*'], 'appointments_page');
@@ -30,8 +30,6 @@ class AppointmentRepository
     /**
      * Get paginated appointments for admin with filters and stats
      *
-     * @param array $filters
-     * @param int $perPage
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getPaginatedAppointmentsForAdmin(array $filters = [], int $perPage = 15)
@@ -41,7 +39,7 @@ class AppointmentRepository
                 'user:id,name,email',
                 'user.client:id,user_id,company_name',
                 'expert:id,user_id',
-                'expert.user:id,name,email'
+                'expert.user:id,name,email',
             ])
             ->select([
                 'id',
@@ -54,28 +52,28 @@ class AppointmentRepository
                 'price',
                 'hours',
                 'created_at',
-                'updated_at'
+                'updated_at',
             ]);
 
         // Search filter - search by client name, expert name, or company
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($userQuery) use ($search) {
                     $userQuery->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 })
-                ->orWhereHas('expert.user', function ($expertQuery) use ($search) {
-                    $expertQuery->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('user.client', function ($clientQuery) use ($search) {
-                    $clientQuery->where('company_name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('expert.user', function ($expertQuery) use ($search) {
+                        $expertQuery->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('user.client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('company_name', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -87,17 +85,21 @@ class AppointmentRepository
 
     /**
      * Get stats for appointments
-     *
-     * @return array
      */
-    public function getStats(): array
+    public function getStats(?int $expertId = null): array
     {
+        $query = Appointment::query();
+
+        if ($expertId) {
+            $query->where('expert_id', $expertId);
+        }
+
         return [
-            'total' => Appointment::count(),
-            'completed' => Appointment::where('status', 'completed')->count(),
-            'scheduled' => Appointment::where('status', 'scheduled')->count(),
-            'cancelled' => Appointment::where('status', 'cancelled')->count(),
-            'pending' => Appointment::where('status', 'pending')->count(),
+            'total' => (clone $query)->count(),
+            'completed' => (clone $query)->where('status', 'completed')->count(),
+            'scheduled' => (clone $query)->where('status', 'confirmed')->count(),
+            'cancelled' => (clone $query)->where('status', 'declined')->count(),
+            'pending' => (clone $query)->where('status', 'pending')->count(),
         ];
     }
 
@@ -105,19 +107,18 @@ class AppointmentRepository
      * Get appointments for a specific date range (for calendar view)
      * Returns all appointments without pagination
      *
-     * @param string|Carbon $startDate
-     * @param string|Carbon $endDate
-     * @param array $filters
+     * @param  string|Carbon  $startDate
+     * @param  string|Carbon  $endDate
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAppointmentsForDateRange($startDate, $endDate, array $filters = [])
+    public function getAppointmentsForDateRange($startDate, $endDate, array $filters = [], ?int $expertId = null)
     {
         $query = Appointment::query()
             ->with([
                 'user:id,name,email',
                 'user.client:id,user_id,company_name',
                 'expert:id,user_id',
-                'expert.user:id,name,email'
+                'expert.user:id,name,email',
             ])
             ->select([
                 'id',
@@ -130,37 +131,39 @@ class AppointmentRepository
                 'price',
                 'hours',
                 'created_at',
-                'updated_at'
+                'updated_at',
             ])
             ->whereBetween('date_time', [
                 Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
+                Carbon::parse($endDate)->endOfDay(),
             ]);
 
         // Apply search filter
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($userQuery) use ($search) {
                     $userQuery->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
                 })
-                ->orWhereHas('expert.user', function ($expertQuery) use ($search) {
-                    $expertQuery->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('user.client', function ($clientQuery) use ($search) {
-                    $clientQuery->where('company_name', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('expert.user', function ($expertQuery) use ($search) {
+                        $expertQuery->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('user.client', function ($clientQuery) use ($search) {
+                        $clientQuery->where('company_name', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Apply status filter
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        // Apply expert filter
-        if (!empty($filters['expert'])) {
+        // Apply expert filter (from Admin filter or Expert view)
+        if ($expertId) {
+            $query->where('expert_id', $expertId);
+        } elseif (! empty($filters['expert'])) {
             $query->where('expert_id', $filters['expert']);
         }
 
@@ -174,30 +177,49 @@ class AppointmentRepository
      * Query khusus untuk Expert.
      * Hanya mengambil data dimana expert_id sesuai dengan yang login.
      */
-    public function getAllForExpert($expertId, $perPage = 10)
+    public function getAllForExpert($expertId, $filters = [], $perPage = 10)
     {
-        return Appointment::query()
+        $query = Appointment::query()
             // FILTER UTAMA: Hanya data milik expert ini
             ->where('expert_id', $expertId)
 
             ->select([
                 'id',
                 'user_id',
-                'skill_id', // Penting agar expert tau topiknya apa
+                'expert_id',
+                'skill_id',
                 'date_time',
                 'status',
                 'payment_status',
-                'topic', // Catatan user
-                'location_url', // Link meeting
-                'created_at'
+                'topic',
+                'location_url',
+                'created_at',
             ])
-            // Eager Load: Expert butuh data User (Client) dan Skill (Kategori)
             ->with([
-                'user:id,name,email,picture', // Ambil foto client juga buat UX bagus
+                'user:id,name,email,picture',
+                'expert:id,user_id',
+                'expert.user:id,name,email',
                 'skill:id,name,sub_category_id',
-                'skill.subCategory:id,name'
-            ])
-            ->latest('date_time') // Urutkan berdasarkan jadwal meeting terdekat/terbaru
+                'skill.subCategory:id,name',
+            ]);
+
+        // Apply search filter
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Apply status filter
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query->latest('date_time')
             ->paginate($perPage, ['*'], 'appointments_page');
     }
 
@@ -214,12 +236,12 @@ class AppointmentRepository
                 'payment_status',
                 'topic', // Catatan user
                 'location_url', // Link meeting
-                'created_at'
+                'created_at',
             ])
             ->with([
                 'expert.user:id,name,email,picture',
                 'skill:id,name,sub_category_id',
-                'skill.subCategory:id,name'
+                'skill.subCategory:id,name',
             ])
             ->latest('date_time')
             ->paginate($perPage, ['*'], 'appointments_page');
@@ -249,9 +271,9 @@ class AppointmentRepository
             // ADMIN: Ambil Semua + Load relasi User & Expert (untuk judul event)
             $query->with([
                 'user:id,name',
-                'expert.user:id,name'
+                'expert.user:id,name',
             ]);
-        } else if ($expertId) {
+        } elseif ($expertId) {
             $query->where('expert_id', $expertId)->with('user:id,name');
         } else {
             $query->where('user_id', $userId)->with('expert.user:id,name');
@@ -266,7 +288,7 @@ class AppointmentRepository
      */
     public function findWithRelations($id)
     {
-        // Kita butuh data user (Client) dan expert.user (Expert) 
+        // Kita butuh data user (Client) dan expert.user (Expert)
         // untuk kirim email notifikasi nama pengirim/penerima.
         return Appointment::with(['user', 'expert.user'])->findOrFail($id);
     }
@@ -274,19 +296,19 @@ class AppointmentRepository
     public function create(array $data)
     {
         return Appointment::create([
-            'user_id'        => $data['user_id'],
-            'expert_id'      => $data['expert_id'],
-            'skill_id'       => $data['skill_id'] ?? null,
-            'date_time'      => $data['date_time'],
-            'hours'          => $data['hours'],
-            'price'          => $data['price'],
-            'status'         => 'pending',
+            'user_id' => $data['user_id'],
+            'expert_id' => $data['expert_id'],
+            'skill_id' => $data['skill_id'] ?? null,
+            'date_time' => $data['date_time'],
+            'hours' => $data['hours'],
+            'price' => $data['price'],
+            'status' => 'pending',
             'payment_status' => 'pending',
-            'location_url'   => null, 
+            'location_url' => null,
             'google_calendar_event_id' => null,
-            'topic'          => $data['topic'] ?? null,
-            'type'           => $data['type'],
-            'guests'         => $data['guests'] ?? null,
+            'topic' => $data['topic'] ?? null,
+            'type' => $data['type'],
+            'guests' => $data['guests'] ?? null,
         ]);
     }
 
@@ -303,12 +325,12 @@ class AppointmentRepository
     // 2. Cek apakah Slot Waktu tersedia (Conflict Checker)
     public function isSlotAvailable($expertId, $startDateTime, $endDateTime)
     {
-        return !Appointment::where('expert_id', $expertId)
+        return ! Appointment::where('expert_id', $expertId)
             ->where('status', '!=', 'declined')
             ->where(function ($query) use ($startDateTime, $endDateTime) {
                 // Logika overlap waktu
                 $query->where('date_time', '<', $endDateTime)
-                    ->whereRaw("DATE_ADD(date_time, INTERVAL hours HOUR) > ?", [$startDateTime]);
+                    ->whereRaw('DATE_ADD(date_time, INTERVAL hours HOUR) > ?', [$startDateTime]);
             })
             ->exists();
     }
@@ -319,10 +341,9 @@ class AppointmentRepository
     public function update(Appointment $appointment, array $data)
     {
         $appointment->update($data);
+
         return $appointment->refresh(); // Return data terbaru
     }
-
-
 
     // Ambil appointment untuk Client (User biasa)
     public function getForClient($userId, $perPage = 5)
@@ -348,6 +369,7 @@ class AppointmentRepository
         if ($expertId) {
             return Appointment::where('expert_id', $expertId)->count();
         }
+
         return Appointment::where('user_id', $userId)->count();
     }
 }

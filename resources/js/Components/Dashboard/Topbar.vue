@@ -110,7 +110,7 @@ const pageSubtitle = computed(() => {
                 >
                     <img
                         :src="
-                            user.picture ||
+                            user.picture_url ||
                             'https://ui-avatars.com/api/?name=' +
                                 user.name +
                                 '&background=3b82f6&color=fff'

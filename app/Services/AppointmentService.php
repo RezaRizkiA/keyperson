@@ -41,9 +41,9 @@ class AppointmentService
         return $this->repo->getPaginatedAppointmentsForAdmin($filters, $perPage);
     }
 
-    public function getAppointmentStats(): array
+    public function getAppointmentStats(?int $expertId = null): array
     {
-        return $this->repo->getStats();
+        return $this->repo->getStats($expertId);
     }
 
     /**
@@ -51,7 +51,7 @@ class AppointmentService
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAppointmentsForCalendar(array $filters = [])
+    public function getAppointmentsForCalendar(array $filters = [], ?int $expertId = null)
     {
         // Use provided date range or default to current month
         $startDate = $filters['start_date'] ?? Carbon::now()->startOfMonth();
@@ -60,13 +60,14 @@ class AppointmentService
         return $this->repo->getAppointmentsForDateRange(
             $startDate,
             $endDate,
-            $filters
+            $filters,
+            $expertId
         );
     }
 
-    public function getAllForExpert($expertId, $perPage = 10)
+    public function getAllForExpert($expertId, $filters = [], $perPage = 10)
     {
-        return $this->repo->getAllForExpert($expertId, $perPage);
+        return $this->repo->getAllForExpert($expertId, $filters, $perPage);
     }
 
     public function getAllForUser($userId, $perPage = 10)

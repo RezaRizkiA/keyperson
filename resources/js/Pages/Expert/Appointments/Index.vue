@@ -1,188 +1,278 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { 
-    Calendar, Clock, Search, Filter, MoreHorizontal, 
-    Video, ExternalLink, User as UserIcon, MapPin, 
-    CreditCard, CheckCircle2, AlertCircle, XCircle 
-} from 'lucide-vue-next';
+import { Head, Link, router } from "@inertiajs/vue3";
+import DashboardLayout from "@/Layouts/DashboardLayout.vue";
+import StatCards from "@/Components/Appointments/StatCards.vue";
+import AppointmentDetailModal from "@/Components/Appointments/AppointmentDetailModal.vue";
+import AppointmentFilters from "@/Components/Appointments/AppointmentFilters.vue";
+import AppointmentList from "@/Components/Appointments/AppointmentList.vue";
+import AppointmentCalendar from "@/Components/Appointments/AppointmentCalendar.vue";
+import { formatDateForAPI } from "@/Utils/dateUtils";
+import { ref, watch } from "vue";
 
 defineOptions({ layout: DashboardLayout });
 
 const props = defineProps({
-    appointments: Object, 
+    appointments: [Object, Array],
+    stats: Object,
+    filters: Object,
 });
 
-// --- HELPER FORMAT TANGGAL ---
-const formatDate = (date) => new Date(date).toLocaleDateString('id-ID', { 
-    day: 'numeric', month: 'short', year: 'numeric' 
-});
-const formatTime = (date) => new Date(date).toLocaleTimeString('id-ID', { 
-    hour: '2-digit', minute: '2-digit' 
+// View mode and filter states - unified for v-model
+const filters = ref({
+    search: props.filters?.search || "",
+    status: props.filters?.status || "",
+    viewMode: "list", // 'list' or 'calendar'
 });
 
-// --- HELPER STATUS APPOINTMENT ---
-const getStatusBadge = (status) => {
-    const config = {
-        pending: { class: 'bg-slate-100 text-slate-600 border-slate-200', label: 'Waiting' },
-        need_confirmation: { class: 'bg-orange-50 text-orange-700 border-orange-200', label: 'Action Needed' },
-        confirmed: { class: 'bg-violet-50 text-violet-700 border-violet-200', label: 'Scheduled' },
-        progress: { class: 'bg-blue-50 text-blue-700 border-blue-200', label: 'Live Session' },
-        completed: { class: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Completed' },
-        declined: { class: 'bg-red-50 text-red-700 border-red-200', label: 'Declined' },
-    };
-    return config[status] || { class: 'bg-gray-100 text-gray-600', label: status };
+// Calendar state (managed here, passed to AppointmentCalendar)
+const calendarViewMode = ref("month");
+const currentDate = ref(new Date());
+const isLoadingCalendar = ref(false);
+const isCalendarReady = ref(false);
+
+// Modal states
+const selectedAppointment = ref(null);
+const showAppointmentModal = ref(false);
+
+// Fetch calendar data with date range (calls API)
+const fetchCalendarData = () => {
+    if (filters.value.viewMode !== "calendar") return;
+
+    isCalendarReady.value = false;
+    isLoadingCalendar.value = true;
+
+    // Calculate date range based on view mode
+    let startDate, endDate;
+    const date = new Date(currentDate.value);
+
+    if (calendarViewMode.value === "month") {
+        startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+        endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    } else if (calendarViewMode.value === "week") {
+        const day = date.getDay();
+        startDate = new Date(date);
+        startDate.setDate(date.getDate() - day);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+    } else {
+        startDate = new Date(date);
+        endDate = new Date(date);
+    }
+
+    router.get(
+        route("dashboard.appointments.index"),
+        {
+            view_mode: "calendar",
+            start_date: formatDateForAPI(startDate),
+            end_date: formatDateForAPI(endDate),
+            search: filters.value.search,
+            status: filters.value.status,
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            only: ["appointments"],
+            onFinish: () => {
+                isLoadingCalendar.value = false;
+                isCalendarReady.value = true;
+            },
+        }
+    );
 };
 
-// --- HELPER STATUS PEMBAYARAN ---
-const getPaymentBadge = (status) => {
-    // Normalisasi string agar tidak case sensitive
-    const s = status ? status.toLowerCase() : 'pending';
-
-    if (s === 'berhasil' || s === 'settlement' || s === 'success') {
-        return { 
-            class: 'bg-emerald-100 text-emerald-700 border-emerald-200', 
-            icon: CheckCircle2, 
-            label: 'PAID' 
-        };
-    } else if (s === 'pending') {
-        return { 
-            class: 'bg-yellow-50 text-yellow-700 border-yellow-200', 
-            icon: Clock, 
-            label: 'UNPAID' 
-        };
+// Apply filters (for list view or trigger calendar reload)
+const applyFilters = () => {
+    if (filters.value.viewMode === "calendar") {
+        fetchCalendarData();
     } else {
-        return { 
-            class: 'bg-red-50 text-red-700 border-red-200', 
-            icon: XCircle, 
-            label: 'FAILED' 
-        };
+        router.get(
+            route("dashboard.appointments.index"),
+            {
+                page: 1,
+                search: filters.value.search,
+                status: filters.value.status,
+                // Clear calendar params
+                view_mode: undefined,
+                start_date: undefined,
+                end_date: undefined,
+            },
+            {
+                preserveState: false,
+                preserveScroll: true,
+            }
+        );
     }
+};
+
+// Watch view mode changes
+watch(
+    () => filters.value.viewMode,
+    (newMode) => {
+        if (newMode === "calendar") {
+            fetchCalendarData();
+        } else {
+            // Switching to list view - explicitly clear calendar params
+            router.get(
+                route("dashboard.appointments.index"),
+                {
+                    page: 1,
+                    search: filters.value.search,
+                    status: filters.value.status,
+                    // Explicitly set to null/undefined to clear from URL
+                    view_mode: undefined,
+                    start_date: undefined,
+                    end_date: undefined,
+                },
+                {
+                    preserveState: false,
+                    preserveScroll: false,
+                }
+            );
+        }
+    }
+);
+
+// Handle calendar date change (from AppointmentCalendar component)
+const handleCalendarDateChange = (newDate) => {
+    currentDate.value = newDate;
+    fetchCalendarData();
+};
+
+// Handle calendar view mode change (from AppointmentCalendar component)
+const handleCalendarViewModeChange = (newMode) => {
+    calendarViewMode.value = newMode;
+    fetchCalendarData();
+};
+
+// Show appointment detail modal
+const showAppointmentDetail = (appointment) => {
+    selectedAppointment.value = appointment;
+    showAppointmentModal.value = true;
 };
 </script>
 
 <template>
     <Head title="My Schedule" />
 
-    <div class="space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-2">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900">My Schedule</h1>
-                <p class="text-slate-500 mt-1">Manage your upcoming consultation sessions.</p>
-            </div>
-        </div>
-
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-xs tracking-wider border-b border-slate-200">
-                        <tr>
-                            <th class="px-6 py-4">Client Info</th>
-                            <th class="px-6 py-4">Topic / Skill</th>
-                            <th class="px-6 py-4">Date & Time</th>
-                            <th class="px-6 py-4">Status</th> <th class="px-6 py-4">Payment</th> <th class="px-6 py-4 text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        
-                        <tr v-for="appointment in appointments.data" :key="appointment.id" 
-                            class="hover:bg-slate-50/50 transition-colors group">
-                            
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <img 
-                                        :src="appointment.user.picture_url || `https://ui-avatars.com/api/?name=${appointment.user.name}&background=random`" 
-                                        class="w-10 h-10 rounded-full object-cover border border-slate-200"
-                                        alt="Client"
-                                    >
-                                    <div>
-                                        <div class="font-bold text-slate-900">{{ appointment.user.name }}</div>
-                                        <div class="text-xs text-slate-500">{{ appointment.user.email }}</div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-4 max-w-[200px]">
-                                <div class="font-bold text-slate-800 truncate">{{ appointment.skill.name }}</div>
-                                <div class="text-xs text-slate-500 mt-0.5">
-                                    {{ appointment.skill.sub_category.name }}
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center gap-2 text-slate-700">
-                                    <Calendar class="w-4 h-4 text-violet-500" />
-                                    <span class="font-medium">{{ formatDate(appointment.date_time) }}</span>
-                                </div>
-                                <div class="flex items-center gap-2 text-slate-500 mt-1 text-xs">
-                                    <Clock class="w-3.5 h-3.5" />
-                                    <span>{{ formatTime(appointment.date_time) }} WIB</span>
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] uppercase font-bold border tracking-wide inline-flex items-center gap-1"
-                                    :class="getStatusBadge(appointment.status).class">
-                                    {{ getStatusBadge(appointment.status).label }}
-                                </span>
-                            </td>
-
-                            <td class="px-6 py-4">
-                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-bold"
-                                    :class="getPaymentBadge(appointment.payment_status).class">
-                                    <component :is="getPaymentBadge(appointment.payment_status).icon" class="w-3.5 h-3.5" />
-                                    <span>{{ getPaymentBadge(appointment.payment_status).label }}</span>
-                                </div>
-                            </td>
-
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a v-if="appointment.location_url && ['confirmed', 'progress'].includes(appointment.status)" 
-                                       :href="appointment.location_url" 
-                                       target="_blank"
-                                       class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                                       title="Join Meeting"
-                                    >
-                                        <Video class="w-4 h-4" />
-                                    </a>
-
-                                    <Link :href="route('dashboard.appointments.show', appointment.id)" 
-                                          class="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 hover:border-violet-300 hover:text-violet-600 rounded-lg text-sm font-bold text-slate-600 transition-all shadow-sm">
-                                        Details
-                                        <ExternalLink class="w-3.5 h-3.5" />
-                                    </Link>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr v-if="appointments.data.length === 0">
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center justify-center">
-                                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                        <Calendar class="w-8 h-8 text-slate-300" />
-                                    </div>
-                                    <h3 class="text-slate-900 font-bold text-lg">No appointments found</h3>
-                                    <p class="text-slate-500 text-sm mt-1">Your schedule is currently empty.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div v-if="appointments.links.length > 3" class="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-                <div class="text-xs text-slate-500">
-                    Showing {{ appointments.from }} to {{ appointments.to }} of {{ appointments.total }} results
-                </div>
-                <div class="flex gap-1">
-                    <Link v-for="(link, k) in appointments.links" :key="k"
-                          :href="link.url || '#'"
-                          v-html="link.label"
-                          class="px-3 py-1 text-xs rounded border transition-colors"
-                          :class="link.active ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
-                    />
-                </div>
+                <h2
+                    class="text-2xl font-bold text-slate-900 dark:text-slate-100"
+                >
+                    My Schedule
+                </h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">
+                    Manage your upcoming consultation sessions.
+                </p>
             </div>
         </div>
     </div>
+
+    <!-- Stats Cards -->
+    <StatCards :stats="stats" />
+
+    <!-- Filters -->
+    <AppointmentFilters v-model="filters" @apply-filters="applyFilters" />
+
+    <!-- List View -->
+    <AppointmentList
+        v-if="filters.viewMode === 'list'"
+        :appointments="appointments"
+    />
+
+    <!-- Calendar View -->
+    <AppointmentCalendar
+        v-else
+        :appointments="appointments"
+        :current-date="currentDate"
+        :view-mode="calendarViewMode"
+        :is-loading="isLoadingCalendar"
+        :is-ready="isCalendarReady"
+        @update:current-date="handleCalendarDateChange"
+        @update:view-mode="handleCalendarViewModeChange"
+        @appointment-click="showAppointmentDetail"
+    />
+
+    <!-- Appointment Detail Modal -->
+    <AppointmentDetailModal
+        :show="showAppointmentModal"
+        :appointment="selectedAppointment"
+        @close="showAppointmentModal = false"
+    />
 </template>
+
+<style>
+/* Custom Calendar Styles for Dark Theme */
+:root {
+    --vc-gray-50: #1e293b;
+    --vc-gray-100: #334155;
+    --vc-gray-200: #475569;
+    --vc-gray-300: #64748b;
+    --vc-gray-400: #94a3b8;
+    --vc-gray-500: #cbd5e1;
+    --vc-gray-600: #e2e8f0;
+    --vc-gray-700: #f1f5f9;
+    --vc-gray-800: #f8fafc;
+    --vc-gray-900: #ffffff;
+}
+
+.custom-calendar {
+    --vc-bg: transparent;
+    --vc-border: transparent;
+}
+
+.custom-calendar .vc-title {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.custom-calendar .vc-weekday {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.custom-calendar .vc-day {
+    color: #cbd5e1;
+}
+
+.custom-calendar .vc-day-content {
+    width: 100%;
+    height: 100%;
+    min-height: 80px;
+}
+
+.custom-calendar .day-label {
+    color: #e2e8f0;
+}
+
+.custom-calendar .vc-day.is-today {
+    background-color: #1e40af20;
+}
+
+.custom-calendar .vc-day.is-today .day-label {
+    color: #60a5fa;
+    font-weight: 700;
+}
+
+.custom-calendar .vc-arrows-container {
+    display: none;
+}
+
+.custom-calendar .vc-arrow:hover {
+    background-color: #334155;
+}
+
+.custom-calendar .vc-day:hover {
+    background-color: #1e293b;
+}
+
+.custom-calendar .vc-header {
+    display: none;
+}
+
+.custom-calendar .vc-weeks {
+    margin-top: 0;
+}
+</style>

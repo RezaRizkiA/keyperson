@@ -7,6 +7,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\EnsureGoogleCalendarConnected;
+use App\Http\Middleware\NotExpert;
+use App\Http\Middleware\EligibleForOnboarding;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'guest' => RedirectIfAuthenticated::class,
             'calendar.connected' => EnsureGoogleCalendarConnected::class,
             'verified' => EnsureEmailIsVerified::class,
+            'not-expert' => NotExpert::class,
+            'eligible-onboarding' => EligibleForOnboarding::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'payment/notify',

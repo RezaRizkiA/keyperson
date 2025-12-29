@@ -24,11 +24,14 @@ class PaymentService
     // Logic ini yang sebelumnya mengotori Controller
     $amount   = $appointment->price;
     $trxDesc  = "Consultation: {$user->name} with {$appointment->expert->user->name}";
+    
+    // Sanitize phone: remove all non-numeric characters
+    $phone = preg_replace('/[^0-9]/', '', $validatedData['customer_phone']);
 
     $ipaymuBody = [
       'name'           => $user->name,
       'email'          => $user->email,
-      'phone'          => $validatedData['customer_phone'],
+      'phone'          => $phone,
       'amount'         => $amount,
       'notifyUrl'      => route('payment.notify'), // Webhook URL
       'referenceId'    => (string) $appointment->id,

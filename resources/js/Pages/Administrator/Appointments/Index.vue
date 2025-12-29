@@ -1,11 +1,11 @@
 <script setup>
 import { Head, Link, router } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
-import StatCards from "./Partials/StatCards.vue";
-import AppointmentDetailModal from "./Partials/AppointmentDetailModal.vue";
-import AppointmentFilters from "./Partials/AppointmentFilters.vue";
-import AppointmentList from "./Partials/AppointmentList.vue";
-import AppointmentCalendar from "./Partials/AppointmentCalendar.vue";
+import StatCards from "@/Components/Appointments/StatCards.vue";
+import AppointmentDetailModal from "@/Components/Appointments/AppointmentDetailModal.vue";
+import AppointmentFilters from "@/Components/Appointments/AppointmentFilters.vue";
+import AppointmentList from "@/Components/Appointments/AppointmentList.vue";
+import AppointmentCalendar from "@/Components/Appointments/AppointmentCalendar.vue";
 import { formatDateForAPI } from "@/Utils/dateUtils";
 import { Download, Plus } from "lucide-vue-next";
 import { ref, watch } from "vue";
@@ -153,7 +153,7 @@ const showAppointmentDetail = (appointment) => {
 </script>
 
 <template>
-  <Head title="Manage Appointments"/>
+    <Head title="Manage Appointments" />
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex items-center justify-between mb-2">

@@ -26,12 +26,8 @@ class ClientRegistrationController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Defensive Programming: Cek apakah user sudah jadi Client?
-        // Jika sudah punya profil client, jangan biarkan masuk ke halaman onboarding lagi.
-        // Redirect ke dashboard atau halaman edit profil.
-        if ($user->client) {
-            return redirect()->route('dashboard.index')->with('info', 'Anda sudah terdaftar sebagai Client.');
-        }
+        // Middleware 'eligible-onboarding' sudah handle blocking Expert/Client/Corporate Employee
+        // Method ini sekarang hanya untuk registrasi baru
 
         // 2. Siapkan Data Opsi (Source of Truth)
         // Data ini dikirim ke Vue untuk mengisi <select> options.

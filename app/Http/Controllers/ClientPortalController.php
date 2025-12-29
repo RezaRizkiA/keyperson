@@ -67,6 +67,7 @@ class ClientPortalController extends Controller
         
         // Build back URL based on authenticated user's client
         $user = auth()->user();
+        
         $backUrl = route('home'); // Default fallback
         
         if ($user && $user->client_id) {

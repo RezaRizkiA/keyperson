@@ -101,10 +101,58 @@ class AppointmentController extends Controller
                 return redirect()->route('dashboard.index')->with('error', 'Profile expert belum aktif.');
             }
 
-            $appointments = $this->service->getAllForExpert($expert->id);
+            $filters = $request->only(['search', 'status', 'view_mode', 'start_date', 'end_date']);
+
+            // Check if calendar view mode
+            if (isset($filters['view_mode']) && $filters['view_mode'] === 'calendar') {
+                // Calendar view: no pagination, get all appointments for date range
+                $appointments = $this->service->getAppointmentsForCalendar($filters, $expert->id);
+
+                // Transform without pagination wrapper
+                $transformedAppointments = $appointments->map(function ($appointment) {
+                    return [
+                        'id' => $appointment->id,
+                        'client_name' => $appointment->user->name ?? 'Unknown',
+                        'company_name' => $appointment->user->client->company_name ?? null,
+                        'expert_name' => $appointment->expert->user->name ?? 'Unknown',
+                        'date_time' => $appointment->date_time,
+                        'status' => $appointment->status,
+                        'payment_status' => $appointment->payment_status,
+                        'price' => $appointment->price,
+                        'hours' => $appointment->hours,
+                        'user' => $appointment->user,
+                        'skill' => $appointment->skill?->load('subCategory'),
+                    ];
+                })->values();
+            } else {
+                // List view: paginated
+                $appointments = $this->service->getAllForExpert($expert->id, $filters);
+
+                // Transform with pagination
+                $transformedAppointments = $appointments->through(function ($appointment) {
+                    return [
+                        'id' => $appointment->id,
+                        'client_name' => $appointment->user->name ?? 'Unknown',
+                        'company_name' => $appointment->user->client->company_name ?? null,
+                        'expert_name' => $appointment->expert->user->name ?? 'Unknown',
+                        'date_time' => $appointment->date_time,
+                        'status' => $appointment->status,
+                        'payment_status' => $appointment->payment_status,
+                        'price' => $appointment->price,
+                        'hours' => $appointment->hours,
+                        'user' => $appointment->user,
+                        'skill' => $appointment->skill?->load('subCategory'),
+                    ];
+                });
+            }
+
+            // Get stats for this expert only
+            $stats = $this->service->getAppointmentStats($expert->id);
 
             return Inertia::render('Expert/Appointments/Index', [
-                'appointments' => $appointments,
+                'appointments' => $transformedAppointments,
+                'stats' => $stats,
+                'filters' => $filters,
             ]);
         }
 
@@ -136,9 +184,15 @@ class AppointmentController extends Controller
             ]);
         }
 
-        // C. User View (Default fallback)
+        // C. User View - include pending transaction for "Continue Payment" button
+        $pendingTransaction = \App\Models\Transaction::where('appointment_id', $appointment->id)
+            ->where('status', 'pending')
+            ->where('expired_date', '>', now())
+            ->first();
+
         return Inertia::render('User/Appointments/Show', [
             'appointment' => $appointment,
+            'pendingTransaction' => $pendingTransaction,
         ]);
     }
 

@@ -32,9 +32,22 @@ class PaymentController extends Controller
     // URL: GET /payment/{appointment}/checkout
     public function create(Appointment $appointment)
     {
-        // Validasi sederhana status (bisa dipindah ke policy nanti)
+        // Validasi: sudah dibayar?
         if ($appointment->payment_status === 'paid') {
-            return redirect()->back()->with('info', 'Appointment already paid.');
+            return redirect()->route('dashboard.appointments.show', $appointment->id)
+                ->with('info', 'Appointment already paid.');
+        }
+
+        // Cek existing pending transaction yang belum expired
+        $pendingTransaction = Transaction::where('appointment_id', $appointment->id)
+            ->where('status', 'pending')
+            ->where('expired_date', '>', now())
+            ->first();
+
+        // Jika ada transaction pending, redirect ke halaman transaction
+        if ($pendingTransaction) {
+            return redirect()->route('payment.transaction', $pendingTransaction->sid)
+                ->with('info', 'You have a pending payment. Please complete it or wait until it expires.');
         }
 
         // Ambil Channel Pembayaran untuk Dropdown Frontend
@@ -47,6 +60,7 @@ class PaymentController extends Controller
         return Inertia::render('User/Payment/Create', [
             'appointment' => $appointment->load('expert.user'),
             'paymentChannels' => $channels,
+            'user' => Auth::user(),
         ]);
     }
 
@@ -235,12 +249,15 @@ class PaymentController extends Controller
         if (isset($check['StatusDesc']) && $check['StatusDesc'] === 'Berhasil') {
 
             try {
-                DB::transaction(function () use ($transaction) {
-                    // A. Update Status Transaksi
+                DB::transaction(function () use ($transaction, $check) {
+                    // A. Update Status Transaksi dengan data dari iPaymu
                     $transaction->update([
-                        'status' => 'berhasil',
-                        'payment_date' => Carbon::now(),
-                        // Update field lain jika perlu dari $check response
+                        'status' => strtolower($check['StatusDesc'] ?? 'berhasil'),
+                        'trx_id' => $check['TransactionId'] ?? $transaction->transactionId,
+                        'reference_id' => $check['ReferenceId'] ?? $transaction->referenceId,
+                        'payment_date' => isset($check['SuccessDate']) 
+                            ? Carbon::parse($check['SuccessDate']) 
+                            : Carbon::now(),
                     ]);
 
                     // === B2B: CHECK TRANSACTION TYPE ===

@@ -37,7 +37,7 @@ class Appointment extends Model
 
     public function expert()
     {
-        return $this->belongsTo(Expert::class);
+        return $this->belongsTo(Expert::class, 'expert_id');
     }
 
     public function skill()

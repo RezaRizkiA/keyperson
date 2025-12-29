@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientPortalController;
 use App\Http\Controllers\ClientRegistrationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeInviteController;
 use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\ExpertiseController;
 use App\Http\Controllers\ExpertRegistrationController;
@@ -53,6 +54,13 @@ Route::get('/auth/google/calendar-connect', [AuthController::class, 'google_cale
 // Callback iPaymu (Luar auth group & csrf protected biasanya, tapi biarkan sesuai setup Anda)
 Route::post('payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
 
+// Employee Invite (Public - for invited users to register)
+Route::get('/join/{token}', [EmployeeInviteController::class, 'verify'])->name('invite.verify');
+Route::post('/join/{token}', [EmployeeInviteController::class, 'register'])->name('invite.register');
+
+// =========================================================================
+// AUTH ROUTES (Login)
+// =========================================================================
 Route::middleware('auth')->group(function () {
     Route::prefix('dashboard')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
@@ -117,12 +125,29 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/settings', [ProfileController::class, 'edit'])
             ->name('profile.edit');
+
+        // === PROFILE UPDATE ROUTES ===
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::post('/update', [ProfileController::class, 'update'])->name('update');
+            Route::post('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+            Route::post('/picture', [ProfileController::class, 'updatePicture'])->name('picture.update');
+        });
+
+        // === HRD EMPLOYEE MANAGEMENT (Client role only) ===
+        Route::prefix('employees')->name('employees.')->group(function () {
+            Route::get('/', [EmployeeInviteController::class, 'index'])->name('index');
+            Route::post('/invite', [EmployeeInviteController::class, 'store'])->name('invite');
+            Route::delete('/invite/{id}', [EmployeeInviteController::class, 'destroy'])->name('revoke');
+        });
     });
 
-    Route::get('/booking/{slug}', [AppointmentController::class, 'create'])
-        ->name('booking.create');
-    Route::post('/booking', [AppointmentController::class, 'store'])
-        ->name('booking.store');
+    // Booking routes - Expert tidak bisa booking
+    Route::middleware('not-expert')->group(function () {
+        Route::get('/booking/{slug}', [AppointmentController::class, 'create'])
+            ->name('booking.create');
+        Route::post('/booking', [AppointmentController::class, 'store'])
+            ->name('booking.store');
+    });
 
     Route::get('/payment/{appointment}/checkout', [PaymentController::class, 'create'])
         ->name('payment.create');
@@ -133,25 +158,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/notify', [PaymentController::class, 'notify'])
         ->name('payment.notify');
 
-    Route::prefix('expert-onboarding')->group(function () {
-        // Halaman Form Registrasi
-        Route::get('/', [ExpertRegistrationController::class, 'create'])
-            ->name('expert_onboarding.create');
+    // === ONBOARDING ROUTES ===
+    // Middleware: Block jika sudah Expert, Client, atau Corporate Employee
+    Route::middleware('eligible-onboarding')->group(function () {
+        Route::prefix('expert-onboarding')->group(function () {
+            Route::get('/', [ExpertRegistrationController::class, 'create'])
+                ->name('expert_onboarding.create');
+            Route::post('/', [ExpertRegistrationController::class, 'store'])
+                ->name('expert_onboarding.store');
+        });
 
-        // Proses Simpan Data
-        Route::post('/', [ExpertRegistrationController::class, 'store'])
-            ->name('expert_onboarding.store');
+        Route::prefix('client-onboarding')->group(function () {
+            Route::get('/', [ClientRegistrationController::class, 'create'])
+                ->name('client_onboarding.create');
+            Route::post('/', [ClientRegistrationController::class, 'store'])
+                ->name('client_onboarding.store');
+        });
     });
-
-    Route::prefix('client-onboarding')->group(function () {
-        // 1. Halaman Form Registrasi Client
-        Route::get('/', [ClientRegistrationController::class, 'create'])
-            ->name('client_onboarding.create');
-
-        // 2. Proses Simpan Data Client
-        Route::post('/', [ClientRegistrationController::class, 'store'])
-            ->name('client_onboarding.store');
-    });
+    // === END ONBOARDING ROUTES ===
 
     // === B2B TOP-UP ROUTES ===
     Route::prefix('topup')->name('topup.')->group(function () {
@@ -161,20 +185,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/history', [TopUpController::class, 'history'])->name('history');
     });
     // === END B2B TOP-UP ===
-
-    // Route ini bentrok secara konsep dengan 'profile.edit' di atas, tapi URL-nya beda jadi aman.
-    Route::get('update-profile', [AuthController::class, 'settings'])
-        ->name('update_profile');
-    Route::post('renew-picture', [AuthController::class, 'renew_picture'])
-        ->name('renew_picture');
-    Route::post('renew-password', [AuthController::class, 'renew_password'])
-        ->name('renew_password');
-    Route::post('renew-profile', [AuthController::class, 'renew_profile'])
-        ->name('renew_profile');
-
-    // Route Dashboard LAMA (Controller LAMA)
-    // Masih bisa diakses via URL /profile jika ada link lama yang mengarah ke sini
-    // Route::get('profile', [AuthController::class, 'profile'])->name('profile');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 

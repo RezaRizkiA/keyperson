@@ -18,11 +18,11 @@ class ProfileService
 
     /**
      * Update Data Diri (Nama, Gender, Phone, Address, Slug)
-     * Logic: update data hanya jika ada input, slug unique handle di Controller validation
+     * Logic: update data hanya jika ada input, slug disimpan ke tabel expert/client
      */
     public function updateProfile($user, array $data)
     {
-        // Persiapkan data yang akan diupdate
+        // Persiapkan data yang akan diupdate di tabel users
         $updateData = [
             'name'    => $data['name'] ?? $user->name,
             'gender'  => $data['gender'] ?? $user->gender,
@@ -30,13 +30,21 @@ class ProfileService
             'address' => $data['address'] ?? $user->address,
         ];
 
-        // Cek perubahan slug
-        // Note: Validasi unique sudah dilakukan di Controller sebelum masuk sini
-        if (!empty($data['slug_name']) && $data['slug_name'] !== $user->slug) {
-            $updateData['slug'] = $data['slug_name'];
+        // Update user data
+        $this->userRepo->update($user->id, $updateData);
+
+        // Handle slug update - simpan ke tabel expert atau client, bukan users
+        if (!empty($data['slug_name'])) {
+            $roles = $user->roles ?? [];
+            
+            if (in_array('expert', $roles) && $user->expert) {
+                $user->expert->update(['slug' => $data['slug_name']]);
+            } elseif (in_array('client', $roles) && $user->client) {
+                $user->client->update(['slug' => $data['slug_name']]);
+            }
         }
 
-        return $this->userRepo->update($user, $updateData);
+        return $user->fresh(['expert', 'client']);
     }
 
     /**
@@ -56,7 +64,7 @@ class ProfileService
         }
 
         // Simpan password baru
-        return $this->userRepo->update($user, [
+        return $this->userRepo->update($user->id, [
             'password' => Hash::make($newPassword),
         ]);
     }
@@ -79,7 +87,7 @@ class ProfileService
         Storage::disk('s3')->put($filename, file_get_contents($imageFile), 'public');
 
         // 3. Update database
-        return $this->userRepo->update($user, [
+        return $this->userRepo->update($user->id, [
             'picture' => $filename
         ]);
     }

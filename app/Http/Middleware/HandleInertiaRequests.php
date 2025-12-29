@@ -39,13 +39,13 @@ class HandleInertiaRequests extends Middleware
             // 1. Data User Login
             'auth' => [
                 'user' => $request->user() ? [
-                'id' => $request->user()->id,
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-                'roles' => $request->user()->roles,
-                'picture_url' => $request->user()->picture,
-                // Token Google JANGAN dimasukkan disini
-            ] : null,
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                    'roles' => $request->user()->roles,
+                    'picture_url' => $request->user()->picture_url,
+                    // Token Google JANGAN dimasukkan disini
+                ] : null,
             ],
 
             // 2. Data Asset Global (Logo)
@@ -66,16 +66,16 @@ class HandleInertiaRequests extends Middleware
                 'home' => route('home'),
                 'about' => route('about'),
                 'support' => route('support'),
-                'pricing' => route('pricing'), 
+                'pricing' => route('pricing'),
                 'login' => route('login'),
                 'terms' => route('terms'),
                 'privacy' => route('privacy'),
             ],
 
             'flash' => [
-                'success' => fn() => $request->session()->get('success'),
-                'error'   => fn() => $request->session()->get('error'),
-                'message' => fn() => $request->session()->get('message'),
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'message' => fn () => $request->session()->get('message'),
             ],
         ]);
     }

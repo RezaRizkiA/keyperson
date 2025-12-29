@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, router } from "@inertiajs/vue3";
+import { ref } from "vue";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import {
     Calendar,
@@ -25,6 +26,7 @@ defineOptions({ layout: DashboardLayout });
 
 const props = defineProps({
     appointment: Object,
+    pendingTransaction: Object,
 });
 
 // --- HELPER FORMATTING ---
@@ -79,10 +81,19 @@ const getStatusBadge = (status) => {
 };
 
 // --- ACTION LOGIC ---
+const isPaymentLoading = ref(false);
+
 const proceedToPayment = () => {
-    // Arahkan ke halaman pembayaran (sesuaikan rute Anda)
-    // router.visit(route('payment.show', props.appointment.payment_token));
-    alert("Redirecting to payment gateway...");
+    isPaymentLoading.value = true;
+
+    // If there's a pending transaction, go to transaction page
+    if (props.pendingTransaction) {
+        router.visit(
+            route("payment.transaction", props.pendingTransaction.sid)
+        );
+    } else {
+        router.visit(route("payment.create", props.appointment.id));
+    }
 };
 </script>
 
@@ -391,9 +402,21 @@ const proceedToPayment = () => {
                         </div>
                         <button
                             @click="proceedToPayment"
-                            class="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm hover:bg-violet-600 dark:hover:bg-violet-400 transition-all shadow-lg shadow-slate-900/20 dark:shadow-none"
+                            :disabled="isPaymentLoading"
+                            class="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-sm hover:bg-violet-600 dark:hover:bg-violet-400 transition-all shadow-lg shadow-slate-900/20 dark:shadow-none disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <CreditCard class="w-4 h-4" /> Pay Now
+                            <span
+                                v-if="isPaymentLoading"
+                                class="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"
+                            ></span>
+                            <CreditCard v-else class="w-4 h-4" />
+                            {{
+                                isPaymentLoading
+                                    ? "Redirecting..."
+                                    : pendingTransaction
+                                    ? "Continue Payment"
+                                    : "Pay Now"
+                            }}
                         </button>
                     </div>
 

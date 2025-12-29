@@ -55,6 +55,14 @@ class Client extends Model
     }
 
     /**
+     * B2B: Relasi ke Employee Invites
+     */
+    public function invites()
+    {
+        return $this->hasMany(EmployeeInvite::class);
+    }
+
+    /**
      * Relationship to Appointments through User
      * Client can have many appointments through their user
      */

@@ -39,9 +39,10 @@ class User extends Authenticatable
         }
 
         if (str_starts_with($this->picture, 'http')) {
-        return $this->picture;
-    }
-        return Storage::url($this->picture);
+            return $this->picture;
+        }
+        
+        return Storage::disk('s3')->url($this->picture);
     }
 
     public function getHasPasswordAttribute()

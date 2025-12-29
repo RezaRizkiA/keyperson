@@ -81,7 +81,7 @@ const titleText = {
         <div
             v-if="show"
             :class="[
-                'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 min-w-[400px] max-w-md backdrop-blur-sm border-2 rounded-xl shadow-2xl p-4',
+                'fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] min-w-[400px] max-w-md backdrop-blur-sm border-2 rounded-xl shadow-2xl p-4',
                 toastClasses[type],
             ]"
         >

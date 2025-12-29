@@ -27,50 +27,17 @@ class ExpertRegistrationController extends Controller
     public function create()
     {
         $user = Auth::user();
-        $expert = $user->expert ? $user->expert->load('skills') : null;
-
-        if ($expert) {
-            $gallerys = $expert->gallerys ?? [];
-            $expert->gallerys = collect($gallerys)->map(function ($item) {
-                if (!is_array($item)) return $item;
-
-                $path = $item['file'] ?? $item['photos'] ?? null;
-
-                // FIX: Cek apakah path SUDAH berupa URL lengkap?
-                if ($path && str_starts_with($path, 'http')) {
-                    $item['file'] = $path; // Gunakan apa adanya
-                } else {
-                    // Kalau belum (masih relative), baru generate URL
-                    $item['file'] = $path ? Storage::disk('s3')->url($path) : null;
-                }
-
-                return $item;
-            })->toArray();
-
-            $licenses = $expert->licenses ?? [];
-            $expert->licenses = collect($licenses)->map(function ($item) {
-                if (!is_array($item)) return $item;
-
-                $path = $item['file'] ?? $item['attachment'] ?? null;
-
-                // FIX: Cek URL
-                if ($path && str_starts_with($path, 'http')) {
-                    $item['file'] = $path;
-                } else {
-                    $item['file'] = $path ? Storage::disk('s3')->url($path) : null;
-                }
-
-                return $item;
-            })->toArray();
-        }
-
+        
+        // Middleware 'eligible-onboarding' sudah handle blocking Expert/Client/Corporate Employee
+        // Method ini sekarang hanya untuk registrasi baru
+        
         $categories = $this->expertRepo->getCategoriesWithSkills();
 
         return Inertia::render('Expert/Register/Index', [
             'user'       => $user,
-            'expert'     => $expert,
+            'expert'     => null,
             'categories' => $categories,
-            'isEditMode' => $user->expert !== null,
+            'isEditMode' => false,
         ]);
     }
 

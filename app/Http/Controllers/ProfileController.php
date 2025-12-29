@@ -17,57 +17,81 @@ class ProfileController extends Controller
         $this->service = $service;
     }
 
-    // --- HALAMAN SETTINGS ---
-    // Route: dashboard/settings (name: profile.edit)
+    /**
+     * Display profile settings page based on user role
+     * Route: profile/settings (name: profile.edit)
+     */
     public function edit()
     {
-        return Inertia::render('Administrator/Settings/Index', [
-            'user' => Auth::user(),
-            // Flash message dari session (compatible dengan kode lama)
+        $user = Auth::user();
+        $user->load([
+            'expert:id,user_id,slug',
+            'client:id,user_id,slug',
+        ]);
+        $roles = $user->roles ?? [];
+
+        // Determine view based on role priority
+        $view = match (true) {
+            in_array('administrator', $roles) => 'Administrator/Settings/Index',
+            in_array('expert', $roles) => 'Expert/Settings/Index',
+            in_array('client', $roles) => 'Client/Settings/Index',
+            default => 'User/Settings/Index',
+        };
+
+        return Inertia::render($view, [
+            'user' => $user,
             'flash' => [
                 'success' => session('success'),
-                'error'   => session('error'),
-            ]
+                'error' => session('error'),
+            ],
         ]);
     }
 
-    // --- ACTION: RENEW PROFILE ---
-    // Route: renew-profile
-    public function renew_profile(Request $request)
+    /**
+     * Update user profile data
+     * Route: profile/update (name: profile.update)
+     */
+    public function update(Request $request)
     {
         $user = Auth::user();
+        $roles = $user->roles ?? [];
 
-        // 1. Validasi (Sama persis dengan kode lama)
-        $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'gender'    => 'required|in:L,P',
-            'phone'     => 'nullable|string|max:20',
-            'address'   => 'nullable|string|max:255',
-            // Validasi slug unik kecuali punya user sendiri
-            'slug_name' => 'nullable|alpha_dash|unique:users,slug,' . $user->id,
-        ]);
+        // Base validation rules
+        $rules = [
+            'name' => 'required|string|max:255',
+            'gender' => 'required|in:L,P',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ];
+
+        // Conditional slug validation - only for Expert or Client
+        if (in_array('expert', $roles) && $user->expert) {
+            $rules['slug_name'] = 'nullable|alpha_dash|unique:experts,slug,'.$user->expert->id;
+        } elseif (in_array('client', $roles) && $user->client) {
+            $rules['slug_name'] = 'nullable|alpha_dash|unique:clients,slug,'.$user->client->id;
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // 2. Panggil Service
         $this->service->updateProfile($user, $request->all());
 
-        // 3. Redirect (Tetap gunakan logic redirect lama jika ingin konsisten)
-        // Di kode lama redirect ke 'profile', tapi karena kita refactor halaman settings ada di 'profile.edit'
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
-    // --- ACTION: RENEW PASSWORD ---
-    // Route: renew-password
-    public function renew_password(Request $request)
+    /**
+     * Update user password
+     * Route: profile/password (name: profile.password.update)
+     */
+    public function updatePassword(Request $request)
     {
         $user = Auth::user();
 
-        // 1. Validasi Kondisional (Sama persis dengan kode lama)
         $rules = [
-            'new_password' => 'required|min:4|confirmed',
+            'new_password' => 'required|min:8|confirmed',
         ];
 
         if ($user->password !== null) {
@@ -82,29 +106,29 @@ class ProfileController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // 2. Panggil Service (Logic check hash ada di dalam service)
-        // Service akan throw validation exception jika password lama salah
         $this->service->updatePassword($user, $request->current_password, $request->new_password);
 
         return redirect()->back()->with('success', 'Password has been updated successfully!');
     }
 
-    // --- ACTION: RENEW PICTURE ---
-    // Route: renew-picture
-    public function renew_picture(Request $request)
+    /**
+     * Update user profile picture
+     * Route: profile/picture (name: profile.picture.update)
+     */
+    public function updatePicture(Request $request)
     {
-        // 1. Validasi Gambar
+        $user = Auth::user();
+
         $validator = Validator::make($request->all(), [
-            'picture' => 'required|image|mimes:jpg,jpeg,png,gif|max:800',
+            'picture' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // 2. Panggil Service (Logic S3 ada di dalam service)
         if ($request->hasFile('picture')) {
-            $this->service->updateAvatar(Auth::user(), $request->file('picture'));
+            $this->service->updateAvatar($user, $request->file('picture'));
         }
 
         return redirect()->back()->with('success', 'Profile picture updated successfully.');
