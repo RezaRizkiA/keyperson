@@ -37,15 +37,15 @@ const props = defineProps({
 
 // Form Setup
 const form = useForm({
+  company_name: "",
     type: "",
-    company_name: "",
     industry: "",
     employee_count: "",
-    address: "",
     website: "",
-    about: "",
+    address: "",
     logo: null,
     cover_image: null,
+    about: "",
     skills: [],
 });
 
@@ -131,7 +131,10 @@ const handleFileUpload = (event, fieldName, previewRef) => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        previewRef.value = e.target.result;
+        // Check if previewRef is still valid (component might be unmounted)
+        if (previewRef && e.target) {
+            previewRef.value = e.target.result;
+        }
     };
     reader.readAsDataURL(file);
 };

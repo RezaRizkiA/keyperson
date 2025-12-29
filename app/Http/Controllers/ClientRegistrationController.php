@@ -39,7 +39,6 @@ class ClientRegistrationController extends Controller
                 ['value' => 'startup', 'label' => 'Startup'],
                 ['value' => 'government', 'label' => 'Instansi Pemerintah'],
                 ['value' => 'ngo', 'label' => 'NGO / Yayasan'],
-                ['value' => 'individual', 'label' => 'Perorangan'],
             ],
             'employee_counts' => [
                 '1-10 Karyawan',

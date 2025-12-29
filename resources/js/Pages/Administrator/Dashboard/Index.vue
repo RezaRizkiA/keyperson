@@ -11,7 +11,7 @@ import {
     UserPlus,
     UserCircle,
 } from "lucide-vue-next";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import ApexCharts from "apexcharts";
 
 // Menggunakan Persistent Layout
@@ -77,6 +77,7 @@ const getStatusLabel = (status) => {
 // Appointment Trends Chart
 const chartRef = ref(null);
 let chart = null;
+let observer = null;
 
 const isDarkMode = () => document.documentElement.classList.contains("dark");
 
@@ -181,8 +182,8 @@ onMounted(() => {
         chart.render();
 
         // Watch for theme changes
-        const observer = new MutationObserver(() => {
-            if (chart) {
+        observer = new MutationObserver(() => {
+            if (chart && chartRef.value) {
                 chart.updateOptions(getChartOptions());
             }
         });
@@ -190,6 +191,18 @@ onMounted(() => {
             attributes: true,
             attributeFilter: ["class"],
         });
+    }
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+        observer = null;
+    }
+    if (chart) {
+        chart.destroy();
+        chart = null;
     }
 });
 
