@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientRequest;
-use App\Models\Skill;
+use App\Http\Requests\StoreUserStepOneRequest;
 use App\Models\Category;
+use App\Models\User;
 use App\Services\ClientOnboardingService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ClientRegistrationController extends Controller
@@ -20,7 +22,46 @@ class ClientRegistrationController extends Controller
     }
 
     /**
-     * Menampilkan Form Onboarding Client
+     * Step 1: Menampilkan form registrasi user
+     */
+    public function createStepOne()
+    {
+        return Inertia::render('Client/Onboarding/StepOne');
+    }
+
+    /**
+     * Step 1: Proses registrasi user + assign role client
+     */
+    public function storeStepOne(StoreUserStepOneRequest $request)
+    {
+        try {
+            $user = DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'password' => $request->password, // Auto hashed via cast
+                    'roles' => ['user', 'client'],
+                    'email_verified_at' => now(),
+                ]);
+
+                return $user;
+            });
+
+            Auth::login($user);
+
+            return redirect()->route('client_onboarding.create')
+                ->with('success', 'Akun berhasil dibuat! Silakan lengkapi profil perusahaan Anda.');
+
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Step 2: Menampilkan Form Onboarding Client (Profile Perusahaan)
      */
     public function create()
     {
@@ -72,7 +113,7 @@ class ClientRegistrationController extends Controller
         return Inertia::render('Client/Onboarding/Create', [
             // Kirim data user basic (nama/email) untuk auto-fill form jika perlu
             'user_defaults' => [
-                'name'  => $user->name,
+                'name' => $user->name,
                 'email' => $user->email,
             ],
             'options' => $formOptions,
@@ -80,6 +121,9 @@ class ClientRegistrationController extends Controller
         ]);
     }
 
+    /**
+     * Step 2: Proses simpan data profil perusahaan
+     */
     public function store(StoreClientRequest $request)
     {
         try {
@@ -88,14 +132,15 @@ class ClientRegistrationController extends Controller
                 $request->validated()
             );
 
+            \Log::info('Client Onboarding SUCCESS for user: '.Auth::id());
+
             return redirect()->route('dashboard.index')
                 ->with('success', 'Selamat! Profil perusahaan Anda berhasil dibuat.');
         } catch (\Exception $e) {
-            // Opsional: Log error ke file log server biar developer tau
-            // \Log::error('Client Onboarding Error: ' . $e->getMessage());
+            \Log::error('Client Onboarding Error: '.$e->getMessage().' | Trace: '.$e->getTraceAsString());
 
             return back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
                 ->withInput(); // JANGAN LUPA INI biar form gak kereset
         }
     }

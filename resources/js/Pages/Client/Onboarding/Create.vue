@@ -130,8 +130,7 @@ const handleFileUpload = (event, fieldName) => {
     form[fieldName] = file;
 
     const reader = new FileReader();
-  reader.onload = (e) => {
-    console.log(e.target);
+    reader.onload = (e) => {
         if (fieldName === "logo") {
             logoPreview.value = e.target.result;
         } else if (fieldName === "cover_image") {
@@ -432,9 +431,19 @@ const submit = () => {
                                         v-model="form.website"
                                         type="url"
                                         class="w-full bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-sm py-2.5 pl-10 pr-4"
+                                        :class="{
+                                            'border-red-500':
+                                                form.errors.website,
+                                        }"
                                         placeholder="https://www.company.com"
                                     />
                                 </div>
+                                <p
+                                    v-if="form.errors.website"
+                                    class="text-red-400 text-xs mt-1"
+                                >
+                                    {{ form.errors.website }}
+                                </p>
                             </div>
 
                             <div>

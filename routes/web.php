@@ -46,6 +46,21 @@ Route::get('/choose-path', [AuthController::class, 'choosePath'])->name('choose_
 Route::get('login', [AuthController::class, 'loginView'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login_post'])->name('login_post')->middleware('guest');
 
+// === ONBOARDING STEP 1 (Public - Guest Only) ===
+Route::middleware('guest')->group(function () {
+    // Client Registration Step 1
+    Route::get('/register/client', [ClientRegistrationController::class, 'createStepOne'])
+        ->name('client_register.step_one');
+    Route::post('/register/client', [ClientRegistrationController::class, 'storeStepOne'])
+        ->name('client_register.store_step_one');
+
+    // Expert Registration Step 1
+    Route::get('/register/expert', [ExpertRegistrationController::class, 'createStepOne'])
+        ->name('expert_register.step_one');
+    Route::post('/register/expert', [ExpertRegistrationController::class, 'storeStepOne'])
+        ->name('expert_register.store_step_one');
+});
+
 // Google Auth
 Route::get('/auth/google/login', [AuthController::class, 'google_login'])->name('google.login');
 Route::get('/auth/google/callback', [AuthController::class, 'google_callback'])->name('google.callback');
@@ -158,7 +173,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/notify', [PaymentController::class, 'notify'])
         ->name('payment.notify');
 
-    // === ONBOARDING ROUTES ===
+    // === ONBOARDING STEP 2 (Auth + Eligible) ===
     // Middleware: Block jika sudah Expert, Client, atau Corporate Employee
     Route::middleware('eligible-onboarding')->group(function () {
         Route::prefix('expert-onboarding')->group(function () {

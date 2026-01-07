@@ -64,14 +64,14 @@ const iconMap = {
                     class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
                 >
                     <Link
-                        :href="route('client_onboarding.create')"
+                        :href="route('client_register.step_one')"
                         class="btn-primary-glow"
                     >
                         <UserGroupIcon class="w-5 h-5" /> Join as Client
                         <ArrowRight class="w-5 h-5" />
                     </Link>
                     <Link
-                        :href="route('expert_onboarding.create')"
+                        :href="route('expert_register.step_one')"
                         class="btn-secondary-glow"
                     >
                         <BriefcaseIcon class="w-5 h-5" /> Join as Expert
