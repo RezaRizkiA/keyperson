@@ -30,7 +30,7 @@ Route::get('pricing', [LandingController::class, 'pricing'])->name('pricing');
 Route::get('terms', [LandingController::class, 'terms'])->name('terms');
 Route::get('privacy', [LandingController::class, 'privacy'])->name('privacy');
 
-Route::prefix('portal')->group(function () {
+Route::prefix('portal')->middleware('client-access')->group(function () {
     Route::get('/{client:slug}', [ClientPortalController::class, 'index'])
         ->name('client.home');
     Route::get('/{client:slug}/category/{expertise:slug}', [ClientPortalController::class, 'experts'])

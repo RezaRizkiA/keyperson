@@ -37,7 +37,7 @@ const props = defineProps({
 
 // Form Setup
 const form = useForm({
-  company_name: "",
+    company_name: "",
     type: "",
     industry: "",
     employee_count: "",
@@ -118,7 +118,7 @@ const clearAllSkills = () => {
 };
 
 // Handle File Upload
-const handleFileUpload = (event, fieldName, previewRef) => {
+const handleFileUpload = (event, fieldName) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -130,10 +130,12 @@ const handleFileUpload = (event, fieldName, previewRef) => {
     form[fieldName] = file;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-        // Check if previewRef is still valid (component might be unmounted)
-        if (previewRef && e.target) {
-            previewRef.value = e.target.result;
+  reader.onload = (e) => {
+    console.log(e.target);
+        if (fieldName === "logo") {
+            logoPreview.value = e.target.result;
+        } else if (fieldName === "cover_image") {
+            coverPreview.value = e.target.result;
         }
     };
     reader.readAsDataURL(file);
@@ -528,11 +530,7 @@ const submit = () => {
                                             accept="image/png, image/jpeg, image/jpg, image/webp"
                                             @change="
                                                 (e) =>
-                                                    handleFileUpload(
-                                                        e,
-                                                        'logo',
-                                                        logoPreview
-                                                    )
+                                                    handleFileUpload(e, 'logo')
                                             "
                                         />
                                     </label>

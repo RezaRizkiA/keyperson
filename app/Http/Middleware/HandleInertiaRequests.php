@@ -44,6 +44,11 @@ class HandleInertiaRequests extends Middleware
                     'email' => $request->user()->email,
                     'roles' => $request->user()->roles,
                     'picture_url' => $request->user()->picture_url,
+                    'client_id' => $request->user()->client_id,
+                    'company' => $request->user()->client_id ? [
+                        'slug' => $request->user()->company?->slug,
+                        'company_name' => $request->user()->company?->company_name,
+                    ] : null,
                     // Token Google JANGAN dimasukkan disini
                 ] : null,
             ],
