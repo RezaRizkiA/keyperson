@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -48,6 +49,15 @@ class User extends Authenticatable
     public function getHasPasswordAttribute()
     {
         return !is_null($this->password);
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            set: function (string $value) {
+                return ucwords(strtolower(trim($value)));
+            },
+        );
     }
 
     public function client()

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,12 +21,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Global Password Validation Defaults
+        // Wajib: huruf, huruf besar & kecil, angka, simbol, minimal 8 karakter
+        Password::defaults(function () {
+            return Password::min(8)
+                ->letters()        // Wajib mengandung huruf
+                ->mixedCase()      // Wajib huruf besar & kecil
+                ->numbers()        // Wajib mengandung angka
+                ->symbols();       // Wajib mengandung simbol (!@#$%^&* dll)
+        });
+
         // Atur locale Carbon secara global untuk bahasa Indonesia
-        // 'id_ID' adalah locale standar untuk Indonesia
-        // Jika tidak bekerja, coba 'id', 'id_ID.utf8', atau 'Indonesian' tergantung sistem operasi server
-        Carbon::setLocale('id'); // Coba ini pertama
-        // Carbon::setLocale('id_ID'); // Atau ini
-        // Carbon::setLocale('id_ID.utf8'); // Atau ini jika di Linux
+        Carbon::setLocale('id');
 
         // Fallback jika setLocale tidak berhasil mengenali
         try {

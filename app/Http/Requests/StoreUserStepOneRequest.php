@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class StoreUserStepOneRequest extends FormRequest
 {
@@ -25,7 +26,12 @@ class StoreUserStepOneRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => [
+                'required',
+                'confirmed',
+                'regex:/^\S+$/',  // Tidak boleh ada spasi
+                Password::defaults(),
+            ],
         ];
     }
 
@@ -44,8 +50,13 @@ class StoreUserStepOneRequest extends FormRequest
             'phone.required' => 'Nomor telepon wajib diisi.',
             'phone.unique' => 'Nomor telepon ini sudah terdaftar.',
             'password.required' => 'Password wajib diisi.',
+            'password.regex' => 'Password tidak boleh mengandung spasi.',
             'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.letters' => 'Password wajib mengandung huruf.',
+            'password.mixed' => 'Password wajib mengandung huruf besar dan kecil.',
+            'password.numbers' => 'Password wajib mengandung angka.',
+            'password.symbols' => 'Password wajib mengandung simbol (!@#$%^&* dll).',
         ];
     }
 }

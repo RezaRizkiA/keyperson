@@ -34,23 +34,23 @@ class UserSeeder extends Seeder
                 'address'  => $faker->address,
                 'picture'  => 'https://ui-avatars.com/api/?name=' . urlencode('Expert ' . $i) . '&background=' . substr(md5($i), 0, 6) . '&color=fff',
                 'password' => Hash::make('password'),
-                'roles'    => ['expert'],
+                'roles'    => ['user','expert'],
             ]);
         }
 
         // 3. Create 5 Client Users (HRD/Company Representatives)
         // These users will be linked to Client companies in ClientSeeder
-        for ($i = 1; $i <= 5; $i++) {
-            User::create([
-                'name' => $faker->name,
-                'email' => 'client'.$i.'@keyperson.com',
-                'phone' => $faker->phoneNumber,
-                'address' => $faker->address,
-                'picture' => 'https://ui-avatars.com/api/?name='.urlencode('Client '.$i).'&background='.substr(md5($i + 100), 0, 6).'&color=fff',
-                'password' => Hash::make('password'),
-                'roles' => ['client'],
-            ]);
-        }
+        // for ($i = 1; $i <= 5; $i++) {
+        //     User::create([
+        //         'name' => $faker->name,
+        //         'email' => 'client'.$i.'@keyperson.com',
+        //         'phone' => $faker->phoneNumber,
+        //         'address' => $faker->address,
+        //         'picture' => 'https://ui-avatars.com/api/?name='.urlencode('Client '.$i).'&background='.substr(md5($i + 100), 0, 6).'&color=fff',
+        //         'password' => Hash::make('password'),
+        //         'roles' => ['client'],
+        //     ]);
+        // }
 
         // 4. Create 20 Regular/Retail Users (who can book appointments without company)
         for ($i = 1; $i <= 10; $i++) {

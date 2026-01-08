@@ -106,8 +106,8 @@ const steps = computed(() => [
     </header>
 
     <!-- Step Progress Section -->
-    <div class="bg-white border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 py-8">
+    <div class="border-b border-slate-100">
+        <div class="max-w-5xl mx-auto px-6 py-8">
             <!-- Step Title Row -->
             <div class="flex items-start justify-between mb-5">
                 <div>

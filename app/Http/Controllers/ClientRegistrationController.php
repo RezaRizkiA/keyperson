@@ -34,13 +34,14 @@ class ClientRegistrationController extends Controller
      */
     public function storeStepOne(StoreUserStepOneRequest $request)
     {
+      $data = $request->validated();
         try {
-            $user = DB::transaction(function () use ($request) {
+            $user = DB::transaction(function () use ($data) {
                 $user = User::create([
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'password' => $request->password, // Auto hashed via cast
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'password' => $data['password'],
                     'roles' => ['user', 'client'],
                     'email_verified_at' => now(),
                 ]);
