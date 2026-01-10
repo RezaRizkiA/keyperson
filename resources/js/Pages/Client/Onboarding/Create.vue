@@ -935,7 +935,7 @@ const submit = () => {
                     class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between"
                 >
                     <Link
-                        :href="route('client_register.step_one')"
+                        :href="route('client_onboarding.edit_step_one')"
                         class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                     >
                         <ArrowLeft class="w-4 h-4" />

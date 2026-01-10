@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import {
     User,
     Mail,
@@ -17,27 +17,33 @@ import {
 } from "lucide-vue-next";
 import RegistrationStepHeader from "@/Components/Registration/RegistrationStepHeader.vue";
 
+// Props for edit mode
+const props = defineProps({
+    isEditMode: { type: Boolean, default: false },
+    user: { type: Object, default: null },
+});
+
 // Ambil shared data (Logo)
 const page = usePage();
 const googleIconUrl = computed(() => page.props.assets.googleIconUrl);
 
 // Form Handling dengan Inertia
 const form = useForm({
-    name: "",
-    email: "",
-    phone: "",
+    name: props.user?.name || "",
+    email: props.user?.email || "",
+    phone: props.user?.phone || "",
     password: "",
     password_confirmation: "",
 });
 
 const handleInput = () => {
-  form.clearErrors();
+    form.clearErrors();
 };
 
 const showPassword = ref(false);
 const showPasswordConfirm = ref(false);
 
-// Password Strength Validation
+// Password Strength Validation - only show when password is being typed
 const passwordRequirements = computed(() => [
     {
         label: "Minimal 8 karakter",
@@ -57,7 +63,7 @@ const passwordRequirements = computed(() => [
     },
     {
         label: "Simbol (!@#$%^&*)",
-        met: /[!@#$%^&*(),.?":{}|<>[\]\\;'`~_+=-]/.test(form.password),
+        met: /[!@#$%^&*(),.?":{}\|<>[\]\\;'`~_+=-]/.test(form.password),
     },
     {
         label: "Tanpa spasi",
@@ -74,18 +80,35 @@ const passwordStrengthPercent = computed(() => {
     return (metCount / passwordRequirements.value.length) * 100;
 });
 
+// Dynamic page title
+const pageTitle = computed(() =>
+    props.isEditMode
+        ? "Edit Personal Info - Step 1"
+        : "Daftar sebagai Client - Step 1"
+);
 
+// Dynamic submit handler
 const submit = () => {
-    form.post(route("client_register.store_step_one"), {
-        onFinish: () => {
-            form.reset("password", "password_confirmation");
-        },
-    });
+    if (props.isEditMode) {
+        // Edit mode - use PUT request
+        form.put(route("client_onboarding.update_step_one"), {
+            onFinish: () => {
+                form.reset("password", "password_confirmation");
+            },
+        });
+    } else {
+        // Create mode - use POST request
+        form.post(route("client_register.store_step_one"), {
+            onFinish: () => {
+                form.reset("password", "password_confirmation");
+            },
+        });
+    }
 };
 </script>
 
 <template>
-    <Head title="Daftar sebagai Client - Step 1" />
+    <Head :title="pageTitle" />
 
     <div class="min-h-screen bg-slate-50">
         <!-- Step Header -->
@@ -105,15 +128,22 @@ const submit = () => {
                 <div class="p-8">
                     <!-- Form Title -->
                     <h2 class="text-xl font-bold text-slate-900 mb-6">
-                        Create your account
+                        {{
+                            isEditMode
+                                ? "Edit your profile"
+                                : "Create your account"
+                        }}
                     </h2>
                     <p class="text-slate-500 mb-8 -mt-4">
-                        Fill in your personal information to get started with
-                        KeyPerson.
+                        {{
+                            isEditMode
+                                ? "Update your personal information below. Password is optional if you don't want to change it."
+                                : "Fill in your personal information to get started with KeyPerson."
+                        }}
                     </p>
 
-                    <!-- Google Sign Up -->
-                    <div class="mb-6">
+                    <!-- Google Sign Up (only on create mode) -->
+                    <div v-if="!isEditMode" class="mb-6">
                         <a
                             :href="route('google.login')"
                             class="group flex w-full items-center justify-center gap-3 rounded-xl px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm"
@@ -127,8 +157,8 @@ const submit = () => {
                         </a>
                     </div>
 
-                    <!-- Divider -->
-                    <div class="relative mb-6">
+                    <!-- Divider (only on create mode) -->
+                    <div v-if="!isEditMode" class="relative mb-6">
                         <div
                             class="absolute inset-0 flex items-center"
                             aria-hidden="true"
@@ -487,16 +517,24 @@ const submit = () => {
                         <div
                             class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between"
                         >
-                            <!-- Back Button (Disabled on Step 1) -->
+                            <!-- Back Button -->
                             <Link
-                                :href="route('login')"
+                                :href="
+                                    isEditMode
+                                        ? route('client_onboarding.create')
+                                        : route('login')
+                                "
                                 class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
                             >
                                 <ArrowLeft class="w-4 h-4" />
-                                <span>Back to Login</span>
+                                <span>{{
+                                    isEditMode
+                                        ? "Back to Step 2"
+                                        : "Back to Login"
+                                }}</span>
                             </Link>
 
-                            <!-- Continue Button -->
+                            <!-- Continue/Save Button -->
                             <button
                                 type="submit"
                                 :disabled="form.processing"
@@ -509,6 +547,8 @@ const submit = () => {
                                 <span>{{
                                     form.processing
                                         ? "Processing..."
+                                        : isEditMode
+                                        ? "Save & Continue"
                                         : "Continue"
                                 }}</span>
                                 <ArrowRight

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('logo')->nullable();
             $table->string('cover_image')->nullable();
-            $table->boolean('is_verified')->default(false);
+            $table->string('status')->default('pending');
             $table->string('industry')->nullable();
             $table->string('address')->nullable();
             $table->string('employee_count')->nullable();

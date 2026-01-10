@@ -78,6 +78,7 @@ Route::post('/join/{token}', [EmployeeInviteController::class, 'register'])->nam
 // =========================================================================
 Route::middleware('auth')->group(function () {
     Route::prefix('dashboard')->group(function () {
+        // === SHARED ROUTES (All authenticated users) ===
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
 
         Route::prefix('appointments')->name('dashboard.appointments.')->group(function () {
@@ -89,70 +90,74 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AppointmentController::class, 'destroy'])->name('destroy');
         });
 
-        Route::prefix('experts')->name('dashboard.experts.')->group(function () {
-            Route::get('/', [ExpertController::class, 'index'])->name('index');
-            Route::get('/{id}', [ExpertController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [ExpertController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ExpertController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ExpertController::class, 'destroy'])->name('destroy');
-        });
-
-        Route::prefix('clients')->name('dashboard.clients.')->group(function () {
-            Route::get('/', [ClientController::class, 'index'])->name('index');
-            Route::get('/{id}', [ClientController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [ClientController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ClientController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ClientController::class, 'destroy'])->name('destroy');
-        });
-
-        Route::prefix('users')->name('dashboard.users.')->group(function () {
-            Route::get('/', [UserController::class, 'index'])->name('index');
-            Route::get('/{id}', [UserController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [UserController::class, 'update'])->name('update');
-            Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
-        });
-
         Route::get('/transactions', [TransactionController::class, 'index'])->name('dashboard.transactions.index');
-
-        Route::prefix('expertises')->name('dashboard.expertises.')->group(function () {
-            Route::get('/', [ExpertiseController::class, 'index'])
-                ->name('index');
-            Route::post('/categories', [ExpertiseController::class, 'storeCategory'])
-                ->name('categories.store');
-            Route::put('/categories/{id}', [ExpertiseController::class, 'updateCategory'])
-                ->name('categories.update');
-            Route::delete('/categories/{id}', [ExpertiseController::class, 'destroyCategory'])
-                ->name('categories.destroy');
-            Route::post('/sub-categories', [ExpertiseController::class, 'storeSubCategory'])
-                ->name('sub-categories.store');
-            Route::put('/sub-categories/{id}', [ExpertiseController::class, 'updateSubCategory'])
-                ->name('sub-categories.update');
-            Route::delete('/sub-categories/{id}', [ExpertiseController::class, 'destroySubCategory'])
-                ->name('sub-categories.destroy');
-            Route::post('/skills', [ExpertiseController::class, 'storeSkill'])
-                ->name('skills.store');
-            Route::put('/skills/{id}', [ExpertiseController::class, 'updateSkill'])
-                ->name('skills.update');
-            Route::delete('/skills/{id}', [ExpertiseController::class, 'destroySkill'])
-                ->name('skills.destroy');
-        });
 
         Route::get('/settings', [ProfileController::class, 'edit'])
             ->name('profile.edit');
 
-        // === PROFILE UPDATE ROUTES ===
         Route::prefix('profile')->name('profile.')->group(function () {
             Route::post('/update', [ProfileController::class, 'update'])->name('update');
             Route::post('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
             Route::post('/picture', [ProfileController::class, 'updatePicture'])->name('picture.update');
         });
 
-        // === HRD EMPLOYEE MANAGEMENT (Client role only) ===
-        Route::prefix('employees')->name('employees.')->group(function () {
-            Route::get('/', [EmployeeInviteController::class, 'index'])->name('index');
-            Route::post('/invite', [EmployeeInviteController::class, 'store'])->name('invite');
-            Route::delete('/invite/{id}', [EmployeeInviteController::class, 'destroy'])->name('revoke');
+        // === ADMIN ONLY ROUTES ===
+        Route::middleware('role:administrator')->group(function () {
+            Route::prefix('experts')->name('dashboard.experts.')->group(function () {
+                Route::get('/', [ExpertController::class, 'index'])->name('index');
+                Route::get('/{id}', [ExpertController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [ExpertController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [ExpertController::class, 'update'])->name('update');
+                Route::delete('/{id}', [ExpertController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('clients')->name('dashboard.clients.')->group(function () {
+                Route::get('/', [ClientController::class, 'index'])->name('index');
+                Route::get('/{id}', [ClientController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [ClientController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [ClientController::class, 'update'])->name('update');
+                Route::delete('/{id}', [ClientController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('users')->name('dashboard.users.')->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('/{id}', [UserController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [UserController::class, 'update'])->name('update');
+                Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('expertises')->name('dashboard.expertises.')->group(function () {
+                Route::get('/', [ExpertiseController::class, 'index'])
+                    ->name('index');
+                Route::post('/categories', [ExpertiseController::class, 'storeCategory'])
+                    ->name('categories.store');
+                Route::put('/categories/{id}', [ExpertiseController::class, 'updateCategory'])
+                    ->name('categories.update');
+                Route::delete('/categories/{id}', [ExpertiseController::class, 'destroyCategory'])
+                    ->name('categories.destroy');
+                Route::post('/sub-categories', [ExpertiseController::class, 'storeSubCategory'])
+                    ->name('sub-categories.store');
+                Route::put('/sub-categories/{id}', [ExpertiseController::class, 'updateSubCategory'])
+                    ->name('sub-categories.update');
+                Route::delete('/sub-categories/{id}', [ExpertiseController::class, 'destroySubCategory'])
+                    ->name('sub-categories.destroy');
+                Route::post('/skills', [ExpertiseController::class, 'storeSkill'])
+                    ->name('skills.store');
+                Route::put('/skills/{id}', [ExpertiseController::class, 'updateSkill'])
+                    ->name('skills.update');
+                Route::delete('/skills/{id}', [ExpertiseController::class, 'destroySkill'])
+                    ->name('skills.destroy');
+            });
+        });
+
+        // === CLIENT ONLY ROUTES (HRD Employee Management) ===
+        Route::middleware('role:client')->group(function () {
+            Route::prefix('employees')->name('employees.')->group(function () {
+                Route::get('/', [EmployeeInviteController::class, 'index'])->name('index');
+                Route::post('/invite', [EmployeeInviteController::class, 'store'])->name('invite');
+                Route::delete('/invite/{id}', [EmployeeInviteController::class, 'destroy'])->name('revoke');
+            });
         });
     });
 
@@ -184,6 +189,13 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::prefix('client-onboarding')->group(function () {
+            // Edit Step 1 (Back from Step 2)
+            Route::get('/edit-profile', [ClientRegistrationController::class, 'editStepOne'])
+                ->name('client_onboarding.edit_step_one');
+            Route::put('/edit-profile', [ClientRegistrationController::class, 'updateStepOne'])
+                ->name('client_onboarding.update_step_one');
+
+            // Step 2: Company Profile
             Route::get('/', [ClientRegistrationController::class, 'create'])
                 ->name('client_onboarding.create');
             Route::post('/', [ClientRegistrationController::class, 'store'])
@@ -192,8 +204,8 @@ Route::middleware('auth')->group(function () {
     });
     // === END ONBOARDING ROUTES ===
 
-    // === B2B TOP-UP ROUTES ===
-    Route::prefix('topup')->name('topup.')->group(function () {
+    // === B2B TOP-UP ROUTES (Client only) ===
+    Route::middleware('role:client')->prefix('topup')->name('topup.')->group(function () {
         Route::get('/', [TopUpController::class, 'create'])->name('create');
         Route::post('/', [TopUpController::class, 'store'])->name('store');
         Route::get('/success', [TopUpController::class, 'success'])->name('success');

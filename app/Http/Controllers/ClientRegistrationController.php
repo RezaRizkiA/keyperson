@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\StoreUserStepOneRequest;
+use App\Http\Requests\UpdateUserStepOneRequest;
 use App\Models\Category;
 use App\Models\User;
 use App\Services\ClientOnboardingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class ClientRegistrationController extends Controller
@@ -34,7 +36,7 @@ class ClientRegistrationController extends Controller
      */
     public function storeStepOne(StoreUserStepOneRequest $request)
     {
-      $data = $request->validated();
+        $data = $request->validated();
         try {
             $user = DB::transaction(function () use ($data) {
                 $user = User::create([
@@ -53,6 +55,56 @@ class ClientRegistrationController extends Controller
 
             return redirect()->route('client_onboarding.create')
                 ->with('success', 'Akun berhasil dibuat! Silakan lengkapi profil perusahaan Anda.');
+
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Step 1 Edit: Menampilkan form edit personal info (dari Step 2 Back)
+     */
+    public function editStepOne()
+    {
+        $user = Auth::user();
+
+        return Inertia::render('Client/Onboarding/StepOne', [
+            'isEditMode' => true,
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+            ],
+        ]);
+    }
+
+    /**
+     * Step 1 Edit: Proses update personal info
+     */
+    public function updateStepOne(UpdateUserStepOneRequest $request)
+    {
+        $data = $request->validated();
+
+        try {
+            $user = Auth::user();
+
+            $updateData = [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+            ];
+
+            // Update password hanya jika diisi
+            if (!empty($data['password'])) {
+                $updateData['password'] = Hash::make($data['password']);
+            }
+
+            $user->update($updateData);
+
+            return redirect()->route('client_onboarding.create')
+                ->with('success', 'Data personal berhasil diperbarui!');
 
         } catch (\Exception $e) {
             return back()
@@ -127,10 +179,12 @@ class ClientRegistrationController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
+        $data = $request->validated();
+    dd($data);
         try {
             $this->clientService->saveClientData(
                 Auth::user(),
-                $request->validated()
+                $data
             );
 
             \Log::info('Client Onboarding SUCCESS for user: '.Auth::id());
@@ -142,7 +196,8 @@ class ClientRegistrationController extends Controller
 
             return back()
                 ->with('error', 'Terjadi kesalahan: '.$e->getMessage())
-                ->withInput(); // JANGAN LUPA INI biar form gak kereset
+                ->withInput();
         }
     }
 }
+

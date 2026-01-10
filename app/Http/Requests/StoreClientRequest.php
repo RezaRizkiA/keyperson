@@ -18,15 +18,6 @@ class StoreClientRequest extends FormRequest
     }
 
     /**
-     * Handle a failed validation attempt (DEBUG).
-     */
-    protected function failedValidation(Validator $validator)
-    {
-        Log::error('StoreClientRequest VALIDATION FAILED: '.json_encode($validator->errors()->toArray()));
-        parent::failedValidation($validator);
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

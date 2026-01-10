@@ -10,6 +10,7 @@ use App\Http\Middleware\EnsureGoogleCalendarConnected;
 use App\Http\Middleware\NotExpert;
 use App\Http\Middleware\EligibleForOnboarding;
 use App\Http\Middleware\EnsureClientAccess;
+use App\Http\Middleware\CheckRole;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'not-expert' => NotExpert::class,
             'eligible-onboarding' => EligibleForOnboarding::class,
             'client-access' => EnsureClientAccess::class,
+            'role' => CheckRole::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'payment/notify',
