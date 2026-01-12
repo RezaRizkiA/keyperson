@@ -60,9 +60,21 @@ class User extends Authenticatable
         );
     }
 
-    public function client()
+    /**
+     * Client yang dimiliki/didaftarkan oleh user ini (jika dia HRD/Owner)
+     * Berbeda dengan company() yang menunjukkan tempat user bekerja
+     */
+    public function ownedClient()
     {
         return $this->hasOne(Client::class, 'user_id');
+    }
+
+    /**
+     * Helper: Cek apakah user adalah owner dari client-nya
+     */
+    public function isClientOwner(): bool
+    {
+        return $this->ownedClient?->id === $this->client_id;
     }
 
     /**

@@ -180,14 +180,11 @@ class ClientRegistrationController extends Controller
     public function store(StoreClientRequest $request)
     {
         $data = $request->validated();
-    dd($data);
         try {
             $this->clientService->saveClientData(
                 Auth::user(),
                 $data
             );
-
-            \Log::info('Client Onboarding SUCCESS for user: '.Auth::id());
 
             return redirect()->route('dashboard.index')
                 ->with('success', 'Selamat! Profil perusahaan Anda berhasil dibuat.');

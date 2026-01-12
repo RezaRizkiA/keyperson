@@ -54,7 +54,7 @@ class ClientOnboardingService
         'about'          => $validatedData['about'],
         'logo'           => $logoPath,
         'cover_image'    => $coverPath,
-        'status'         => 'pending', // Default status untuk client baru
+        'status'         => 'pending', 
       ];
 
       // 5. Create Client

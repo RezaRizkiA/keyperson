@@ -26,7 +26,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $user->load([
             'expert:id,user_id,slug',
-            'client:id,user_id,slug',
+            'ownedClient:id,user_id,slug',
         ]);
         $roles = $user->roles ?? [];
 
@@ -67,8 +67,8 @@ class ProfileController extends Controller
         // Conditional slug validation - only for Expert or Client
         if (in_array('expert', $roles) && $user->expert) {
             $rules['slug_name'] = 'nullable|alpha_dash|unique:experts,slug,'.$user->expert->id;
-        } elseif (in_array('client', $roles) && $user->client) {
-            $rules['slug_name'] = 'nullable|alpha_dash|unique:clients,slug,'.$user->client->id;
+        } elseif (in_array('client', $roles) && $user->ownedClient) {
+            $rules['slug_name'] = 'nullable|alpha_dash|unique:clients,slug,'.$user->ownedClient->id;
         }
 
         $validator = Validator::make($request->all(), $rules);

@@ -62,7 +62,7 @@ class DashboardController extends Controller
         // --- 3. LOGIKA UNTUK CLIENT/HRD (B2B) ---
         if (in_array('client', $roles)) {
             // Ambil client yang terhubung dengan user ini
-            $client = $user->client; // User yang mendaftarkan perusahaan (owner)
+            $client = $user->ownedClient; // User yang mendaftarkan perusahaan (owner)
 
             if (!$client) {
                 // Jika belum ada client, redirect ke onboarding

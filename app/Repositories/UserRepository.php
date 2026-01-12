@@ -18,7 +18,7 @@ class UserRepository
   public function getPaginatedUsers(array $filters = [], int $perPage = 15): LengthAwarePaginator
   {
     $query = User::query()
-      ->with(['client:id,user_id,company_name', 'expert:id,user_id'])
+      ->with(['ownedClient:id,user_id,company_name', 'expert:id,user_id'])
       ->withCount('appointments')
       ->select([
         'id',
@@ -64,7 +64,7 @@ class UserRepository
   public function findWithRelations(int $id): ?User
   {
     return User::with([
-      'client:id,user_id,company_name,industry,website',
+      'ownedClient:id,user_id,company_name,industry,website',
       'expert:id,user_id,title,price',
       'appointments' => function ($query) {
         $query->select('id', 'user_id', 'expert_id', 'date_time', 'status', 'price', 'hours')

@@ -18,7 +18,7 @@ class EmployeeInviteController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $client = $user->client;
+        $client = $user->ownedClient;
 
         if (! $client) {
             return redirect()->route('dashboard.index')
@@ -64,7 +64,7 @@ class EmployeeInviteController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $client = $user->client;
+        $client = $user->ownedClient;
 
         if (! $client) {
             return redirect()->back()->with('error', 'You do not have a company profile.');
@@ -120,7 +120,7 @@ class EmployeeInviteController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        $client = $user->client;
+        $client = $user->ownedClient;
 
         $invite = EmployeeInvite::where('id', $id)
             ->where('client_id', $client->id)

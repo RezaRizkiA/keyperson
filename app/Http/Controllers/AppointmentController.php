@@ -46,7 +46,7 @@ class AppointmentController extends Controller
                         return [
                             'id' => $appointment->id,
                             'client_name' => $appointment->user->name ?? 'Unknown',
-                            'company_name' => $appointment->user->client->company_name ?? null,
+                            'company_name' => $appointment->user->ownedClient->company_name ?? null,
                             'expert_name' => $appointment->expert->user->name ?? 'Unknown',
                             'date_time' => $appointment->date_time,
                             'status' => $appointment->status,
@@ -64,7 +64,7 @@ class AppointmentController extends Controller
                         return [
                             'id' => $appointment->id,
                             'client_name' => $appointment->user->name ?? 'Unknown',
-                            'company_name' => $appointment->user->client->company_name ?? null,
+                            'company_name' => $appointment->user->ownedClient->company_name ?? null,
                             'expert_name' => $appointment->expert->user->name ?? 'Unknown',
                             'date_time' => $appointment->date_time,
                             'status' => $appointment->status,
@@ -113,7 +113,7 @@ class AppointmentController extends Controller
                     return [
                         'id' => $appointment->id,
                         'client_name' => $appointment->user->name ?? 'Unknown',
-                        'company_name' => $appointment->user->client->company_name ?? null,
+                        'company_name' => $appointment->user->ownedClient->company_name ?? null,
                         'expert_name' => $appointment->expert->user->name ?? 'Unknown',
                         'date_time' => $appointment->date_time,
                         'status' => $appointment->status,
@@ -133,7 +133,7 @@ class AppointmentController extends Controller
                     return [
                         'id' => $appointment->id,
                         'client_name' => $appointment->user->name ?? 'Unknown',
-                        'company_name' => $appointment->user->client->company_name ?? null,
+                        'company_name' => $appointment->user->ownedClient->company_name ?? null,
                         'expert_name' => $appointment->expert->user->name ?? 'Unknown',
                         'date_time' => $appointment->date_time,
                         'status' => $appointment->status,

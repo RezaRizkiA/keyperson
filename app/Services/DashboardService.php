@@ -93,7 +93,7 @@ class DashboardService
      */
     protected function getRecentBookings()
     {
-        return Appointment::with(['expert.user', 'user.client'])
+        return Appointment::with(['expert.user', 'user.ownedClient'])
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
@@ -105,7 +105,7 @@ class DashboardService
                         'avatar' => $appointment->expert->user->picture_url ?? null,
                     ],
                     'client' => [
-                        'institution' => $appointment->user->client->company_name ?? $appointment->user->name,
+                        'institution' => $appointment->user->ownedClient->company_name ?? $appointment->user->name,
                     ],
                     'date_time' => $appointment->date_time,
                     'status' => $appointment->status,

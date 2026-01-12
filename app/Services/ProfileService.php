@@ -39,12 +39,12 @@ class ProfileService
             
             if (in_array('expert', $roles) && $user->expert) {
                 $user->expert->update(['slug' => $data['slug_name']]);
-            } elseif (in_array('client', $roles) && $user->client) {
-                $user->client->update(['slug' => $data['slug_name']]);
+            } elseif (in_array('client', $roles) && $user->ownedClient) {
+                $user->ownedClient->update(['slug' => $data['slug_name']]);
             }
         }
 
-        return $user->fresh(['expert', 'client']);
+        return $user->fresh(['expert', 'ownedClient']);
     }
 
     /**

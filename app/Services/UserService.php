@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\UserRepository;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,9 +18,6 @@ class UserService
 
     /**
      * Get paginated users with stats and filters
-     *
-     * @param array $filters
-     * @return array
      */
     public function getPaginatedUsers(array $filters = []): array
     {
@@ -40,7 +37,7 @@ class UserService
                 'email_verified' => $user->email_verified_at !== null,
                 'calendar_connected' => $user->calendar_connected ?? false,
                 'user_type' => $this->determineUserType($user),
-                'company_name' => $user->client->company_name ?? null,
+                'company_name' => $user->ownedClient->company_name ?? null,
                 'expert_title' => $user->expert->title ?? null,
                 'appointments_count' => $user->appointments_count ?? 0,
                 'created_at' => $user->created_at->format('M d, Y'),
@@ -50,22 +47,20 @@ class UserService
         return [
             'users' => $transformedUsers,
             'stats' => $stats,
-            'filters' => $filters
+            'filters' => $filters,
         ];
     }
 
     /**
      * Get user detail for show page
      *
-     * @param int $id
-     * @return array
      * @throws \Exception
      */
     public function getUserDetail(int $id): array
     {
         $user = $this->userRepository->findWithRelations($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
@@ -82,32 +77,33 @@ class UserService
                 'email_verified_at' => $user->email_verified_at?->format('M d, Y H:i'),
                 'calendar_connected' => $user->calendar_connected ?? false,
                 'user_type' => $this->determineUserType($user),
-                
+
                 // Related data
-                'client' => $user->client ? [
-                    'company_name' => $user->client->company_name,
-                    'industry' => $user->client->industry,
-                    'website' => $user->client->website,
+                'client' => $user->ownedClient ? [
+                    'company_name' => $user->ownedClient->company_name,
+                    'industry' => $user->ownedClient->industry,
+                    'website' => $user->ownedClient->website,
                 ] : null,
-                
+
                 'expert' => $user->expert ? [
                     'title' => $user->expert->title,
-                    'price' => 'Rp ' . number_format($user->expert->price ?? 0, 0, ',', '.'),
+                    'price' => 'Rp '.number_format($user->expert->price ?? 0, 0, ',', '.'),
                 ] : null,
-                
+
                 // Activity
                 'appointments_count' => $user->appointments->count(),
                 'recent_appointments' => $user->appointments->map(function ($appointment) {
                     $dateTime = $appointment->date_time ? \Carbon\Carbon::parse($appointment->date_time) : null;
+
                     return [
                         'id' => $appointment->id,
                         'date' => $dateTime ? $dateTime->format('M d, Y') : '-',
                         'time' => $dateTime ? $dateTime->format('H:i') : '-',
                         'status' => $appointment->status,
-                        'price' => 'Rp ' . number_format($appointment->price ?? 0, 0, ',', '.'),
+                        'price' => 'Rp '.number_format($appointment->price ?? 0, 0, ',', '.'),
                     ];
                 }),
-                
+
                 // Metadata
                 'created_at' => $user->created_at->format('M d, Y H:i'),
                 'updated_at' => $user->updated_at->format('M d, Y H:i'),
@@ -118,15 +114,13 @@ class UserService
     /**
      * Get user data for edit form
      *
-     * @param int $id
-     * @return array
      * @throws \Exception
      */
     public function getUserForEdit(int $id): array
     {
         $user = $this->userRepository->find($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
@@ -148,16 +142,13 @@ class UserService
     /**
      * Update user data
      *
-     * @param int $id
-     * @param array $data
-     * @return User
      * @throws \Exception
      */
     public function updateUser(int $id, array $data): User
     {
         $user = $this->userRepository->find($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
@@ -186,15 +177,13 @@ class UserService
     /**
      * Delete user
      *
-     * @param int $id
-     * @return bool
      * @throws \Exception
      */
     public function deleteUser(int $id): bool
     {
         $user = $this->userRepository->find($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
@@ -216,17 +205,21 @@ class UserService
 
     /**
      * Determine user type based on roles
-     *
-     * @param User $user
-     * @return string
      */
     private function determineUserType(User $user): string
     {
         $roles = $user->roles ?? [];
-        
-        if (in_array('administrator', $roles)) return 'Administrator';
-        if (in_array('expert', $roles)) return 'Expert';
-        if (in_array('client', $roles)) return 'Client';
+
+        if (in_array('administrator', $roles)) {
+            return 'Administrator';
+        }
+        if (in_array('expert', $roles)) {
+            return 'Expert';
+        }
+        if (in_array('client', $roles)) {
+            return 'Client';
+        }
+
         return 'User';
     }
 }
