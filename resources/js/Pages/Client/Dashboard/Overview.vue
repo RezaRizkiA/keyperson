@@ -3,7 +3,6 @@ import { Head, Link } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import {
     Users,
-    Wallet,
     TrendingUp,
     Calendar,
     Plus,
