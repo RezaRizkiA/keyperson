@@ -12,6 +12,11 @@ import {
     ArrowDownRight,
     AlertTriangle,
     CheckCircle,
+    Star,
+    Upload,
+    FileText,
+    CreditCard,
+    ChevronRight,
 } from "lucide-vue-next";
 import { computed } from "vue";
 
@@ -340,215 +345,570 @@ const engagementChangeIsPositive = computed(() => {
                     </div>
                 </Link>
 
-                <!-- Total Spent -->
-                <div
-                    class="py-8 px-6 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg group relative overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
+                <!-- Top Interest Categories Card -->
+                <Link
+                    href="#"
+                    class="block py-6 px-5 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer group relative overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
                 >
-                    <div class="relative z-10 text-center">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-5">
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white"
+                        >
+                            Top Interest Categories
+                        </h4>
                         <div
-                            class="inline-flex p-3 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 rounded-2xl mb-4"
+                            class="p-2 bg-violet-50 dark:bg-violet-500/10 rounded-xl"
                         >
-                            <TrendingUp class="w-6 h-6" />
+                            <TrendingUp class="w-5 h-5 text-violet-500" />
                         </div>
-                        <p
-                            class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    </div>
+
+                    <!-- Categories List -->
+                    <div class="space-y-4">
+                        <!-- Category 1: Mental Health -->
+                        <div>
+                            <div
+                                class="flex items-center justify-between mb-1.5"
+                            >
+                                <span
+                                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    >Mental Health</span
+                                >
+                                <span
+                                    class="text-sm font-semibold text-slate-900 dark:text-white"
+                                    >40%</span
+                                >
+                            </div>
+                            <div
+                                class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-blue-600 rounded-full"
+                                    style="width: 40%"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <!-- Category 2: Career Development -->
+                        <div>
+                            <div
+                                class="flex items-center justify-between mb-1.5"
+                            >
+                                <span
+                                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    >Career Development</span
+                                >
+                                <span
+                                    class="text-sm font-semibold text-slate-900 dark:text-white"
+                                    >30%</span
+                                >
+                            </div>
+                            <div
+                                class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-blue-600 rounded-full"
+                                    style="width: 30%"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <!-- Category 3: Financial Wellness -->
+                        <div>
+                            <div
+                                class="flex items-center justify-between mb-1.5"
+                            >
+                                <span
+                                    class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                    >Financial Wellness</span
+                                >
+                                <span
+                                    class="text-sm font-semibold text-slate-900 dark:text-white"
+                                    >25%</span
+                                >
+                            </div>
+                            <div
+                                class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+                            >
+                                <div
+                                    class="h-full bg-slate-400 rounded-full"
+                                    style="width: 25%"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                </Link>
+
+                <!-- Avg. Expert Rating Card -->
+                <Link
+                    href="#"
+                    class="block py-6 px-5 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer group relative overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
+                >
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h4
+                            class="text-base font-bold text-slate-900 dark:text-white"
                         >
-                            Total Terpakai
-                        </p>
+                            Avg. Expert Rating
+                        </h4>
+                        <div
+                            class="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-xl"
+                        >
+                            <Star class="w-5 h-5 text-amber-500" />
+                        </div>
+                    </div>
+
+                    <!-- Rating Display -->
+                    <div class="text-center py-2">
                         <h3
-                            class="text-4xl font-extrabold text-slate-900 dark:text-white mt-3 mb-2 truncate"
-                            :title="formatCurrency(data.total_spent)"
+                            class="text-5xl font-extrabold text-slate-900 dark:text-white mb-3"
                         >
-                            {{ formatCurrency(data.total_spent) }}
+                            4.8
                         </h3>
-                        <p class="text-sm text-slate-400 dark:text-slate-500">
-                            {{ data.total_bookings }} booking
+                        <!-- Stars -->
+                        <div
+                            class="flex items-center justify-center gap-1 mb-3"
+                        >
+                            <Star
+                                class="w-6 h-6 text-amber-400 fill-amber-400"
+                            />
+                            <Star
+                                class="w-6 h-6 text-amber-400 fill-amber-400"
+                            />
+                            <Star
+                                class="w-6 h-6 text-amber-400 fill-amber-400"
+                            />
+                            <Star
+                                class="w-6 h-6 text-amber-400 fill-amber-400"
+                            />
+                            <Star
+                                class="w-6 h-6 text-slate-200 dark:text-slate-600"
+                            />
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            Based on 118 sessions
                         </p>
+                    </div>
+                </Link>
+            </div>
+        </div>
+
+        <!-- Budget Overview & Quick Actions Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Budget Overview Card -->
+            <div
+                class="rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm p-6"
+            >
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <h3
+                        class="text-lg font-bold text-slate-900 dark:text-white"
+                    >
+                        Budget Overview
+                    </h3>
+                    <div class="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
+                        <CreditCard class="w-5 h-5 text-blue-500" />
                     </div>
                 </div>
 
-                <!-- Upcoming Bookings -->
+                <!-- Total Wallet Balance -->
+                <div class="mb-6">
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                        Total Wallet Balance
+                    </p>
+                    <h2
+                        class="text-3xl font-extrabold text-slate-900 dark:text-white mb-2"
+                    >
+                        IDR 500.000.000
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400"
+                        >
+                            + IDR 50M Topup
+                        </span>
+                        <span class="text-sm text-slate-400 dark:text-slate-500"
+                            >last week</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Divider -->
                 <div
-                    class="py-8 px-6 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg group relative overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
-                >
-                    <div class="relative z-10 text-center">
-                        <div
-                            class="inline-flex p-3 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl mb-4"
-                        >
-                            <Calendar class="w-6 h-6" />
-                        </div>
+                    class="border-t border-slate-100 dark:border-slate-700/50 my-5"
+                ></div>
+
+                <!-- Total Expenditure -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
                         <p
-                            class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                            class="text-sm font-medium text-slate-700 dark:text-slate-300"
                         >
-                            Mendatang
+                            Total Expenditure
                         </p>
-                        <h3
-                            class="text-4xl font-extrabold text-slate-900 dark:text-white mt-3 mb-2"
+                        <p
+                            class="text-sm font-bold text-slate-900 dark:text-white"
                         >
-                            {{ data.upcoming_bookings }}
-                        </h3>
-                        <p class="text-sm text-slate-400 dark:text-slate-500">
-                            Sesi terjadwal
+                            IDR 150.000.000
                         </p>
                     </div>
+                    <!-- Progress Bar -->
+                    <div
+                        class="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-2"
+                    >
+                        <div
+                            class="h-full bg-blue-600 rounded-full"
+                            style="width: 30%"
+                        ></div>
+                    </div>
+                    <p
+                        class="text-xs text-slate-400 dark:text-slate-500 text-right"
+                    >
+                        30% of budget used
+                    </p>
+                </div>
+
+                <!-- Divider -->
+                <div
+                    class="border-t border-slate-100 dark:border-slate-700/50 my-5"
+                ></div>
+
+                <!-- Credit Conversion -->
+                <div
+                    class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl"
+                >
+                    <div
+                        class="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-full"
+                    >
+                        <svg
+                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4
+                            class="text-sm font-bold text-slate-900 dark:text-white"
+                        >
+                            Credit Conversion
+                        </h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            1 Credit =
+                            <span
+                                class="text-blue-600 dark:text-blue-400 font-semibold"
+                                >IDR 250.000</span
+                            >
+                        </p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">
+                            Cap:
+                            <span
+                                class="font-semibold text-slate-700 dark:text-slate-300"
+                                >Max 4 Credits</span
+                            >
+                            / employee
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div
+                class="rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm p-6 flex flex-col"
+            >
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <h3
+                        class="text-lg font-bold text-slate-900 dark:text-white"
+                    >
+                        Quick Actions
+                    </h3>
+                    <div
+                        class="p-2 bg-violet-50 dark:bg-violet-500/10 rounded-xl"
+                    >
+                        <TrendingUp class="w-5 h-5 text-violet-500" />
+                    </div>
+                </div>
+
+                <!-- Actions List -->
+                <div class="space-y-3 flex-1">
+                    <!-- Bulk Invitation -->
+                    <Link
+                        href="#"
+                        class="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group"
+                    >
+                        <div
+                            class="p-2.5 bg-blue-100 dark:bg-blue-500/20 rounded-lg"
+                        >
+                            <Upload
+                                class="w-4 h-4 text-blue-600 dark:text-blue-400"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <h4
+                                class="text-sm font-semibold text-slate-900 dark:text-white"
+                            >
+                                Bulk Invitation
+                            </h4>
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400"
+                            >
+                                Invite multiple employees via CSV
+                            </p>
+                        </div>
+                        <ChevronRight
+                            class="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"
+                        />
+                    </Link>
+
+                    <!-- Generate SPJ Report -->
+                    <Link
+                        href="#"
+                        class="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group"
+                    >
+                        <div
+                            class="p-2.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg"
+                        >
+                            <FileText
+                                class="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <h4
+                                class="text-sm font-semibold text-slate-900 dark:text-white"
+                            >
+                                Generate SPJ Report
+                            </h4>
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400"
+                            >
+                                Download monthly analytics PDF
+                            </p>
+                        </div>
+                        <ChevronRight
+                            class="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"
+                        />
+                    </Link>
+
+                    <!-- Top Up Credits -->
+                    <Link
+                        href="#"
+                        class="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group"
+                    >
+                        <div
+                            class="p-2.5 bg-amber-100 dark:bg-amber-500/20 rounded-lg"
+                        >
+                            <CreditCard
+                                class="w-4 h-4 text-amber-600 dark:text-amber-400"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <h4
+                                class="text-sm font-semibold text-slate-900 dark:text-white"
+                            >
+                                Top Up Credits
+                            </h4>
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400"
+                            >
+                                Purchase additional consultation hours
+                            </p>
+                        </div>
+                        <ChevronRight
+                            class="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"
+                        />
+                    </Link>
+
+                    <!-- Employee Directory -->
+                    <Link
+                        href="#"
+                        class="flex items-center gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 group"
+                    >
+                        <div
+                            class="p-2.5 bg-violet-100 dark:bg-violet-500/20 rounded-lg"
+                        >
+                            <Users
+                                class="w-4 h-4 text-violet-600 dark:text-violet-400"
+                            />
+                        </div>
+                        <div class="flex-1">
+                            <h4
+                                class="text-sm font-semibold text-slate-900 dark:text-white"
+                            >
+                                Employee Directory
+                            </h4>
+                            <p
+                                class="text-xs text-slate-500 dark:text-slate-400"
+                            >
+                                Manage and view all employees
+                            </p>
+                        </div>
+                        <ChevronRight
+                            class="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors"
+                        />
+                    </Link>
                 </div>
             </div>
         </div>
-        <!-- Two Column Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Recent Employee Bookings -->
+
+        <!-- Recent Consultations Card (Full Width) -->
+        <div
+            class="rounded-2xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden"
+        >
+            <!-- Header -->
             <div
-                class="rounded-3xl shadow-sm overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
+                class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700/50"
             >
-                <div
-                    class="p-6 border-b border-slate-100 dark:border-slate-700/50"
-                >
-                    <h2
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl">
+                        <Calendar class="w-5 h-5 text-blue-500" />
+                    </div>
+                    <h3
                         class="text-lg font-bold text-slate-900 dark:text-white"
                     >
-                        Booking Karyawan Terbaru
-                    </h2>
+                        Recent Consultations
+                    </h3>
                 </div>
-                <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                    <div
-                        v-for="booking in data.recent_bookings"
-                        :key="booking.id"
-                        class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
-                    >
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <p
-                                    class="font-semibold text-slate-900 dark:text-white"
-                                >
-                                    {{ booking.employee_name }}
-                                </p>
-                                <p
-                                    class="text-sm text-slate-500 dark:text-slate-400"
-                                >
-                                    dengan {{ booking.expert_name }}
-                                </p>
-                            </div>
-                            <div class="text-right">
-                                <span
-                                    :class="getStatusColor(booking.status)"
-                                    class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
-                                >
-                                    {{ booking.status }}
-                                </span>
-                                <p
-                                    class="text-xs text-slate-400 dark:text-slate-500 mt-1"
-                                >
-                                    {{ formatCurrency(booking.price) }}
-                                </p>
-                            </div>
-                        </div>
-                        <p
-                            class="text-xs text-slate-400 dark:text-slate-500 mt-2"
-                        >
-                            {{ formatDate(booking.date_time) }}
-                        </p>
-                    </div>
-
-                    <div
-                        v-if="
-                            !data.recent_bookings ||
-                            data.recent_bookings.length === 0
-                        "
-                        class="p-8 text-center text-slate-500 dark:text-slate-400"
-                    >
-                        Belum ada booking dari karyawan.
-                    </div>
-                </div>
+                <Link
+                    href="#"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                >
+                    View All
+                    <ChevronRight class="w-4 h-4" />
+                </Link>
             </div>
 
-            <!-- Recent Ledger -->
+            <!-- Table Header -->
             <div
-                class="rounded-3xl shadow-sm overflow-hidden bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50"
+                class="grid grid-cols-5 gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700"
             >
-                <div
-                    class="p-6 border-b border-slate-100 dark:border-slate-700/50 flex items-center justify-between"
+                <span
+                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    >Employee</span
                 >
-                    <h2
-                        class="text-lg font-bold text-slate-900 dark:text-white"
-                    >
-                        Riwayat Transaksi Kuota
-                    </h2>
-                    <Link
-                        :href="route('topup.history')"
-                        class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                    >
-                        Lihat Semua
-                    </Link>
-                </div>
-                <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                    <div
-                        v-for="ledger in data.recent_ledger"
-                        :key="ledger.id"
-                        class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
-                    >
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    :class="getLedgerTypeColor(ledger.type)"
-                                    class="p-2 rounded-xl"
-                                >
-                                    <ArrowUpRight
-                                        v-if="ledger.type === 'credit'"
-                                        class="w-4 h-4"
-                                    />
-                                    <ArrowDownLeft v-else class="w-4 h-4" />
-                                </div>
-                                <div>
-                                    <p
-                                        class="font-medium text-slate-900 dark:text-white text-sm"
-                                    >
-                                        {{
-                                            ledger.reference_type === "booking"
-                                                ? "Booking"
-                                                : ledger.reference_type ===
-                                                  "topup"
-                                                ? "Top Up"
-                                                : "Refund"
-                                        }}
-                                    </p>
-                                    <p
-                                        class="text-xs text-slate-500 dark:text-slate-400"
-                                    >
-                                        {{ ledger.user_name }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p
-                                    :class="
-                                        ledger.type === 'credit'
-                                            ? 'text-emerald-600 dark:text-emerald-400'
-                                            : 'text-red-600 dark:text-red-400'
-                                    "
-                                    class="font-bold"
-                                >
-                                    {{ ledger.type === "credit" ? "+" : "-"
-                                    }}{{ formatCurrency(ledger.amount) }}
-                                </p>
-                                <p
-                                    class="text-xs text-slate-400 dark:text-slate-500"
-                                >
-                                    Saldo:
-                                    {{ formatCurrency(ledger.balance_after) }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                <span
+                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    >Topic</span
+                >
+                <span
+                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    >Expert</span
+                >
+                <span
+                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    >Date</span
+                >
+                <span
+                    class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                    >Status</span
+                >
+            </div>
 
-                    <div
-                        v-if="
-                            !data.recent_ledger ||
-                            data.recent_ledger.length === 0
-                        "
-                        class="p-8 text-center text-slate-500 dark:text-slate-400"
-                    >
-                        Belum ada transaksi kuota.
+            <!-- Table Body -->
+            <div class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                <!-- Row 1 -->
+                <div
+                    class="grid grid-cols-5 gap-4 px-6 py-4 items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                            JD
+                        </div>
+                        <span
+                            class="text-sm font-medium text-slate-900 dark:text-white"
+                            >John Doe</span
+                        >
                     </div>
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Financial Planning</span
+                    >
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Dr. Emily Chen</span
+                    >
+                    <span class="text-sm text-slate-500 dark:text-slate-400"
+                        >Sep 28, 2023</span
+                    >
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400"
+                    >
+                        <span
+                            class="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                        ></span>
+                        Completed
+                    </span>
+                </div>
+                <!-- Row 2 -->
+                <div
+                    class="grid grid-cols-5 gap-4 px-6 py-4 items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                            AS
+                        </div>
+                        <span
+                            class="text-sm font-medium text-slate-900 dark:text-white"
+                            >Alice Smith</span
+                        >
+                    </div>
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Stress Management</span
+                    >
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Dr. Mark Wilson</span
+                    >
+                    <span class="text-sm text-slate-500 dark:text-slate-400"
+                        >Sep 22, 2023</span
+                    >
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400"
+                    >
+                        <span
+                            class="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                        ></span>
+                        Completed
+                    </span>
+                </div>
+                <!-- Row 3 -->
+                <div
+                    class="grid grid-cols-5 gap-4 px-6 py-4 items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs font-semibold"
+                        >
+                            MB
+                        </div>
+                        <span
+                            class="text-sm font-medium text-slate-900 dark:text-white"
+                            >Michael Brown</span
+                        >
+                    </div>
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Career Growth</span
+                    >
+                    <span class="text-sm text-slate-600 dark:text-slate-300"
+                        >Sarah Johnson</span
+                    >
+                    <span class="text-sm text-slate-500 dark:text-slate-400"
+                        >Sep 20, 2023</span
+                    >
+                    <span
+                        class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400"
+                    >
+                        <span
+                            class="w-1.5 h-1.5 rounded-full bg-emerald-500"
+                        ></span>
+                        Completed
+                    </span>
                 </div>
             </div>
         </div>
