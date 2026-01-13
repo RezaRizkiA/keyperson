@@ -31,7 +31,7 @@ const toggleSidebar = () => {
             <Topbar @open-mobile-menu="isMobileMenuOpen = true" />
 
             <div class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
-                <div class="max-w-7xl mx-auto h-full">
+                <div class="max-w-screen mx-auto h-full">
                     <slot />
                 </div>
             </div>
