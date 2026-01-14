@@ -817,7 +817,7 @@ const engagementChangeIsPositive = computed(() => {
                 >
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold"
+                            class="w-8 h-8 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold"
                         >
                             JD
                         </div>
@@ -850,7 +850,7 @@ const engagementChangeIsPositive = computed(() => {
                 >
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs font-semibold"
+                            class="w-8 h-8 rounded-full bg-linear-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-xs font-semibold"
                         >
                             AS
                         </div>
@@ -883,7 +883,7 @@ const engagementChangeIsPositive = computed(() => {
                 >
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs font-semibold"
+                            class="w-8 h-8 rounded-full bg-linear-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs font-semibold"
                         >
                             MB
                         </div>
