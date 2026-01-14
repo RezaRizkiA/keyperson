@@ -1,12 +1,13 @@
 <script setup>
 import { Head, Link, usePage } from "@inertiajs/vue3";
 import { ShieldX, ArrowLeft, Home, Building2 } from "lucide-vue-next";
+import { computed } from "vue";
 
 const props = defineProps({
     title: { type: String, default: "Akses Ditolak" },
     message: {
         type: String,
-        default: "Anda tidak memiliki akses ke halaman ini.",
+        default: "You do not have permission to access this page.",
     },
     description: { type: String, default: null },
     clientName: { type: String, default: null },
@@ -14,88 +15,110 @@ const props = defineProps({
 
 const page = usePage();
 const user = page.props.auth?.user;
+
+// Cek Role User untuk menentukan dashboard route
+const userRoles = computed(() => page.props.auth?.user?.roles || []);
+const isAdmin = computed(() => userRoles.value.includes("administrator"));
+const isClient = computed(() => userRoles.value.includes("client"));
+const isExpert = computed(() => userRoles.value.includes("expert"));
+
+// Computed route untuk Dashboard berdasarkan role
+const dashboardRoute = computed(() => {
+    if (isAdmin.value) return "dashboard.administrator.index";
+    if (isClient.value) return "dashboard.client.index";
+    if (isExpert.value) return "dashboard.expert.index";
+    // Fallback untuk user biasa
+    return "dashboard.user.index";
+});
+
+// Get user initials for avatar
+const userInitials = computed(() => {
+    if (!user?.name) return "?";
+    const names = user.name.split(" ");
+    if (names.length >= 2) {
+        return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return names[0].substring(0, 2).toUpperCase();
+});
 </script>
 
 <template>
     <Head :title="title" />
 
     <div
-        class="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-900 via-red-900/20 to-slate-900 p-4"
+        class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-linear-to-br from-slate-800 via-slate-700 to-slate-600"
     >
-        <div class="w-full max-w-lg text-center">
-            <!-- Decorative Background Elements -->
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div
-                    class="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/5 rounded-full blur-3xl"
-                ></div>
-                <div
-                    class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl"
-                ></div>
-            </div>
-
-            <!-- Error Card -->
+        <!-- Decorative Background Blobs -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- Purple/Pink blob on right -->
             <div
-                class="relative p-8 md:p-10 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+                class="absolute -top-32 -right-32 w-[700px] h-[700px] rounded-full bg-linear-to-br from-pink-500/30 via-purple-500/20 to-transparent blur-3xl"
+            ></div>
+            <!-- Blue blob on bottom left -->
+            <div
+                class="absolute -bottom-48 -left-48 w-[600px] h-[600px] rounded-full bg-linear-to-tr from-blue-500/20 via-indigo-500/15 to-transparent blur-3xl"
+            ></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="w-full max-w-xl text-center relative z-10">
+            <!-- Glassmorphism Card -->
+            <div
+                class="relative px-10 py-10 rounded-3xl backdrop-blur-xl border border-white/20 shadow-2xl bg-slate-600/40"
             >
-                <!-- Icon with Pulse Animation -->
-                <div class="relative mb-8">
+                <!-- Shield Icon -->
+                <div class="flex justify-center mb-6">
                     <div
-                        class="w-20 h-20 mx-auto rounded-2xl bg-linear-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center"
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center bg-linear-to-br from-rose-500 to-red-500"
                     >
-                        <ShieldX class="w-10 h-10 text-red-400" />
+                        <ShieldX class="w-8 h-8 text-white" />
                     </div>
-                    <!-- Subtle pulse ring -->
-                    <div
-                        class="absolute inset-0 w-20 h-20 mx-auto rounded-2xl bg-red-500/10 animate-ping opacity-75"
-                        style="animation-duration: 2s"
-                    ></div>
                 </div>
 
                 <!-- Title -->
-                <h1 class="text-3xl font-bold text-white mb-3">
+                <h1 class="text-2xl font-bold text-white mb-1">
                     {{ title }}
                 </h1>
 
-                <!-- Company Name Badge (if provided) -->
-                <div
-                    v-if="clientName"
-                    class="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-full bg-slate-800/50 border border-slate-700"
-                >
-                    <Building2 class="w-4 h-4 text-slate-400" />
-                    <span class="text-sm font-medium text-slate-300">{{
-                        clientName
-                    }}</span>
-                </div>
+                <!-- Subtitle -->
+                <p class="text-slate-300 text-sm mb-4">Access Denied</p>
 
                 <!-- Message -->
-                <p class="text-lg text-slate-300 mb-3">
+                <p class="text-slate-400 text-sm mb-8">
                     {{ message }}
                 </p>
 
-                <!-- Description -->
-                <p
-                    v-if="description"
-                    class="text-slate-400 mb-8 leading-relaxed"
-                >
-                    {{ description }}
-                </p>
-
-                <!-- User Info (if logged in) -->
+                <!-- User Info Box -->
                 <div
                     v-if="user"
-                    class="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/50"
+                    class="mb-8 px-6 py-4 rounded-2xl backdrop-blur-sm border border-white/10 bg-slate-700/50"
                 >
-                    <p class="text-sm text-slate-400 mb-1">
-                        Anda login sebagai:
+                    <p
+                        class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3"
+                    >
+                        Anda Login Sebagai!
                     </p>
-                    <p class="font-medium text-white">{{ user.name }}</p>
-                    <p class="text-sm text-slate-400">{{ user.email }}</p>
+                    <div class="flex items-center justify-center gap-3">
+                        <!-- Avatar with initials -->
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-500 flex items-center justify-center text-white font-semibold text-sm"
+                        >
+                            {{ userInitials }}
+                        </div>
+                        <div class="text-left">
+                            <p class="font-medium text-white text-sm">
+                                {{ user.name }}
+                            </p>
+                            <p class="text-xs text-slate-400">
+                                {{ user.email }}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div
-                    class="flex flex-col sm:flex-row items-center justify-center gap-3"
-                >
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- Portal Perusahaan Saya -->
                     <Link
                         v-if="user?.client_id"
                         :href="
@@ -103,32 +126,40 @@ const user = page.props.auth?.user;
                                 client: user.company?.slug || '',
                             })
                         "
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-medium rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/25"
+                        class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-white font-medium transition-all duration-200 hover:opacity-90 bg-linear-to-br from-blue-500 to-blue-600"
                     >
                         <Building2 class="w-5 h-5" />
-                        Portal Perusahaan Saya
+                        <span class="text-xs text-center leading-tight"
+                            >Portal<br />Perusahaan Saya</span
+                        >
                     </Link>
 
+                    <!-- Kembali ke Dashboard -->
                     <Link
-                        :href="route('dashboard.index')"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-all duration-200 border border-white/10"
+                        :href="route(dashboardRoute)"
+                        class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl backdrop-blur-sm border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 bg-slate-600/30"
                     >
                         <ArrowLeft class="w-5 h-5" />
-                        Kembali ke Dashboard
+                        <span class="text-xs text-center leading-tight"
+                            >Kembali ke<br />Dashboard</span
+                        >
                     </Link>
 
+                    <!-- Ke Beranda -->
                     <Link
                         :href="route('home')"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-medium rounded-xl transition-all duration-200"
+                        class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl backdrop-blur-sm border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 bg-slate-600/30"
                     >
                         <Home class="w-5 h-5" />
-                        Ke Beranda
+                        <span class="text-xs text-center leading-tight"
+                            >Ke<br />Beranda</span
+                        >
                     </Link>
                 </div>
             </div>
 
             <!-- Footer Text -->
-            <p class="mt-6 text-slate-500 text-sm">
+            <p class="mt-8 text-slate-400 text-sm">
                 Jika Anda memerlukan bantuan, silakan hubungi
                 <Link
                     :href="route('support')"
