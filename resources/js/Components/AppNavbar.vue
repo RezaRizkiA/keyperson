@@ -21,11 +21,15 @@ import {
 } from "@heroicons/vue/20/solid";
 
 import ThemeToggle from "@/Components/ThemeToggle.vue";
+import { useDashboardRoute } from "@/composables/useDashboardRoute";
 
 // --- 1. SETUP DATA ---
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const assets = computed(() => page.props.assets);
+
+// Menggunakan composable untuk role dan dashboard route
+const { dashboardRoute } = useDashboardRoute();
 
 // --- 2. LOGIC DETEKSI HALAMAN GELAP (DARK HERO) ---
 // Daftar route yang memiliki background banner gelap di bagian atas
@@ -263,7 +267,7 @@ const isActive = (name) => route().current(name);
                                     <div class="px-1 py-1">
                                         <MenuItem v-slot="{ active }">
                                             <Link
-                                                :href="route('dashboard.index')"
+                                                :href="route(dashboardRoute)"
                                                 :class="[
                                                     active
                                                         ? 'bg-blue-500/10 text-blue-400'
@@ -464,7 +468,9 @@ const isActive = (name) => route().current(name);
                                 </Link>
                                 <div class="grid grid-cols-2 gap-3 mt-4">
                                     <Link
-                                        :href="route('client_onboarding.create')"
+                                        :href="
+                                            route('client_onboarding.create')
+                                        "
                                         class="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 active:scale-95 transition-transform"
                                     >
                                         <UserGroupIcon class="h-6 w-6 mb-1" />
@@ -473,7 +479,9 @@ const isActive = (name) => route().current(name);
                                         >
                                     </Link>
                                     <Link
-                                        :href="route('expert_onboarding.create')"
+                                        :href="
+                                            route('expert_onboarding.create')
+                                        "
                                         class="flex flex-col items-center justify-center p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 active:scale-95 transition-transform"
                                     >
                                         <BriefcaseIcon class="h-6 w-6 mb-1" />
