@@ -3,40 +3,17 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
-use App\Services\Clients\ClientService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class ClientController extends Controller
+class BudgetController extends Controller
 {
-    protected $clientService;
-
-    public function __construct(ClientService $clientService)
-    {
-        $this->clientService = $clientService;
-    }
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        try {
-            $user = Auth::user();
-            $client = $user->ownedClient;
-            if (! $client) {
-                return redirect()->route('client_onboarding.create')
-                    ->with('info', 'Silahkan lengkapi profile perusahaan anda terlebih dahulu');
-            }
-            $data = $this->clientService->getDashboardData($client->id);
-
-            return Inertia::render('Client/Dashboard/Overview', [
-                'data' => $data,
-            ]);
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        return Inertia::render('Client/Dashboard/Budget');
     }
 
     /**

@@ -145,7 +145,7 @@ const submit = () => {
                     <!-- Google Sign Up (only on create mode) -->
                     <div v-if="!isEditMode" class="mb-6">
                         <a
-                            :href="route('google.login')"
+                            :href="route('google.login.client')"
                             class="group flex w-full items-center justify-center gap-3 rounded-xl px-5 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm"
                         >
                             <img

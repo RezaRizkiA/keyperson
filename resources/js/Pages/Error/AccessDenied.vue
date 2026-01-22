@@ -2,6 +2,7 @@
 import { Head, Link, usePage } from "@inertiajs/vue3";
 import { ShieldX, ArrowLeft, Home, Building2 } from "lucide-vue-next";
 import { computed } from "vue";
+import { useDashboardRoute } from "@/composables/useDashboardRoute";
 
 const props = defineProps({
     title: { type: String, default: "Akses Ditolak" },
@@ -16,20 +17,8 @@ const props = defineProps({
 const page = usePage();
 const user = page.props.auth?.user;
 
-// Cek Role User untuk menentukan dashboard route
-const userRoles = computed(() => page.props.auth?.user?.roles || []);
-const isAdmin = computed(() => userRoles.value.includes("administrator"));
-const isClient = computed(() => userRoles.value.includes("client"));
-const isExpert = computed(() => userRoles.value.includes("expert"));
-
-// Computed route untuk Dashboard berdasarkan role
-const dashboardRoute = computed(() => {
-    if (isAdmin.value) return "dashboard.administrator.index";
-    if (isClient.value) return "dashboard.client.index";
-    if (isExpert.value) return "dashboard.expert.index";
-    // Fallback untuk user biasa
-    return "dashboard.user.index";
-});
+// Menggunakan composable untuk dashboard route
+const { dashboardRoute } = useDashboardRoute();
 
 // Get user initials for avatar
 const userInitials = computed(() => {

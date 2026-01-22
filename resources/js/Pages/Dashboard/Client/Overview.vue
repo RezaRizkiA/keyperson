@@ -2,14 +2,10 @@
 import { Head, Link } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import {
-    Building2,
     Users,
     Wallet,
     TrendingUp,
     Calendar,
-    Clock,
-    CheckCircle,
-    CreditCard,
     Plus,
     History,
     ArrowUpRight,
@@ -106,7 +102,7 @@ const getLedgerTypeColor = (type) => {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Quota Balance -->
             <div
-                class="relative overflow-hidden p-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                class="relative overflow-hidden p-6 rounded-3xl bg-linear-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
             >
                 <div
                     class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full -mr-8 -mt-8"

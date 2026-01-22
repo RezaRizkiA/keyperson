@@ -42,7 +42,7 @@ class EligibleForOnboarding
 
         // Block jika sudah jadi Client DAN sudah punya profil Client
         if ($user->hasRole('client') && $user->ownedClient) {
-            return redirect()->route('dashboard.index')
+            return redirect()->route('dashboard.client.index')
                 ->with('info', 'Anda sudah terdaftar sebagai Client.');
         }
         return $next($request);

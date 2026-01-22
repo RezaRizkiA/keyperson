@@ -18,6 +18,7 @@ import {
     Wallet,
     UserPlus,
 } from "lucide-vue-next";
+import { useDashboardRoute } from "@/composables/useDashboardRoute";
 
 const props = defineProps({
     isSidebarExpanded: Boolean,
@@ -28,10 +29,8 @@ const emit = defineEmits(["toggleSidebar", "closeMobileMenu"]);
 const page = usePage();
 const assets = computed(() => page.props.assets || {});
 
-// Cek Role User untuk filter menu
-const userRoles = computed(() => page.props.auth?.user?.roles || []);
-const isAdmin = computed(() => userRoles.value.includes("administrator"));
-const isClient = computed(() => userRoles.value.includes("client"));
+// Menggunakan composable untuk role dan dashboard route
+const { isAdmin, isClient, isExpert, dashboardRoute } = useDashboardRoute();
 
 // Daftar Menu
 const menuSections = computed(() => [
@@ -39,8 +38,8 @@ const menuSections = computed(() => [
         title: "MAIN",
         items: [
             {
-                label: "Dashboard",
-                route: "dashboard.index",
+                label: "Overview",
+                route: dashboardRoute.value,
                 icon: LayoutDashboard,
                 show: true,
             },
@@ -69,51 +68,51 @@ const menuSections = computed(() => [
             },
         ],
     },
-    {
-        title: "SCHEDULING",
-        items: [
-            {
-                label: "Appointments",
-                route: "dashboard.appointments.index",
-                icon: Briefcase,
-                show: true,
-            },
-            {
-                label: "Skills & Expertise",
-                route: "dashboard.expertises.index",
-                icon: Layers,
-                show: isAdmin.value,
-            },
-        ],
-    },
-    {
-        title: "FINANCIALS",
-        items: [
-            {
-                label: "Transactions",
-                route: "dashboard.transactions.index",
-                icon: CreditCard,
-                show: true,
-            },
-            {
-                label: "Top Up Quota",
-                route: "topup.create",
-                icon: Wallet,
-                show: isClient.value,
-            },
-        ],
-    },
-    {
-        title: "COMPANY",
-        items: [
-            {
-                label: "Employees",
-                route: "employees.index",
-                icon: UserPlus,
-                show: isClient.value,
-            },
-        ],
-    },
+    // {
+    //     title: "SCHEDULING",
+    //     items: [
+    //         {
+    //             label: "Appointments",
+    //             route: "dashboard.appointments.index",
+    //             icon: Briefcase,
+    //             show: true,
+    //         },
+    //         {
+    //             label: "Skills & Expertise",
+    //             route: "dashboard.expertises.index",
+    //             icon: Layers,
+    //             show: isAdmin.value,
+    //         },
+    //     ],
+    // },
+    // {
+    //     title: "FINANCIALS",
+    //     items: [
+    //         {
+    //             label: "Transactions",
+    //             route: "dashboard.transactions.index",
+    //             icon: CreditCard,
+    //             show: true,
+    //         },
+    //         {
+    //             label: "Top Up Quota",
+    //             route: "topup.create",
+    //             icon: Wallet,
+    //             show: isClient.value,
+    //         },
+    //     ],
+    // },
+    // {
+    //     title: "COMPANY",
+    //     items: [
+    //         {
+    //             label: "Employees",
+    //             route: "employees.index",
+    //             icon: UserPlus,
+    //             show: isClient.value,
+    //         },
+    //     ],
+    // },
 ]);
 
 const isActive = (routeName) => {
@@ -246,7 +245,7 @@ const isActive = (routeName) => {
             class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2"
         >
             <Link
-                :href="route('profile.edit')"
+                :href="route('dashboard.administrator.profile.edit')"
                 class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-200 group"
             >
                 <Settings

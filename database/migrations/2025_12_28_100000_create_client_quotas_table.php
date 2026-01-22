@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('client_quotas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('client_id')->unique()->constrained('clients')->onDelete('cascade');
-            $table->bigInteger('balance')->default(0); // Saldo dalam Rupiah
+            $table->bigInteger('balance')->default(0);
             $table->timestamps();
         });
     }

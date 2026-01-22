@@ -63,7 +63,6 @@ class DashboardController extends Controller
         if (in_array('client', $roles)) {
             // Ambil client yang terhubung dengan user ini
             $client = $user->ownedClient; // User yang mendaftarkan perusahaan (owner)
-
             if (!$client) {
                 // Jika belum ada client, redirect ke onboarding
                 return redirect()->route('client_onboarding.create')
@@ -72,7 +71,7 @@ class DashboardController extends Controller
 
             $stats = $this->dashboardService->getClientStats($client->id);
 
-            return Inertia::render('Client/Dashboard/Index', [
+            return Inertia::render('Dashboard/Client/Overview', [
                 'stats' => $stats,
             ]);
         }

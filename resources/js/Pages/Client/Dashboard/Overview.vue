@@ -92,6 +92,7 @@ const { formatCurrency } = useFormatters();
                     :message="data.quota_message"
                     :percentage="data.quota_percentage"
                     :balance="data.quota_balance"
+                    :max-quota="data.quota_max"
                     :action="data.quota_action"
                     :href="route('dashboard.client.budget')"
                 />

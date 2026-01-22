@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable
 {
@@ -31,7 +32,13 @@ class User extends Authenticatable
         'google_token_expires_at' => 'datetime',
         'google_scopes' => 'array',
         'calendar_connected' => 'boolean',
+        'is_active' => 'boolean',
+        'deactivated_at' => 'datetime',
     ];
+
+    // =========================================================================
+    // ATTRIBUTES
+    // =========================================================================
 
     public function getPictureUrlAttribute()
     {
@@ -60,6 +67,30 @@ class User extends Authenticatable
         );
     }
 
+    // =========================================================================
+    // SCOPES
+    // =========================================================================
+
+    /**
+     * Scope untuk filter user aktif saja
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope untuk filter user nonaktif saja
+     */
+    public function scopeInactive(Builder $query): Builder
+    {
+        return $query->where('is_active', false);
+    }
+
+    // =========================================================================
+    // RELATIONSHIPS
+    // =========================================================================
+
     /**
      * Client yang dimiliki/didaftarkan oleh user ini (jika dia HRD/Owner)
      * Berbeda dengan company() yang menunjukkan tempat user bekerja
@@ -67,14 +98,6 @@ class User extends Authenticatable
     public function ownedClient()
     {
         return $this->hasOne(Client::class, 'user_id');
-    }
-
-    /**
-     * Helper: Cek apakah user adalah owner dari client-nya
-     */
-    public function isClientOwner(): bool
-    {
-        return $this->ownedClient?->id === $this->client_id;
     }
 
     /**
@@ -86,6 +109,44 @@ class User extends Authenticatable
         return $this->belongsTo(Client::class, 'client_id');
     }
 
+    public function expert()
+    {
+        return $this->hasOne(Expert::class, 'user_id');
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * User yang menonaktifkan user ini
+     */
+    public function deactivator()
+    {
+        return $this->belongsTo(User::class, 'deactivated_by');
+    }
+
+    // =========================================================================
+    // HELPER METHODS
+    // =========================================================================
+
+    /**
+     * Cek apakah user aktif
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
+
+    /**
+     * Helper: Cek apakah user adalah owner dari client-nya
+     */
+    public function isClientOwner(): bool
+    {
+        return $this->ownedClient?->id === $this->client_id;
+    }
+
     /**
      * Cek apakah user adalah member dari sebuah perusahaan (B2B)
      */
@@ -94,18 +155,35 @@ class User extends Authenticatable
         return !is_null($this->client_id);
     }
 
-    public function expert()
-    {
-        return $this->hasOne(Expert::class, 'user_id');
-    }
-
     public function hasRole(string $role): bool
     {
         return in_array($role, $this->roles ?? [], true);
     }
 
-    public function appointments()
+    /**
+     * Nonaktifkan user
+     * 
+     * @param int|null $deactivatedBy ID user yang menonaktifkan
+     */
+    public function deactivate(?int $deactivatedBy = null): bool
     {
-        return $this->hasMany(Appointment::class);
+        return $this->update([
+            'is_active' => false,
+            'deactivated_at' => now(),
+            'deactivated_by' => $deactivatedBy,
+        ]);
+    }
+
+    /**
+     * Aktifkan kembali user
+     */
+    public function activate(): bool
+    {
+        return $this->update([
+            'is_active' => true,
+            'deactivated_at' => null,
+            'deactivated_by' => null,
+        ]);
     }
 }
+

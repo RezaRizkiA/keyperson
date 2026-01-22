@@ -60,6 +60,10 @@
     --color-glow-blue-light: #60a5fa;
     --color-glow-blue-dark: #2563eb;
     --color-glow-cyan: #06b6d4;
+
+    /* Custom Colors */
+    --color-primary: #14659f;
+    --color-secondary: #0f4c75;
 }
 
 /* ===========================================

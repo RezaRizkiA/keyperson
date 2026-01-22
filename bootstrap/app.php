@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Auth\Middleware\Authenticate;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -11,6 +12,7 @@ use App\Http\Middleware\NotExpert;
 use App\Http\Middleware\EligibleForOnboarding;
 use App\Http\Middleware\EnsureClientAccess;
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckUserActive;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,14 +30,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'eligible-onboarding' => EligibleForOnboarding::class,
             'client-access' => EnsureClientAccess::class,
             'role' => CheckRole::class,
+            'active' => CheckUserActive::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'payment/notify',
         ]);
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class, // <--- TAMBAHKAN INI
+            HandleInertiaRequests::class,
+            CheckUserActive::class, // Cek user aktif di setiap request
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+

@@ -120,20 +120,20 @@ class ClientService
         if ($percentage >= 50) {
             return [
                 'status' => 'healthy',
-                'message' => 'Kredit konsultasi dalam kondisi sehat',
+                'message' => 'Credit consultation is healthy',
                 'action' => null,
             ];
         } elseif ($percentage >= 20) {
             return [
                 'status' => 'warning',
-                'message' => 'Kredit konsultasi mulai menipis',
-                'action' => 'Pertimbangkan untuk top up.',
+                'message' => 'Credit consultation is starting to be low',
+                'action' => 'Consider top up.',
             ];
         } else {
             return [
                 'status' => 'critical',
-                'message' => 'Kredit konsultasi sangat rendah',
-                'action' => 'Action Required: Isi ulang kuota Anda.',
+                'message' => 'Credit consultation is very low',
+                'action' => 'Action Required: Top up your quota.',
             ];
         }
     }

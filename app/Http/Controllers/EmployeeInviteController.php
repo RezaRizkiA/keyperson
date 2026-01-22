@@ -42,7 +42,7 @@ class EmployeeInviteController extends Controller
         $currentEmployeeCount = $employees->count();
         $employeeLimit = $client->employee_limit ?? 50;
 
-        return Inertia::render('Client/Employees/Index', [
+        return Inertia::render('Dashboard/Client/Employee', [
             'client' => $client->only('id', 'company_name', 'employee_limit'),
             'employees' => $employees,
             'pendingInvites' => $pendingInvites,

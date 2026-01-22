@@ -67,6 +67,25 @@ class AuthController extends Controller
             ->redirect();
     }
 
+    /**
+     * Google login specifically for client/HRD registration
+     * This will assign 'client' role upon successful registration
+     */
+    public function google_login_as_client()
+    {
+        // Store intent in session to be checked in callback
+        session()->put('google_registration_intent', 'client');
+
+        return Socialite::driver('google')
+            ->scopes(['openid', 'email', 'profile'])
+            ->with([
+                'access_type' => 'offline',
+                'prompt' => 'consent',
+                'include_granted_scopes' => 'true',
+            ])
+            ->redirect();
+    }
+
     public function google_calendar_connect(Request $request)
     {
         // Tangkap dan simpan URL asal (jika ada)
@@ -120,11 +139,25 @@ class AuthController extends Controller
                     'google_scopes' => $grantedScopes,
                     'calendar_connected' => $calendarGranted,
                 ]);
+
+                // If existing user is registering as client, add client role
+                $registrationIntent = session()->pull('google_registration_intent');
+                if ($registrationIntent === 'client' && ! in_array('client', $user->roles ?? [])) {
+                    $user->roles = array_unique(array_merge($user->roles ?? [], ['client']));
+                    $user->save();
+                }
             } else {
+                // Determine roles based on registration intent
+                $registrationIntent = session()->pull('google_registration_intent');
+                $roles = ['user'];
+                if ($registrationIntent === 'client') {
+                    $roles = ['user', 'client'];
+                }
+
                 $user = User::create([
                     'email' => $googleUser->email,
                     'name' => $googleUser->name,
-                    'roles' => ['user'],
+                    'roles' => $roles,
                     'google_id' => $googleUser->id,
                     'google_access_token' => $googleUser->token,
                     'google_refresh_token' => $googleUser->refreshToken,

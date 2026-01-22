@@ -186,7 +186,7 @@ class ClientRegistrationController extends Controller
                 $data
             );
 
-            return redirect()->route('dashboard.index')
+            return redirect()->route('dashboard.client.index')
                 ->with('success', 'Selamat! Profil perusahaan Anda berhasil dibuat.');
         } catch (\Exception $e) {
             \Log::error('Client Onboarding Error: '.$e->getMessage().' | Trace: '.$e->getTraceAsString());
